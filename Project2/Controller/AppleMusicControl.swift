@@ -27,10 +27,49 @@ class AppleMusicControl: NSObject {
     let authorizationDidUpdateNotification = Notification.Name("authorizationDidUpdateNotification")
     
     /// The `UserDefaults` key for storing and retrieving the Music User Token associated with the currently signed in iTunes Store account.
-    let userTokenUserDefaultsKey = "UserTokenUserDefaultsKey"
+    static let userTokenUserDefaultsKey = "UserTokenUserDefaultsKey"
+ /*
+    init(appleMusicManager: AppleMusicManager) {
+        self.appleMusicManager = appleMusicManager
         
+        super.init()
         
-    
+        let notificationCenter = NotificationCenter.default
+        
+        /*
+         It is important that your application listens to the `SKCloudServiceCapabilitiesDidChangeNotification` and
+         `SKStorefrontCountryCodeDidChangeNotification` notifications so that your application can update its state and functionality
+         when these values change if needed.
+         */
+        
+        notificationCenter.addObserver(self,
+                                       selector: #selector(requestCloudServiceCapabilities),
+                                       name: .SKCloudServiceCapabilitiesDidChange,
+                                       object: nil)
+        if #available(iOS 11.0, *) {
+            notificationCenter.addObserver(self,
+                                           selector: #selector(requestStorefrontCountryCode),
+                                           name: .SKStorefrontCountryCodeDidChange,
+                                           object: nil)
+        }
+        
+        /*
+         If the application has already been authorized in a previous run or manually by the user then it can request
+         the current set of `SKCloudServiceCapability` and Storefront Identifier.
+         */
+        if SKCloudServiceController.authorizationStatus() == .authorized {
+            requestCloudServiceCapabilities()
+            
+            /// Retrieve the Music User Token for use in the application if it was stored from a previous run.
+            if let token = UserDefaults.standard.string(forKey: AppleMusicControl.userTokenUserDefaultsKey) {
+                userToken = token
+            } else {
+                /// The token was not stored previously then request one.
+                requestUserToken()
+            }
+        }
+    }
+*/
     func requestCloudServiceAuthorization() {
     
             print("cloud service autho reached")
@@ -110,7 +149,8 @@ class AppleMusicControl: NSObject {
                 print("Unexpected value from SKCloudServiceController for storefront country code.")
                 return
             }
-            
+            //print ("we did this guy 1")
+            //print (countryCode)
             self?.cloudServiceStorefrontCountryCode = countryCode
             
             NotificationCenter.default.post(name: (self?.cloudServiceDidUpdateNotification)!, object: nil)
@@ -122,6 +162,7 @@ class AppleMusicControl: NSObject {
                  On iOS 11.0 or later, if the `SKCloudServiceController.authorizationStatus()` is `.authorized` then you can request the storefront
                  country code.
                  */
+                //print("we did this guy 2")
                 cloudServiceController.requestStorefrontCountryCode(completionHandler: completionHandler)
             } else {
                 appleMusicManager.performAppleMusicGetUserStorefront(userToken: userToken, completion: completionHandler)
@@ -135,7 +176,8 @@ class AppleMusicControl: NSObject {
         guard let developerToken = self.fetchDeveloperToken() else {
             return
         }
-        
+        //print("we did this guy 4")
+        self.requestStorefrontCountryCode()
         if SKCloudServiceController.authorizationStatus() == .authorized {
             
             let completionHandler: (String?, Error?) -> Void = { [weak self] (token, error) in
@@ -154,19 +196,22 @@ class AppleMusicControl: NSObject {
                 /// Store the Music User Token for future use in your application.
                 let userDefaults = UserDefaults.standard
                 
-                userDefaults.set(token, forKey: (self?.userTokenUserDefaultsKey)!)
+                userDefaults.set(token, forKey: (AppleMusicControl.userTokenUserDefaultsKey))
                 userDefaults.synchronize()
                 
                 if self?.cloudServiceStorefrontCountryCode == "" {
                     self?.requestStorefrontCountryCode()
+                    //print ("we did this guy 3")
                 }
                 
                 NotificationCenter.default.post(name: (self?.cloudServiceDidUpdateNotification)!, object: nil)
             }
             
             if #available(iOS 11.0, *) {
+                //print("ios 11")
                 cloudServiceController.requestUserToken(forDeveloperToken: developerToken, completionHandler: completionHandler)
             } else {
+                //print("< ios 11")
                 cloudServiceController.requestPersonalizationToken(forClientToken: developerToken, withCompletionHandler: completionHandler)
             }
         }
@@ -186,7 +231,7 @@ class AppleMusicControl: NSObject {
     func fetchDeveloperToken() -> String? {
         
         // MARK: ADAPT: YOU MUST IMPLEMENT THIS METHOD
-        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTIyMzc2MjkyLCJleHAiOjE1MjY2OTYyOTJ9.ANe09NkjAhMSGtjtKet8gwwOnIjsApWzW0em0SanZBE0aUWf-I-k02Q5vyg_Oq8vOaZxED2442zhmMGDoqZV1Q"
+        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTM2NTEzNzM1LCJleHAiOjE1NDA4MzM3MzV9.ER-u0V7vTvM3V-5j0v7cJIe5JxhAekWHpz_Hzmg2r4XPTJHqFti9k6mBgmZVabv7qjE7dB8TfZMapo35JG201g"
         return developerAuthenticationToken
     }
     
@@ -194,7 +239,7 @@ class AppleMusicControl: NSObject {
     func initialize() {
         
         let notificationCenter = NotificationCenter.default
-        
+        //print("yeah yeah 1")
         /*
          It is important that your application listens to the `SKCloudServiceCapabilitiesDidChangeNotification` and
          `SKStorefrontCountryCodeDidChangeNotification` notifications so that your application can update its state and functionality
@@ -210,21 +255,30 @@ class AppleMusicControl: NSObject {
                                            selector: #selector(requestStorefrontCountryCode),
                                            name: .SKStorefrontCountryCodeDidChange,
                                            object: nil)
+            //print ("yeah yeah 2")
         }
         
         if SKCloudServiceController.authorizationStatus() == .authorized {
             requestCloudServiceCapabilities()
-            
+            //print ("yeah yeah 3")
             /// Retrieve the Music User Token for use in the application if it was stored from a previous run.
-            if let token = UserDefaults.standard.string(forKey: userTokenUserDefaultsKey) {
+            
+            
+            
+            if let token = UserDefaults.standard.string(forKey: AppleMusicControl.userTokenUserDefaultsKey) {
                 userToken = token
+                self.requestStorefrontCountryCode()
+                //print("then this")
             } else {
                 /// The token was not stored previously then request one.
+                
                 requestUserToken()
             }
+            
+            
         }
     }
-    
+
     
     
     

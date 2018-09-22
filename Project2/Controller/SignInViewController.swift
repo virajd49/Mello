@@ -23,24 +23,37 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     let appleauthority = AppleMusicControl()
     var access_token = ""
     let playlist_access = UserAccess(musicPlayerController: MPMusicPlayerController.applicationMusicPlayer, myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
-    
+   
     
     
     
     func setup(){
         
         SPTAuth.defaultInstance().clientID = "5b5198fe415746c0a9410281d041a4f9"
-        SPTAuth.defaultInstance().redirectURL = URL(string: "spotify-tutorial-login://callback" )
+        SPTAuth.defaultInstance().redirectURL = URL(string: "viraj-project2://callback" )
+        SPTAuth.defaultInstance().tokenSwapURL = URL(string: "https://viraj-project2.herokuapp.com/swap")
+        SPTAuth.defaultInstance().tokenRefreshURL = URL(string: "https://viraj-project2.herokuapp.com/refresh")
         SPTAuth.defaultInstance().requestedScopes = [SPTAuthStreamingScope, SPTAuthPlaylistReadPrivateScope, SPTAuthPlaylistModifyPublicScope, SPTAuthPlaylistModifyPrivateScope, SPTAuthUserLibraryReadScope, SPTAuthUserLibraryModifyScope]
-        loginUrl = SPTAuth.defaultInstance().spotifyWebAuthenticationURL()
+      //loginUrl = SPTAuth.defaultInstance().spotifyWebAuthenticationURL()
+        loginUrl = URL(string: "https://accounts.spotify.com/authorize?nolinks=true&nosignup=true&response_type=token&scope=streaming%20playlist-read-private%20playlist-modify-public%20playlist-modify-private%20user-library-read%20user-library-modify&utm_source=spotify-sdk&utm_medium=ios-sdk&utm_campaign=ios-sdk&redirect_uri=viraj-project2%3A%2F%2Fcallback&show_dialog=true&client_id=5b5198fe415746c0a9410281d041a4f9")
+        print(loginUrl)
+        print (URL(string: "viraj-project2://callback" ))
+        print (URL(string: "https://viraj-project2.herokuapp.com/swap"))
+      print(SPTAuth.defaultInstance().spotifyAppAuthenticationURL())
+      
+        
+        
+        
     }
     
     @IBAction func signIn(_ sender: Any) {
         self.performSegue(withIdentifier: "toNewsFeed", sender: self)
+        /*
         if SPTAuth.supportsApplicationAuthentication() {
             UIApplication.shared.open(loginUrl!, options: [:], completionHandler: nil)
-            
+           
         } else {
+         */
             
             if UIApplication.shared.openURL(loginUrl!)
             {
@@ -49,7 +62,7 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
                     
                 }
             }
-        }
+        //}
     }
     @IBAction func signInToAppleMusic(_ sender: Any) {
         appleauthority.requestCloudServiceAuthorization()
@@ -63,6 +76,34 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
          //NotificationCenter.default.addObserver(self, selector: #selector(self.movetonewsfeed), name: Notification.Name(rawValue: "loggedinperformsegue"), object: nil )
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateAfterFirstLogin), name: Notification.Name(rawValue: "loginSuccessfull"), object: nil )
         print("out here1")
+        
+        if let sessionObj: AnyObject = userDefaults.object(forKey: "SpotifySession") as AnyObject {
+            let sessionDataObj = sessionObj as! NSData
+            
+            let session =  NSKeyedUnarchiver.unarchiveObject(with: sessionDataObj as Data) as! SPTSession
+            
+            if !session.isValid(){
+                print("Session is not valid")
+                SPTAuth.defaultInstance().renewSession(session) { (error, session) in
+                    if error == nil {
+                        let sessionData = NSKeyedArchiver.archivedData(withRootObject: session!)
+                        self.userDefaults.set(sessionData, forKey: "SpotifySession")
+                        self.userDefaults.synchronize()
+                        self.session = session
+                        print("Session was refreshed")
+                    }else{
+                        print(error)
+                        print("error refreshing session")
+                    }
+                    } 
+            }else {
+                print("Session is valid")
+            }
+            
+ 
+        
+        }
+ 
         
         appleauthority.initialize()
         
@@ -110,6 +151,7 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     func audioStreamingDidLogin(_ audioStreaming: SPTAudioStreamingController!) {
         // after a user authenticates a session, the SPTAudioStreamingController is then initialized and this method called
         print("logged in")
+       
         let request1: URLRequest = try! SPTUser.createRequestForCurrentUser(withAccessToken: self.session.accessToken)
         print (self.session.accessToken)
         SPTRequest.sharedHandler().perform(request1, callback: { (error,response, data) in

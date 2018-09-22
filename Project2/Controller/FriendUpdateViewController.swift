@@ -29,7 +29,10 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
     let searchController = UISearchController(searchResultsController: nil)
     var temp_albumArt_string: String?
     var temp_player_string: String?
-    var temp_song_string: String?
+    var temp_song_ID: String?
+    var temp_start_float: Float?
+    var temp_end_float: Float?
+    var temp_lyric_var: String?
     
     
     struct Storyboard {
@@ -121,9 +124,11 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
                     //UIApplication.shared.keyWindow?.rootViewController?.present(letsSeeUpdate, animated: true, completion: nil)
                     //letsSeeUpdate.show()
                     temp_albumArt_string = tappedCell.update.albumArt
-                    //temp_player_string = tappedCell.update.playerType
-                    temp_player_string = "Youtube"
-                    temp_song_string = tappedCell.update.SongID
+                    temp_player_string = tappedCell.update.playerType
+                    temp_song_ID = tappedCell.update.SongID
+                    temp_start_float = tappedCell.update.start_time
+                    temp_end_float = tappedCell.update.end_time
+                    temp_lyric_var = tappedCell.update.lyric
                     print(tappedCell.update.albumArt)
                     print(temp_albumArt_string)
                     
@@ -144,10 +149,25 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
             if let destination = segue.destination as? ShowUpdateController {
                 
                 destination.albumArt_string =  temp_albumArt_string
-                destination.song_name = temp_song_string
+                destination.song_ID = temp_song_ID
                 destination.player = temp_player_string
+                destination.update_start = temp_start_float
+                destination.update_end = temp_end_float
+                destination.lyric_text = temp_lyric_var
+                if destination.player == "Youtube"{
                 destination.youtube_player_setup()
-                destination.youtubeplayer?.load(withVideoId: "U_xI_vKkkmg" , playerVars: ["playsinline": 1, "showinfo": 0, "modestbranding" : 1, "controls": 1, "start": 26, "end": 84, "rel": 0])
+                }else if destination.player == "Spotify"{
+                    destination.Spotifyplayer?.queueSpotifyURI(destination.song_ID, callback: { (error) in
+                        if (error == nil) {
+                            print("queued!")
+                        }
+                        
+                    })
+                }else {
+                    destination.apple_music_player.setQueue(with: [destination.song_ID])
+                }
+                
+                //destination.youtubeplayer?.load(withVideoId: "U_xI_vKkkmg" , playerVars: ["playsinline": 1, "showinfo": 0, "modestbranding" : 1, "controls": 1, "start": 26, "end": 84, "rel": 0])
             }
         }
     }

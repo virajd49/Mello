@@ -34,6 +34,14 @@ class MediaItem {
         static let artistName = "artistName"
         
         static let artwork = "artwork"
+        
+        static let composerName = "composerName"
+        
+        static let genreNames = "genreNames"
+        
+        static let isrc = "isrc"
+        
+        static let url = "url"
     }
     
     // MARK: Properties
@@ -48,11 +56,22 @@ class MediaItem {
     let artistName: String
     
     /// The album artwork associated with the song or album.
-    //let artwork: Artwork
+    let artwork: Artwork
     
     /// The type of the `MediaItem` which in this application can be either `songs` or `albums`.
     let type: MediaType
     
+    //let composerName: String
+    
+    //let genreNames: String
+    
+    
+    let isrc: String?
+    //var ISRC: String
+   
+    
+    let url: String
+ 
     // MARK: Initialization
     
     init(json: [String: Any]) throws {
@@ -68,20 +87,64 @@ class MediaItem {
             throw SerializationError.missing(JSONKeys.attributes)
         }
         
+        print (attributes)
         guard let name = attributes[JSONKeys.name] as? String else {
             throw SerializationError.missing(JSONKeys.name)
         }
         
         let artistName = attributes[JSONKeys.artistName] as? String ?? " "
         
-        /*guard let artworkJSON = attributes[JSONKeys.artwork] as? [String: Any], let artwork = try? Artwork(json: artworkJSON) else {
+        guard let artworkJSON = attributes[JSONKeys.artwork] as? [String: Any], let artwork = try? Artwork(json: artworkJSON) else {
          throw SerializationError.missing(JSONKeys.artwork)
-         }*/
+        }
+        
+        guard let isrc = (attributes[JSONKeys.isrc] as? String) else {
+            throw SerializationError.missing(JSONKeys.name)
+        }
+        
+        
+        
+        /*
+        guard let isrc = attributes[JSONKeys.isrc] as? String else {
+            print("yeah this was thrown")
+            throw SerializationError.missing(JSONKeys.isrc)
+        }
+        
+        
+        guard let composerName = attributes[JSONKeys.composerName] as? String else {
+            throw SerializationError.missing(JSONKeys.composerName)
+        }
+       
+        guard let genreNames = attributes[JSONKeys.genreNames] as? String else {
+            throw SerializationError.missing(JSONKeys.genreNames)
+        }
+ 
+       
+        guard let isrc = attributes[JSONKeys.isrc] as? String else {
+            print("yeah this was thrown")
+            let isrc = "none"
+            return
+            //throw SerializationError.missing(JSONKeys.isrc)
+        }
+        */
+        guard let url = attributes[JSONKeys.url] as? String else {
+            throw SerializationError.missing(JSONKeys.url)
+        }
+ 
         
         self.identifier = identifier
         self.type = type
         self.name = name
         self.artistName = artistName
-        //self.artwork = artwork
+        self.artwork = artwork
+        self.isrc = isrc
+        /*
+        self.composerName = composerName
+       
+        self.genreNames = genreNames
+        */
+        //self.isrc = isrc
+        self.url = url
+ 
     }
 }

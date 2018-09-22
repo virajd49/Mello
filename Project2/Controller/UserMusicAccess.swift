@@ -17,7 +17,7 @@ import MediaPlayer
 class UserAccess {
     
     
-    let userdefaults = UserDefaults.standard
+    //let userdefaults = UserDefaults.standard
     var musicPlayerController = MPMusicPlayerController.applicationMusicPlayer
     var myPlaylistQuery = MPMediaQuery.playlists()
     var myLibrarySongsQuery = MPMediaQuery.songs()
@@ -35,9 +35,11 @@ class UserAccess {
         self.myPlaylistQuery = myPlaylistQuery
         self.myLibrarySongsQuery = myLibrarySongsQuery
         self.access_token = (self.userDefaults.object(forKey: "Spotify_access_token") as! String)
+        //self.access_token = "BQChhry-k4ofBoCQqMFiEPTMXwWE5lPcHQt7b05pnOJhdA5dibaZpbEiiKCQZKuwF3ASJs3bm4VxNfzGcsiPSYSTHAEgGBSi5ItLKaEhPFFfOKguD5yuKsrohGkG23keL74nOhaZXQs3MzNWgRxEdFiEvw"
+        
         self.username = (self.userDefaults.object(forKey: "current_spotify_username") as! String)
+        //self.username = "virajdeshpande88@gmail.com"
     }
-    
     
     //this function fills up full_library_spotifytrackIDs, all_playlist_URIs and all_spotify_playlist_names
     func getYourSpotifyLibrary() { }
@@ -371,5 +373,8 @@ class UserAccess {
         print (return_array)
         return return_array
     }
+    
+    
+    
     
 }

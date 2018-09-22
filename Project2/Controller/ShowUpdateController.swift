@@ -15,7 +15,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     
     
     //this should have the spotify apple and youtube players
-    var song_name: String!
+    var song_ID: String!
     var player: String?
     var albumArt_string: String?
     var duration: Float!
@@ -24,8 +24,12 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     let apple_music_player = MPMusicPlayerController.applicationMusicPlayer
     var youtubeplayer: YTPlayerView?
     var test_view: UIView?
+    var update_start: Float?
+    var update_end: Float?
+    var lyric_text: String?
     
     @IBOutlet weak var playerView: UIView!
+    @IBOutlet weak var lyric_view: UITextView!
     
     @IBOutlet weak var albumArt: UIImageView!
     @IBOutlet weak var profilePic: UIImageView!
@@ -38,7 +42,8 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         //youtubeplayer = YTPlayerView(frame: CGRect(origin: CGPoint(x: 37, y: 94), size: CGSize(width: 300, height: 300))
         self.Spotifyplayer?.playbackDelegate = self as SPTAudioStreamingPlaybackDelegate
         self.Spotifyplayer?.delegate = self as SPTAudioStreamingDelegate
-        
+        self.lyric_view.isHidden = true
+        self.lyric_view.layer.cornerRadius = 10
         let tapGesture = UISwipeGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
         tapGesture.direction = UISwipeGestureRecognizerDirection.down
         self.view.addGestureRecognizer(tapGesture)
@@ -52,12 +57,22 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         containerView.layer.shadowRadius = 10
         containerView.layer.shadowPath = UIBezierPath(roundedRect: containerView.bounds, cornerRadius: 10).cgPath
         
-        containerView.isHidden = true
+        
         albumArt.layer.cornerRadius = 10
-        
-        
-      
+        containerView.isHidden = false
+        self.playerView.isHidden = true
+        if self.player == "Youtube" {
         self.view.bringSubview(toFront: youtubeplayer!)
+            containerView.isHidden = true
+        }
+        
+        if (self.lyric_text != "") {
+            print("here")
+            self.view.bringSubview(toFront: lyric_view)
+            self.lyric_view.isHidden = false
+            self.lyric_view.text = self.lyric_text
+            self.view.backgroundColor = UIColor.black
+        }
         albumArt.image = UIImage(named: albumArt_string!)
         /*
         self.test_view = UIView(frame: CGRect(origin: CGPoint(x:37, y:94), size: CGSize(width: 300, height: 300)))
@@ -74,7 +89,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         //self.playBar.trackTintColor = UIColor.lightGray
         self.playBar.progress = 0.0
         //self.addSubview(playBar)
-        duration = 60
+        duration = 30
         
         play_update()
         
@@ -102,6 +117,10 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     
      @objc func updateProgress() {
         
+        if self.player == "Youtube" {
+            duration = update_end!  - update_start!
+        }
+        
         self.playBar.progress += 0.00005/(self.duration)
         
         if self.playBar.progress >= 1 {
@@ -109,16 +128,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
             print ("invalidate timer happened")
             self.timer?.invalidate()
             self.playBar.progress = 0.0
-            self.Spotifyplayer?.setIsPlaying(false, callback: { (error) in
-                if (error == nil) {
-                    print("paused")
-                    //self.timer?.invalidate()
-                    //self.offsetvalue = (self.Spotifyplayer!.playbackState.position)
-                }
-                else {
-                    print ("error in pausing!")
-                }
-            })
+            stop_with_dismiss()
             
             
         }
@@ -133,6 +143,8 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         self.youtubeplayer?.backgroundColor = UIColor.white
         self.youtubeplayer?.clipsToBounds = true
         self.youtubeplayer?.layer.cornerRadius = 10
+        self.youtubeplayer?.load(withVideoId: self.song_ID , playerVars: ["autoplay": 1
+            , "playsinline": 1, "showinfo": 0, "modestbranding" : 1, "controls": 0, "start": update_start, "end": update_end, "rel": 0])
         
     }
     
@@ -142,19 +154,29 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         
         switch (player) {
         
-        case "Spotify": self.Spotifyplayer?.playSpotifyURI(self.song_name, startingWith: 0, startingWithPosition: 10.0, callback: { (error) in
+        case "Spotify":
+            /*self.Spotifyplayer?.setIsPlaying(true, callback: { (error) in
+                if (error == nil) {
+                    print("Playing!")
+                    //self.timer?.invalidate()
+                    //self.offsetvalue = (self.Spotifyplayer!.playbackState.position)
+                }
+                else {
+             
+             print ("error in playing!")
+                }
+            })*/
+            self.Spotifyplayer?.playSpotifyURI(self.song_ID, startingWith: 0, startingWithPosition: 10.0, callback: { (error) in
             if (error == nil) {
                 print("playing!")
                 print(self.Spotifyplayer?.metadata.currentTrack?.name)
-                self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress), userInfo: nil, repeats: true)
-                self.updateProgress()
             }
             
         })
             break
             
         case "Apple":
-            self.apple_music_player.setQueue(with: [self.song_name])
+            //self.apple_music_player.setQueue(with: [self.song_ID])
             self.apple_music_player.play()
             break
         case "Youtube":
@@ -166,6 +188,10 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
             
             
         }
+        
+        
+        self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress), userInfo: nil, repeats: true)
+        self.updateProgress()
         
     }
     
@@ -205,4 +231,10 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         
     }
     
+}
+
+extension ShowUpdateController {
+    func playerViewDidBecomeReady(_ playerView: YTPlayerView) {
+        self.youtubeplayer?.playVideo()
+    }
 }

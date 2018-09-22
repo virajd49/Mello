@@ -16,7 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate{
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        auth.redirectURL     = URL(string: "spotify-tutorial-login")
+        auth.redirectURL     = URL(string: "viraj-project2://callback")
         auth.sessionUserDefaultsKey = "current session"
         // Override point for customization after application launch.
         return true
@@ -31,9 +31,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate{
             print ("oit here 9")
             
             // 3 - handle callback in closure
+            print (url)
+            print (url.query)
+            print (url)
             auth.handleAuthCallback(withTriggeredAuthURL: url, callback: { (error, session) in
                 // 4- handle error
                 if error != nil {
+                    print(error)
                     print("error!")
                 }
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "loggedinperformsegue"), object: nil)

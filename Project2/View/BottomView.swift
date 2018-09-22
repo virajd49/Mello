@@ -28,7 +28,7 @@ class Setting: NSObject {
 
 class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    let current_user = "Spotify"
+    let current_user = "Apple"
     var userDefaults = UserDefaults.standard
     var flag = false
     let blackview = UIView()

@@ -49,7 +49,7 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
     var post: Post!{
         didSet {
             self.updateUI()
-            self.Spotifyplayer = SPTAudioStreamingController.sharedInstance()
+            //self.Spotifyplayer = SPTAudioStreamingController.sharedInstance()
             if self.typeFlag != "video" {
             self.playerView.isHidden = true
             
@@ -57,9 +57,11 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
                     self.albumArtImage.bringSubview(toFront: albumArtImage)
                     self.albumArtImage.isHidden = false
                     self.lyricView.isHidden = true
+                    /*
                     if self.source == "apple" {
                         self.musicPlayerController.setQueue(with: [self.trackidstring])
                     }
+                    */
                 }else {
                     //self.albumArtButton.bringSubview(toFront: albumArtButton)
                     //self.albumArtButton.backgroundColor = UIColor.clear

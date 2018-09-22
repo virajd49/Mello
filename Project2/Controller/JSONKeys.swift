@@ -29,4 +29,7 @@ struct ResourceTypeJSONKeys {
     static let songs = "songs"
     
     static let albums = "albums"
+    
+    static let tracks = "tracks"
+    
 }
