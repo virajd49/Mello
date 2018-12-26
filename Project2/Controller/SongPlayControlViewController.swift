@@ -7,6 +7,10 @@
 //
 
 import UIKit
+import MediaPlayer
+
+
+let secret_key = "NewsFeed_SongPlay"
 
 class SongPlayControlViewController: UIViewController {
     
@@ -18,6 +22,12 @@ class SongPlayControlViewController: UIViewController {
     var playbar_progress: Float!
     var timer : Timer!
     var song_name: String!
+    var spotify_player: SPTAudioStreamingController?
+    var apple_player = MPMusicPlayerController.applicationMusicPlayer
+    var the_temp: Float?
+    var the_new_temp: Float?
+    var it_has_been_a_second: Int?
+    var current_song_player: String?
     
     // MARK: - Properties
     var currentSong: Post? {
@@ -26,19 +36,64 @@ class SongPlayControlViewController: UIViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        play_bar.progressTintColor = UIColor.darkGray
+        play_bar.trackTintColor = UIColor.lightGray
+        self.play_bar.progress = playbar_progress
+    }
+    
     // MARK: - View Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         configureFields()
-        self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress), userInfo: nil, repeats: true)
-        self.play_bar.progress = playbar_progress
+        //self.apple_player.beginGeneratingPlaybackNotifications()
+        self.spotify_player = SPTAudioStreamingController.sharedInstance()
+        the_temp = 0.0
+        the_new_temp = 0.0
+        current_song_player = "apple"
+        if current_song_player == "apple"{
+            if apple_player.playbackState == MPMusicPlaybackState.playing{
+                self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
+                //self.play_bar.progress = playbar_progress
+            }
+        }  else if current_song_player == "spotify" {
+            if (spotify_player?.playbackState.isPlaying)! {
+                self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
+                //self.play_bar.progress = playbar_progress
+            }
+        } else {
+                //self.play_bar.progress = playbar_progress
+            }
+//        NotificationCenter.default.addObserver(self,
+//                                               selector: #selector(handleMusicPlayerControllerPlaybackStateDidChange),
+//                                               name: .MPMusicPlayerControllerPlaybackStateDidChange,
+//                                               object: self.apple_player)
         
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+            self.timer.invalidate()
+    }
+    
+//    @objc func handleMusicPlayerControllerPlaybackStateDidChange (notification: NSNotification) {
+//        if self.apple_player.playbackState == .playing {
+//            NotificationCenter.default.post(name: NSNotification.Name(rawValue: secret_key), object: nil, userInfo: ["State" : "playing"])
+//        } else if self.apple_player.playbackState == .interrupted {
+//            NotificationCenter.default.post(name: NSNotification.Name(rawValue: secret_key), object: nil, userInfo: ["State" : "interrupted"])
+//        } else if self.apple_player.playbackState == .paused {
+//            print("Real notif")
+//            NotificationCenter.default.post(name: NSNotification.Name(rawValue: secret_key), object: nil, userInfo: ["State" : "paused"])
+//        } else if self.apple_player.playbackState == .stopped {
+//            NotificationCenter.default.post(name: NSNotification.Name(rawValue: secret_key), object: nil, userInfo: ["State" : "stopped"])
+//        }
+//    }
     
     @objc func updateProgress() {
         // increase progress value
         //print("updating")
-        self.play_bar.progress += 0.00005/(self.currentSong?.audiolength)!
+        self.play_bar.progress += 0.000089/(self.currentSong?.audiolength)!
         //self.progressBar.setProgress(0.01, animated: true)
         //self.progressBar.animate(duration: 10)
         
@@ -50,6 +105,78 @@ class SongPlayControlViewController: UIViewController {
             self.play_bar.progress = 0.0
         }
      }
+    
+    @objc func updateProgress_apple() {
+        self.it_has_been_a_second = self.it_has_been_a_second! + 1
+        if (self.it_has_been_a_second! >= 10000){
+            print("update_songplayer_apple")
+            the_temp = Float((self.apple_player.currentPlaybackTime) - (self.currentSong?.startoffset)!)
+            the_new_temp = Float(the_temp! / (self.currentSong?.audiolength)!)
+            if ((the_new_temp!) > self.play_bar.progress) {
+                self.play_bar.progress = the_new_temp!
+                it_has_been_a_second = 0
+                print (self.it_has_been_a_second)
+            } else {
+                //do regular increment
+                //print("regular increment")
+                self.play_bar.progress += (0.000089/(self.currentSong?.audiolength)!)
+            }
+        } else {
+            //print("regular increment")
+            self.play_bar.progress += (0.000089/(self.currentSong?.audiolength)!)
+        }
+        if self.play_bar.progress >= 1 {
+            // invalidate timer
+            print ("invalidate timer happened")
+            self.timer?.invalidate()
+            self.play_bar.progress = 0.0
+            it_has_been_a_second = 0
+            self.apple_player.stop()
+
+        }
+        
+    }
+    
+    @objc func updateProgress_spotify() {
+        self.it_has_been_a_second = self.it_has_been_a_second! + 1
+        if (self.it_has_been_a_second! >= 10000){
+            print("update_songplayer_spotify")
+            the_temp = Float(((self.spotify_player?.playbackState.position)!) - (self.currentSong?.startoffset)!)
+            the_new_temp = Float(the_temp! / (self.currentSong?.audiolength)!)
+            if ((the_new_temp!) > self.play_bar.progress) {
+                self.play_bar.progress = the_new_temp!
+                it_has_been_a_second = 0
+                print (self.it_has_been_a_second)
+            } else {
+                //do regular increment
+                //print("regular increment")
+                self.play_bar.progress += (0.000089/(self.currentSong?.audiolength)!)
+            }
+        } else {
+            //print("regular increment")
+            self.play_bar.progress += (0.000089/(self.currentSong?.audiolength)!)
+        }
+        if self.play_bar.progress >= 1 {
+            // invalidate timer
+            print ("invalidate timer happened")
+            self.timer?.invalidate()
+            self.play_bar.progress = 0.0
+            it_has_been_a_second = 0
+
+            self.spotify_player?.setIsPlaying(false, callback: { (error) in
+                if (error == nil) {
+                    print("paused number 1")
+                        
+                }
+                else {
+                    print ("error in pausing!")
+                }
+            })
+            
+        }
+    }
+
+    
 }
 // MARK: - Internal
 extension SongPlayControlViewController {

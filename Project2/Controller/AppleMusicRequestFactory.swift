@@ -33,10 +33,11 @@ struct AppleMusicRequestFactory {
         urlComponents.scheme = "https"
         urlComponents.host = AppleMusicRequestFactory.appleMusicAPIBaseURLString
         urlComponents.path = "/v1/catalog/\(countryCode)/search"
-        print(urlComponents.host)
+        //print(urlComponents.host)
         let expectedTerms = term.replacingOccurrences(of: " ", with: "+")
         let urlParameters = ["term": expectedTerms,
-                             "limit": "10",
+                             "limit": "15",
+                             "offset": "0",
                              "types": "songs,albums"]
         
         var queryItems = [URLQueryItem]()
@@ -53,8 +54,8 @@ struct AppleMusicRequestFactory {
         print(urlRequest)
         urlRequest.addValue("Bearer \(developerToken)", forHTTPHeaderField: "Authorization")
         //urlRequest.addValue("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTM2NTEzNzM1LCJleHAiOjE1NDA4MzM3MzV9.ER-u0V7vTvM3V-5j0v7cJIe5JxhAekWHpz_Hzmg2r4XPTJHqFti9k6mBgmZVabv7qjE7dB8TfZMapo35JG201g", forHTTPHeaderField: "Authorization")
-        print(urlRequest)
-        print (urlRequest.allHTTPHeaderFields)
+        //print(urlRequest)
+        //print (urlRequest.allHTTPHeaderFields)
         print("exiting creation")
         return urlRequest
     }
@@ -66,11 +67,11 @@ struct AppleMusicRequestFactory {
         urlComponents.scheme = "https"
         urlComponents.host = "api.spotify.com"
         urlComponents.path = "/v1/search"
-        print(urlComponents.host)
+        //print(urlComponents.host)
         let expectedTerms = term.replacingOccurrences(of: " ", with: "+")
-        let urlParameters = ["offset": "5",
-                             "limit": "10",
-                             "market": "United+States",
+        let urlParameters = ["offset": "0",
+                             "limit": "15",
+                             "market": "US",
                              "type": "track",
                              "q": expectedTerms]
         
@@ -79,9 +80,9 @@ struct AppleMusicRequestFactory {
             queryItems.append(URLQueryItem(name: key, value: value))
         }
         
-        print(queryItems)
+        //print(queryItems)
         
-        urlComponents.queryItems = [URLQueryItem(name: "q", value: "Hotel+California"), URLQueryItem(name: "type", value: "track"), URLQueryItem(name: "market", value: "US"), URLQueryItem(name: "limit", value: "10"), URLQueryItem(name: "offset", value: "5")]
+        urlComponents.queryItems = [URLQueryItem(name: "q", value: expectedTerms), URLQueryItem(name: "type", value: "track"), URLQueryItem(name: "market", value: "US"), URLQueryItem(name: "limit", value: "20"), URLQueryItem(name: "offset", value: "0")]
         
         
         // Create and configure the `URLRequest`.
@@ -91,8 +92,8 @@ struct AppleMusicRequestFactory {
         print(urlRequest)
         urlRequest.addValue("Bearer \(developerToken)", forHTTPHeaderField: "Authorization")
         
-        print(urlRequest)
-        print (urlRequest.allHTTPHeaderFields)
+        //print(urlRequest)
+        //print (urlRequest.allHTTPHeaderFields)
         print("exiting creation spotify")
         return urlRequest
     }

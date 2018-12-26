@@ -11,6 +11,7 @@ target 'Project2' do
   pod 'Firebase/Database'
   pod 'Firebase/Auth'
   pod 'Firebase/Storage'
+  pod 'PromiseKit', '~> 6.0'
 
   target 'Project2Tests' do
     inherit! :search_paths

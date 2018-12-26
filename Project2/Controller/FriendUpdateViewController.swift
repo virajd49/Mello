@@ -54,7 +54,7 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
         //let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self as? UISearchResultsUpdating
         searchController.obscuresBackgroundDuringPresentation = true
-        searchController.searchBar.placeholder = "Search Candies"
+        searchController.searchBar.placeholder = "Search Posts"
         //self.searchBar = searchController.searchBar
         //navigationItem.searchController = searchController
         //self. = searchController.searchBar

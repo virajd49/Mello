@@ -28,7 +28,7 @@ struct Update {
         
         
         let update1 = Update(profile_image: UIImage(named: "FullSizeRender 10-2"), song_name: "Vincent - Don Mclean", post_type: UIImage(named: "icons8-musical-notes-50"), albumArt: "Starry_Night", SongID: "spotify:track:0VNzEY1G4GLqcNx5qaaTl6", playerType: "Spotify", start_time: 0, end_time: 0, lyric: "")
-        let update2 = Update(profile_image: UIImage(named: "FullSizeRender 10-2"), song_name: "Next to me - Imagine Dragons", post_type: UIImage(named: "video"), albumArt: "Imagine_dragons", SongID: "-C_rvt0SwLE", playerType: "Youtube", start_time: 26, end_time: 84, lyric: "")
+        let update2 = Update(profile_image: UIImage(named: "FullSizeRender 10-2"), song_name: "Next to me - Imagine Dragons", post_type: UIImage(named: "video"), albumArt: "Imagine_dragons", SongID: "bgCRjE7QCHY", playerType: "Youtube", start_time: 26, end_time: 84, lyric: "")
         let update3 = Update(profile_image: UIImage(named: "FullSizeRender 10-2"), song_name: "Down in Mexico - The Coasters", post_type: UIImage(named: "icons8-musical-notes-50"), albumArt: "Down_in_Mexico", SongID: "220149676", playerType: "Apple", start_time: 0.0, end_time: 0.0, lyric: "")
         let update4 = Update(profile_image: UIImage(named: "FullSizeRender 10-2"), song_name: "It's so easy, but I can't...", post_type: UIImage(named: "icons8-sheet-music-50"), albumArt: "Queen_live", SongID: "1410128669", playerType: "Apple", start_time: 0.0, end_time: 0.0, lyric:
             """

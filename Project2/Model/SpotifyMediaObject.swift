@@ -41,7 +41,7 @@ class SpotifyMediaObject: Decodable {
         let artists: [artists]?
 //        let available_markets: [String]?
 //        let disc_number : Int?
-//        let duration_ms: Int?
+        let duration_ms: Int?
 //        let explicit: Bool?
         let external_ids: isrc_id?
 //        let external_urls: [external_urls]?
@@ -85,9 +85,9 @@ class SpotifyMediaObject: Decodable {
 //        let external_urls : external_urls?
 //        let href : String?
 //        let id : String?
-//        let images : [image]?
+        let images : [image]?
         let name : String?
-//        let release_date : String?
+        let release_date : String?
 //        let release_date_precision : String?
 //        let total_tracks : Int?
 //        let type : String?
@@ -118,14 +118,14 @@ class SpotifyMediaObject: Decodable {
         let isrc: String?
     }
     
-//    struct image: Decodable {
-//
-//        let height: Int?
-//        let url: String?
-//        let width: Int?
-//
-//
-//    }
+    struct image: Decodable {
+
+        let height: Int?
+        let url: String?
+        let width: Int?
+
+
+    }
     
     var items: [item]
 //    init(items: [item]) {

@@ -153,6 +153,9 @@ class AppleMusicControl: NSObject {
             //print (countryCode)
             self?.cloudServiceStorefrontCountryCode = countryCode
             
+            let userDefaults = UserDefaults.standard
+            
+            userDefaults.set(countryCode, forKey: ("Country_code"))
             NotificationCenter.default.post(name: (self?.cloudServiceDidUpdateNotification)!, object: nil)
         }
         

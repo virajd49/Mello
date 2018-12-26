@@ -8,6 +8,7 @@
 
 import UIKit
 import MediaPlayer
+import Firebase
 
 class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate {
 
@@ -63,7 +64,9 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
                 }
             }
         //}
+    
     }
+    
     @IBAction func signInToAppleMusic(_ sender: Any) {
         appleauthority.requestCloudServiceAuthorization()
         appleauthority.requestMediaLibraryAuthorization()

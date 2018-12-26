@@ -144,7 +144,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         self.youtubeplayer?.clipsToBounds = true
         self.youtubeplayer?.layer.cornerRadius = 10
         self.youtubeplayer?.load(withVideoId: self.song_ID , playerVars: ["autoplay": 1
-            , "playsinline": 1, "showinfo": 0, "modestbranding" : 1, "controls": 0, "start": update_start, "end": update_end, "rel": 0])
+            , "playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 0, "start": update_start, "end": update_end, "rel": 0, "iv_load_policy": 3])
         
     }
     

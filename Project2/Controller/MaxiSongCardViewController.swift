@@ -49,6 +49,7 @@ class MaxiSongCardViewController: UIViewController {
     var song_name: String!
     var play_bar_time: Float!
     var post : Post!
+    var second_counter: Int!
     
     //scroller
     @IBOutlet weak var scrollView: UIScrollView!
@@ -124,10 +125,6 @@ class MaxiSongCardViewController: UIViewController {
         stretchySkirt.backgroundColor = .white //from starter project, this hides the gap
         configureLowerModuleInStartPosition()
         configureBottomSection()
-        
-        
-        
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -149,6 +146,7 @@ class MaxiSongCardViewController: UIViewController {
             destination.playbar_progress = play_bar_time
             destination.song_name = post.songname
             destination.currentSong = post
+            destination.it_has_been_a_second = second_counter
         }
     }
     

@@ -42,6 +42,8 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
     var duration: Float!
     var trackname: String!
     var source: String!
+    var helper_id: String!
+    var preview_url: String!
     //When we give data to this post we want to load the data
     let getView = BottomView()
     
@@ -72,19 +74,19 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
             }else{
             self.playerView.isHidden = false
             self.playerView.bringSubview(toFront: playerView)
-            self.playerView.load(withVideoId: self.videoID , playerVars: ["playsinline": 1, "showinfo": 0, "modestbranding" : 1, "controls": 1, "start": self.videostart, "end": self.videoend, "rel": 0])
+                self.playerView.load(withVideoId: self.videoID , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "start": self.videostart, "end": self.videoend, "rel": 0])
                 
             }
         }
     }
     func updateUI(){
         
-            self.albumArtImage.image  = post.albumArtImage
+        self.albumArtImage.image  = UIImage(named: post.albumArtImage!)
         //self.albumArt.image = post.albumArtImage
-        self.nativeAppImage.image = post.sourceAppImage
-        self.postTypeImage.image = post.typeImage
+        self.nativeAppImage.image = UIImage(named: post.sourceAppImage!)
+        self.postTypeImage.image =  UIImage(named: post.typeImage!)
         self.postTypeImage.layer.cornerRadius = self.postTypeImage.frame.size.width / 2
-        self.profileImageView.image = post.profileImage
+        self.profileImageView.image = UIImage(named: post.profileImage!)
         self.usernameLabel.text = post.username
         self.captionLabel.text = post.caption
         self.timeAgoLabel.text = post.timeAgo
@@ -106,6 +108,8 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
         self.duration = post.audiolength
         self.trackname = post.songname
         self.source = post.sourceapp
+        self.helper_id = post.helper_id
+        self.preview_url = post.preview_url
         if self.typeFlag != "video"{
             self.videoID = "empty"
         }else{
@@ -184,7 +188,7 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
                         self.Spotifyplayer?.playSpotifyURI(self.trackidstring, startingWith: 0, startingWithPosition: self.startoffset, callback: { (error) in
                             if (error == nil) {
                                 print("playing!")
-                                //print(self.Spotifyplayer?.metadata.currentTrack?.name)
+                                print(self.Spotifyplayer?.metadata.currentTrack?.name)
                                 //print(self.Spotifyplayer?.metadata.currentTrack?.albumName)
                                 //print(self.Spotifyplayer?.metadata.nextTrack?.name)
                                 //self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress), userInfo: nil, repeats: true)

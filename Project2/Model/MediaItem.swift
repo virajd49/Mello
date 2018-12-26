@@ -35,25 +35,31 @@ class MediaItem {
         
         static let artwork = "artwork"
         
-        static let composerName = "composerName"
+        //static let composerName = "composerName"
         
-        static let genreNames = "genreNames"
+        //static let genreNames = "genreNames"
         
         static let isrc = "isrc"
         
         static let url = "url"
+        
+        static let albumName = "albumName"
+        
+        static let releaseDate = "releaseDate"
+        
+        static let previews = "previews"
     }
     
     // MARK: Properties
     
     /// The persistent identifier of the resource which is used to add the item to the playlist or trigger playback.
-    let identifier: String
+    let identifier: String?
     
     /// The localized name of the album or song.
-    let name: String
+    let name: String?
     
     /// The artist’s name.
-    let artistName: String
+    let artistName: String?
     
     /// The album artwork associated with the song or album.
     let artwork: Artwork
@@ -61,16 +67,21 @@ class MediaItem {
     /// The type of the `MediaItem` which in this application can be either `songs` or `albums`.
     let type: MediaType
     
+    let albumName: String?
+    
     //let composerName: String
     
-    //let genreNames: String
+    //let genreNames: [String]
     
     
     let isrc: String?
     //var ISRC: String
    
+    let previews: NSArray
     
-    let url: String
+    let url: String?
+    
+    let releaseDate: String?
  
     // MARK: Initialization
     
@@ -87,7 +98,8 @@ class MediaItem {
             throw SerializationError.missing(JSONKeys.attributes)
         }
         
-        print (attributes)
+        //
+        //print (attributes)
         guard let name = attributes[JSONKeys.name] as? String else {
             throw SerializationError.missing(JSONKeys.name)
         }
@@ -98,38 +110,34 @@ class MediaItem {
          throw SerializationError.missing(JSONKeys.artwork)
         }
         
-        guard let isrc = (attributes[JSONKeys.isrc] as? String) else {
-            throw SerializationError.missing(JSONKeys.name)
-        }
+        let isrc = attributes[JSONKeys.isrc] as? String ?? " "
         
+        let previews = attributes[JSONKeys.previews] as? NSArray ?? [" "]
         
+        let url = attributes[JSONKeys.url] as? String ?? " "
+        
+        let albumName = attributes[JSONKeys.albumName] as? String ?? " "
+        
+        let releaseDate = attributes[JSONKeys.releaseDate] as? String ?? " "
+        
+//        guard let isrc = (attributes[JSONKeys.isrc] as? String) else {
+//            throw SerializationError.missing(JSONKeys.name)
+//        }
         
         /*
-        guard let isrc = attributes[JSONKeys.isrc] as? String else {
-            print("yeah this was thrown")
-            throw SerializationError.missing(JSONKeys.isrc)
-        }
-        
-        
         guard let composerName = attributes[JSONKeys.composerName] as? String else {
             throw SerializationError.missing(JSONKeys.composerName)
         }
-       
-        guard let genreNames = attributes[JSONKeys.genreNames] as? String else {
-            throw SerializationError.missing(JSONKeys.genreNames)
-        }
+       */
+        
+//        guard let genreNames = attributes[JSONKeys.genreNames] as? [String] else {
+//            throw SerializationError.missing(JSONKeys.genreNames)
+//        }
  
        
-        guard let isrc = attributes[JSONKeys.isrc] as? String else {
-            print("yeah this was thrown")
-            let isrc = "none"
-            return
-            //throw SerializationError.missing(JSONKeys.isrc)
-        }
-        */
-        guard let url = attributes[JSONKeys.url] as? String else {
-            throw SerializationError.missing(JSONKeys.url)
-        }
+//        guard let url = (attributes[JSONKeys.url] as? String) else {
+//            throw SerializationError.missing(JSONKeys.url)
+//        }
  
         
         self.identifier = identifier
@@ -138,13 +146,12 @@ class MediaItem {
         self.artistName = artistName
         self.artwork = artwork
         self.isrc = isrc
-        /*
-        self.composerName = composerName
-       
-        self.genreNames = genreNames
-        */
-        //self.isrc = isrc
+        self.previews = previews
+        //self.composerName = composerName
+        //self.genreNames = genreNames
         self.url = url
- 
+        self.albumName = albumName
+        self.releaseDate = releaseDate
+        
     }
 }

@@ -11,7 +11,7 @@ import Firebase
 
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate{
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     var auth = SPTAuth()
@@ -29,6 +29,51 @@ class AppDelegate: UIResponder, UIApplicationDelegate{
         
         // 2- check if app can handle redirect URL
         print ("oit here 8")
+        
+        if Auth.auth().currentUser != nil {
+            // User is signed in.
+            // ...
+            let user = Auth.auth().currentUser
+            if let user = user {
+                // The user's ID, unique to the Firebase project.
+                // Do NOT use this value to authenticate with your backend server,
+                // if you have one. Use getTokenWithCompletion:completion: instead.
+                let uid = user.uid
+                let email = user.email
+                print (uid)
+                print (email)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "FireBaseloginSuccessfull"), object: nil)
+                // ...
+            }
+        } else {
+            // No user is signed in.
+            // ...
+            Auth.auth().signIn(withEmail: "virajdeshpande88@gmail.com", password: "password123") { (user, error) in
+                // ...
+                if error != nil {
+                    print ("Sign in failure")
+                    print (error)
+                    return
+                }
+                
+                print ("Sign in succesfull")
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "FireBaseloginSuccessfull"), object: nil)
+                }
+        }
+        
+        /*
+         Auth.auth().createUser(withEmail: "virajdeshpande89@gmail.com", password: "password123", completion: { (user, error) in
+         
+         if error != nil {
+         print(error)
+         return
+         }
+         
+         print("Succesfully authenticated user")
+         NotificationCenter.default.post(name: Notification.Name(rawValue: "FireBaseloginSuccessfull"), object: nil)
+         
+         })
+         */
         
         if auth.canHandle(auth.redirectURL) {
             print ("oit here 9")
@@ -48,6 +93,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate{
                 let userDefaults = UserDefaults.standard
                 let sessionData = NSKeyedArchiver.archivedData(withRootObject: session!)
                 userDefaults.set(sessionData, forKey: "SpotifySession")
+                userDefaults.set("Apple", forKey: "UserAccount")
                 userDefaults.synchronize()
                 // 6 - Tell notification center login is successful
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "loginSuccessfull"), object: nil)
@@ -57,6 +103,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate{
         }
         return false
     }
+    
+
 
     func applicationWillResignActive(_ application: UIApplication) {
         // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
