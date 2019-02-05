@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         auth.redirectURL     = URL(string: "viraj-project2://callback")
         auth.sessionUserDefaultsKey = "current session"
-        FirebaseApp.configure()
+        FIRApp.configure()
         // Override point for customization after application launch.
         return true
     }
@@ -30,10 +30,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // 2- check if app can handle redirect URL
         print ("oit here 8")
         
-        if Auth.auth().currentUser != nil {
+        
+        if FIRAuth.auth()?.currentUser != nil {
             // User is signed in.
             // ...
-            let user = Auth.auth().currentUser
+            let user = FIRAuth.auth()?.currentUser
             if let user = user {
                 // The user's ID, unique to the Firebase project.
                 // Do NOT use this value to authenticate with your backend server,
@@ -48,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } else {
             // No user is signed in.
             // ...
-            Auth.auth().signIn(withEmail: "virajdeshpande88@gmail.com", password: "password123") { (user, error) in
+            FIRAuth.auth()?.signIn(withEmail: "virajdeshpande88@gmail.com", password: "password123") { (user, error) in
                 // ...
                 if error != nil {
                     print ("Sign in failure")
@@ -93,7 +94,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 let userDefaults = UserDefaults.standard
                 let sessionData = NSKeyedArchiver.archivedData(withRootObject: session!)
                 userDefaults.set(sessionData, forKey: "SpotifySession")
-                userDefaults.set("Apple", forKey: "UserAccount")
+                userDefaults.set("Spotify", forKey: "UserAccount")
                 userDefaults.synchronize()
                 // 6 - Tell notification center login is successful
                 NotificationCenter.default.post(name: Notification.Name(rawValue: "loginSuccessfull"), object: nil)

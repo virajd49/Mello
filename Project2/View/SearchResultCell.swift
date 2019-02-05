@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import GoogleAPIClientForREST
 
 class SearchResultCell: UITableViewCell{
     
@@ -19,8 +20,9 @@ class SearchResultCell: UITableViewCell{
     @IBOutlet weak var media_name_label: UILabel!
     
     var artist_name: String?
-    var media_apple_id: String?
+    var media_id: String?
     var isrc: String?
+    var yt_video_duration: Float?
     
     
     var mediaItem: MediaItem! {
@@ -28,8 +30,9 @@ class SearchResultCell: UITableViewCell{
             media_image.image = nil
             media_name_label.text = mediaItem?.name ?? ""
             artist_name? = mediaItem?.artistName ?? ""
-            media_apple_id = mediaItem?.identifier ?? ""
+            media_id = mediaItem?.identifier ?? ""
             isrc = mediaItem?.isrc ?? ""
+            yt_video_duration = 0.0
             
         }
     }
@@ -39,11 +42,21 @@ class SearchResultCell: UITableViewCell{
             media_image.image = nil
             media_name_label.text = spotify_mediaItem?.name ?? ""
             artist_name? = spotify_mediaItem?.artists![0].name ?? ""
-            media_apple_id = spotify_mediaItem?.uri ?? ""
+            media_id = spotify_mediaItem?.uri ?? ""
             isrc = spotify_mediaItem?.external_ids?.isrc ?? ""
+            yt_video_duration = 0.0
             
         }
     }
     
-
+    var youtube_video_resource = GTLRYouTube_SearchResult() {
+        didSet{
+            media_image.image = nil
+            media_name_label.text = youtube_video_resource.snippet?.title ?? ""
+            artist_name = ""
+            media_id = youtube_video_resource.identifier?.videoId ?? ""
+            isrc = ""
+            yt_video_duration = 0.0
+        }
+    }
 }

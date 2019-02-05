@@ -52,9 +52,9 @@ class ISRC_worker {
         appleMusicManager.performSpotifyCatalogSearchNew(with: name).done { searchItems in
             
             self.spotify_mediaItems = searchItems
+            print ("YAAAAAAAAAAS!!!!!!!!!!!!!!! - perform_search_for_spotify_new")
             seal.fulfill(())
         }
-        print ("YAAAAAAAAAAS!!!!!!!!!!!!!!!")
      }
     }
     
@@ -66,10 +66,10 @@ class ISRC_worker {
                 
                 print ("we got'em bruh !!!!!!!!!!!!!!!!!!!!")
                 self.apple_mediaItems = searchItems
+                print ("YAAAAAAAAAAS!!!!!!!!!!!!!!! 2 - perform_search_for_apple")
                 seal.fulfill(())
                 
             }
-            print ("YAAAAAAAAAAS!!!!!!!!!!!!!!! 2")
         }
     }
     
@@ -357,7 +357,8 @@ class ISRC_worker {
                                                             variable.playable_id = self.apple_mediaItems[0][i].identifier
                                                             variable.artist_name = self.apple_mediaItems[0][i].artistName
                                                             variable.isrc_number = self.apple_mediaItems[0][i].isrc
-                                                            variable.preview_url =  self.apple_mediaItems[0][i].previews[0] as! String
+                                                                print(self.apple_mediaItems[0][i].previews[0]["url"])
+                                                                variable.preview_url =  self.apple_mediaItems[0][i].previews[0]["url"]                                                                
                                                             self.apple_struct = variable
                                                             seal.fulfill(())
                                                             }
@@ -382,19 +383,21 @@ class ISRC_worker {
                 self.spotify_struct = reference_struct
                 self.target_struct = self.apple_struct!
                 self.firebase_add()
+                seal.fulfill(())
             }
         } else if target == "spotify" {
             spotify_search_and_parse(appi_struct: reference_struct).done { Void in
                 self.apple_struct = reference_struct
                 self.target_struct = self.spotify_struct!
                 self.firebase_add()
+                seal.fulfill(())
             }
         }
         
         //print (self.apple_struct)
         //print (self.spotify_struct)
         
-      seal.fulfill(())
+      //seal.fulfill(())
         }
     }
     
@@ -416,7 +419,7 @@ class ISRC_worker {
         //if yes call: get_from_db ()
         
         //if no call new_db_entry ()
-        let ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
+            let ref = FIRDatabase.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
         ref.child("isrc_db").child(song_data.isrc_number ?? "nil").observeSingleEvent(of: .value) { (snapshot) in
             if snapshot.exists(){
                 print ("Yes we got here baba")
@@ -449,7 +452,7 @@ class ISRC_worker {
         var ds = ISRC_ds(isrc_number: isrc_no, spotify_set: spotify_data, apple_set: apple_data)
         let isrc_ds = ds.create_isrc_ds()
         
-        let ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
+        let ref = FIRDatabase.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
         
         ref.child("isrc_db").updateChildValues(isrc_ds) { (err, ref) in
             

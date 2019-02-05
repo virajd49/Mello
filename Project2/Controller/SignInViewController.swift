@@ -9,8 +9,10 @@
 import UIKit
 import MediaPlayer
 import Firebase
+import GoogleAPIClientForREST
+import GoogleSignIn
 
-class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate {
+class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate, GIDSignInDelegate, GIDSignInUIDelegate {
 
     
     let userDefaults = UserDefaults.standard
@@ -24,12 +26,16 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     let appleauthority = AppleMusicControl()
     var access_token = ""
     let playlist_access = UserAccess(musicPlayerController: MPMusicPlayerController.applicationMusicPlayer, myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
+    private let scopes = [kGTLRAuthScopeYouTubeReadonly,kGTLRAuthScopeYouTube]
+    let signInButton = GIDSignInButton()
+    private let service = GTLRYouTubeService()
    
     
     
     
     func setup(){
         
+        //Spotify sign in initialization
         SPTAuth.defaultInstance().clientID = "5b5198fe415746c0a9410281d041a4f9"
         SPTAuth.defaultInstance().redirectURL = URL(string: "viraj-project2://callback" )
         SPTAuth.defaultInstance().tokenSwapURL = URL(string: "https://viraj-project2.herokuapp.com/swap")
@@ -40,7 +46,18 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         print(loginUrl)
         print (URL(string: "viraj-project2://callback" ))
         print (URL(string: "https://viraj-project2.herokuapp.com/swap"))
-      print(SPTAuth.defaultInstance().spotifyAppAuthenticationURL())
+        print(SPTAuth.defaultInstance().spotifyAppAuthenticationURL())
+        
+        //Google sign in initialization
+        GIDSignIn.sharedInstance().delegate = self
+        GIDSignIn.sharedInstance().uiDelegate = self
+        GIDSignIn.sharedInstance().scopes = scopes
+        GIDSignIn.sharedInstance().signInSilently()
+        userDefaults.setValue("AIzaSyCWyumtxOwkf0zXWsh2Pe0vSwXFNHfax8E", forKey: "google_api_key")
+        
+        view.addSubview(signInButton)
+        signInButton.center.x = self.view.center.x
+        signInButton.frame.origin.y = 200
       
         
         
@@ -81,7 +98,8 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         print("out here1")
         
         if let sessionObj: AnyObject = userDefaults.object(forKey: "SpotifySession") as AnyObject {
-            let sessionDataObj = sessionObj as! NSData
+            print("why are we here if obj is NSNull")
+            if let sessionDataObj = sessionObj as? NSData {
             
             let session =  NSKeyedUnarchiver.unarchiveObject(with: sessionDataObj as Data) as! SPTSession
             
@@ -101,6 +119,9 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
                     } 
             }else {
                 print("Session is valid")
+            }
+            } else if let sessionDataObj = sessionObj as? NSNull {
+                print("sessionObj is null")
             }
             
  
@@ -189,6 +210,31 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         // }
         // })
         print("out here4")
+    }
+    
+    func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
+        if let error = error {
+            showAlert(title: "Authentication Error", message: error.localizedDescription)
+            self.service.authorizer = nil
+        } else {
+            self.signInButton.isHidden = true
+            self.service.authorizer = user.authentication.fetcherAuthorizer()
+        }
+    }
+    
+    func showAlert(title : String, message: String) {
+        let alert = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: UIAlertController.Style.alert
+        )
+        let ok = UIAlertAction(
+            title: "OK",
+            style: UIAlertAction.Style.default,
+            handler: nil
+        )
+        alert.addAction(ok)
+        present(alert, animated: true, completion: nil)
     }
 
     override func didReceiveMemoryWarning() {

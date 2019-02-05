@@ -48,6 +48,8 @@ class MediaItem {
         static let releaseDate = "releaseDate"
         
         static let previews = "previews"
+        
+        static let durationInMillis = "durationInMillis"
     }
     
     // MARK: Properties
@@ -77,11 +79,13 @@ class MediaItem {
     let isrc: String?
     //var ISRC: String
    
-    let previews: NSArray
+    let previews: [[String: String]]
     
     let url: String?
     
     let releaseDate: String?
+    
+    let durationInMillis: Int?
  
     // MARK: Initialization
     
@@ -110,9 +114,11 @@ class MediaItem {
          throw SerializationError.missing(JSONKeys.artwork)
         }
         
+        let duration = attributes[JSONKeys.durationInMillis] as? Int ?? 0
+        
         let isrc = attributes[JSONKeys.isrc] as? String ?? " "
         
-        let previews = attributes[JSONKeys.previews] as? NSArray ?? [" "]
+        let previews = attributes[JSONKeys.previews] as? [[String: String]] ?? [["": ""]]
         
         let url = attributes[JSONKeys.url] as? String ?? " "
         
@@ -147,6 +153,7 @@ class MediaItem {
         self.artwork = artwork
         self.isrc = isrc
         self.previews = previews
+        self.durationInMillis = duration
         //self.composerName = composerName
         //self.genreNames = genreNames
         self.url = url

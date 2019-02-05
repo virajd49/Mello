@@ -110,9 +110,9 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
 
     @objc func showBottomView(sender: UIButton){
         
+        Post.dict_posts()
         print(self.currently_playing_song_id!)
         getView.bringupview(id: self.currently_playing_song_id! as String)
-        Post.dict_posts()
         
     }
 
@@ -469,7 +469,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     @objc func updateProgress_yt() {
         self.it_has_been_a_second = self.it_has_been_a_second! + 1
         if (self.it_has_been_a_second! >= 10000){
-            print("update_yt")
+            //print("update_yt")
             the_temp = Float(((youtubeplayer?.currentTime())!) - currentPost.starttime)
             the_new_temp = Float(the_temp! / self.duration)
             if ((the_new_temp!) > self.playBar.progress) {
@@ -716,15 +716,19 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             youtubeplayer2.isHidden = true
             temp_view2?.isHidden = true
         } else if self.appleplayer.playbackState == .interrupted {
-            print ("interrupted")
-            allCells[currently_playing_song_cell!]?[0] = false
-            allCells[currently_playing_song_cell!]?[1] = false
+            print ("apple player was interrupted - newsfeed - handleMusicPlayerControllerPlaybackStateDidChange")
+            if currently_playing_song_cell != nil {
+                allCells[currently_playing_song_cell!]?[0] = false
+                allCells[currently_playing_song_cell!]?[1] = false
+            }
         } else if self.appleplayer.playbackState == .paused {
-            print ("paused number 7")
+            print ("apple player was paused - newsfeed - handleMusicPlayerControllerPlaybackStateDidChange")
         } else if self.appleplayer.playbackState == .stopped {
-            print ("stopped")
-            allCells[currently_playing_song_cell!]?[0] = false
-            allCells[currently_playing_song_cell!]?[1] = false
+            print ("apple player was stopped - newsfeed - handleMusicPlayerControllerPlaybackStateDidChange")
+            if currently_playing_song_cell != nil {
+                allCells[currently_playing_song_cell!]?[0] = false
+                allCells[currently_playing_song_cell!]?[1] = false
+            }
         }
     }
     
@@ -845,12 +849,16 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                     youtubeplayer = cell.playerView
                     currentPost = cell.post
                     youtubeplayer2?.load (withVideoId: cell.videoID , playerVars: [ "playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 0, "start": cell.videostart, "end": cell.videoend, "rel": 0, "iv_load_policy": 3])
+                } else {
+                        self.youtubeplayer?.stopVideo() //Comment this out if we load the post cell ytplayer every time the cell is dequeued
+                    //otherwise, leave this in, since we don't load the cell ytplayer everytime it just remains paused at the position where the miniplayer started and we don't want to see that when we scroll back.
                 }
                 
                 }else{
                     executed_once = true
                 }
             } else {
+                self.miniplayer_just_started = false
                 print("did we even come here ?? what is going on?")
                 self.timer.invalidate()
                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_ytmini), userInfo: nil, repeats: true)
@@ -860,12 +868,14 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         case YTPlayerState.paused:
             print("Nah we come here") //when the miniplayer cuts off the post player, it goes to paused state not ended state.
             print("state changed to paused")
-            if !(self.miniplayer_just_started!) {
-                miniplayer_just_started = false
-                self.timer?.invalidate()        //if the miniplayer has just started and we come here, let the timer run, we handle it in .isPlaying for
+            if !(self.miniplayer_just_started!) && (currently_playing_youtube_cell != nil) {
+                print (self.miniplayer_just_started)
+                self.timer?.invalidate()        //if the miniplayer has just started and we come here, let the timer run, we handle it in .isPlaying for miniplayer, handing it over from the post player to the miniplayer. Skip the rest of the settings as well
+                allCells[currently_playing_youtube_cell!]?[0] = false
+                allCells[currently_playing_youtube_cell!]?[1] = true
                 paused_cell = currently_playing_youtube_cell
                 currently_playing_youtube_cell = nil
-                print ("we didnt let it run")   //miniplayer, handing it over from the post player to the miniplayer.
+                print ("we didnt let it run")
             }
             break;
         default:
@@ -1107,11 +1117,12 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             
             if (self.miniplayer!) {
                 self.youtubeplayer2.pauseVideo()
-                self.timer?.invalidate()
-                allCells[currently_playing_youtube_cell!]?[0] = false
-                allCells[currently_playing_youtube_cell!]?[1] = true
-                paused_cell = currently_playing_youtube_cell
-                currently_playing_youtube_cell = nil
+                //ALL THE STUFF BELOW IS HANDLED IN YTSTATE.isPAUSED - BECAUSE for the POST players WHEN THE YT VIDEO IS PAUSED THERE IS NOT TAPEDIT TO CAPTURE THAT - SO NONE OF THE FLAG SETTING WILL HAPPEN IN THAT CASE IF WE DONT DO IT IN YTSTATE.isPAUSED.
+//                self.timer?.invalidate()
+//                allCells[currently_playing_youtube_cell!]?[0] = false
+//                allCells[currently_playing_youtube_cell!]?[1] = true
+//                paused_cell = currently_playing_youtube_cell
+//                currently_playing_youtube_cell = nil
             } else {
                print ("miniplayer should be true if we are pausing it from the miniplayer!!!!!!")
             }
@@ -1322,24 +1333,28 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         }
                     }
                     }else{ //if the tapped cell is a video cell
-                            if currently_playing_youtube_cell != nil{ //check if the tableview player is playing a previously tapped video cell
-                                self.youtubeplayer?.stopVideo()  //stop it
-                                self.youtubeplayer2?.stopVideo()
-                                self.miniplayer = false
-                                self.miniplayer_just_started = false
-                                //youtubeplayer2.isHidden = true
-                                currently_playing_youtube_cell = nil
-                                self.timer.invalidate()
-                                self.playBar.progress = 0
-                            }
-                            tappedCell.playerView.isUserInteractionEnabled = true
-                            tappedCell.playerView.delegate = self                     //if a cell is a video cell, declare the tableview as its delegate,
-                            youtubeplayer = tappedCell.playerView                     //so that we can have playback control on the 'last played' youtube
-                            self.youtubeplayer?.playVideo()                            //internal control because otherwise you would need two taps: 1 to
-                            playerView_source_value = tappedCell.source
-                            temp_duration = tappedCell.duration                         //enable user interaction and one to play the video
-                            //dismiss_player_view()
-                            setup_player_view(tapped_cell: tappedCell)     //timer reset happens here, timer initialization happens in TYPlayerState check
+                        if currently_playing_youtube_cell != nil{ //check if the tableview player is playing a previously tapped video cell
+                            self.youtubeplayer?.stopVideo()  //stop it
+                            self.youtubeplayer2?.stopVideo()
+                            self.miniplayer = false
+                            self.miniplayer_just_started = false
+                            //youtubeplayer2.isHidden = true
+                            currently_playing_youtube_cell = nil
+                            self.timer.invalidate()
+                            self.playBar.progress = 0
+                        }
+                        tappedCell.playerView.isUserInteractionEnabled = true
+                        tappedCell.playerView.delegate = self                     //if a cell is a video cell, declare the tableview as its delegate,
+                        youtubeplayer = tappedCell.playerView                     //so that we can have playback control on the 'last played' youtube
+                        //tappedCell.playerView.bringSubview(toFront: tappedCell.playerView)
+                        //WE MOVED THE LOADING OF THE VIDEO HERE FROM PostCell.swift - TO PREVENT SCROLL LAG - TRADEOFF - LOOKS SHITTY AND TAKES FOREVER TO LOAD BEFORE IT PLAYS - NEED TO FIND A WAY TO SHIFT THIS LOADING TO A BACKGROUND THREAD - RAN INTO A WEIRD ERROR WHEN I TRIED BEFORE
+                        tappedCell.playerView.load(withVideoId: tappedCell.post.videoid , playerVars: ["autoplay": 1,"playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "start": tappedCell.post.starttime, "end": tappedCell.post.endtime, "rel": 0, "iv_load_policy": 3])
+                        //self.youtubeplayer?.playVideo()
+                        tappedCell.playerView.isHidden = false                      //internal control because otherwise you would need two taps: 1 to
+                        playerView_source_value = tappedCell.source
+                        temp_duration = tappedCell.duration                         //enable user interaction and one to play the video
+                        dismiss_player_view()
+                        setup_player_view(tapped_cell: tappedCell)     //timer reset happens here, timer initialization happens in YTPlayerState check
                     }
                 }
             }
@@ -1348,7 +1363,10 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     
     func fetchPosts()
     {
-        self.posts = Post.fetchPosts()
+        Post.fetchPosts().done { posts in
+            self.posts = posts
+            self.tableView.reloadData()
+        }
         self.tableView.reloadData()
         
     }
@@ -1379,21 +1397,27 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     
     func setup_player_view(tapped_cell: PostCell){
         
-        //if tapped_cell.typeFlag != "video" {        //for a video cell we want the mini player to be hidden till we scroll away from the cell,
+        
+        playingImage?.isHidden = true
+        if tapped_cell.typeFlag != "video" {        //for a video cell we want the mini player to be hidden till we scroll away from the cell,
             //Bring up and setup the player view        //the mini player is brought up in the dequeue cell method. But we want set up everything else,
             if (playingView?.isHidden == true){         // because we might not be able to access the same cell again to call this method from dequeue method.
                 playingView?.isHidden = false
             }
+             playingImage?.isHidden = false
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
                
                 self.playingView?.frame = CGRect(x: 0, y: 568, width: 375, height: 50)
             }, completion: nil)
-        if tapped_cell.typeFlag != "video" {
+            
+        }
+        
+        //if tapped_cell.typeFlag != "video" {
             playBar.progress = 0
             self.timer?.invalidate()
             duration = tapped_cell.duration
-            
-        }
+        
+        //}
         
         songnameLabel?.text = tapped_cell.trackname
         playingImage?.image = tapped_cell.albumArtImage.image
@@ -1415,7 +1439,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     }
     
     func dismiss_player_view(){
-        
+        print("dismiss_player_view")
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
             
             self.playingView?.frame = CGRect(origin: CGPoint(x:0, y: (self.window?.frame.height)!), size: CGSize(width: 375, height: 50))
@@ -1724,13 +1748,37 @@ extension NewsFeedTableViewController{
         }
     }
     
+    override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+//     let cell = tableView.cellForRow(at: indexPath) as! PostCell
+//
+//        if cell.post.flag == "video" {
+//
+//
+//            DispatchQueue.global(qos: .userInitiated).async {
+//            cell.playerView.load(withVideoId: cell.post.videoid , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "start": cell.post.starttime, "end": cell.post.endtime, "rel": 0])
+//            }
+//
+//        }
+//
+    }
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: Storyboard.postCell, for: indexPath) as! PostCell
         
         
-        cell.post = self.posts?[indexPath.section]
+        cell.post = self.posts?.reversed()[indexPath.section]
+        
+        //cell.imageView?.loadImageUsingCacheWithUrlString(imageurlstring: cell.post.albumArtUrl)
+        
         if (cell.post.flag == "video"){
+            
+//            DispatchQueue.global(qos: .utility).async {
+//                        print ("async is happenning now cell is \(indexPath)")
+//                        cell.playerView.load(withVideoId: cell.post.videoid , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "start": cell.post.starttime, "end": cell.post.endtime, "rel": 0])
+//                        }
+            
             executed_once = false
             switch(cell.playerView.playerState()){
             case YTPlayerState.buffering:
@@ -1754,14 +1802,12 @@ extension NewsFeedTableViewController{
             cell.playerView.isUserInteractionEnabled = false
             }
             
-            
             /* moved to tapEdit
             cell.playerView.delegate = self                     //if a cell is a video cell, declare the tableview as its delegate,
             youtubeplayer = cell.playerView                     //so that we can have playback control on the 'last played' youtube
             temp_duration = cell.duration
             */
             last_viewed_youtube_cell = indexPath                //video cell from the newsfeedcontroller
-            
             
         }
         print (mainWindow!.frame.height)
@@ -1895,6 +1941,15 @@ extension NewsFeedTableViewController{
         
         //4.
         present(maxiCard, animated: false)
+    }
+    
+    
+    func playerViewDidBecomeReady(_ playerView: YTPlayerView) {
+        if self.miniplayer! {
+            self.youtubeplayer2.playVideo()
+        } else {
+            self.youtubeplayer?.playVideo()
+        }
     }
     
     

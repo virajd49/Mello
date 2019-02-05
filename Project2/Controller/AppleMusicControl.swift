@@ -211,10 +211,10 @@ class AppleMusicControl: NSObject {
             }
             
             if #available(iOS 11.0, *) {
-                //print("ios 11")
+                print("ios 11")
                 cloudServiceController.requestUserToken(forDeveloperToken: developerToken, completionHandler: completionHandler)
             } else {
-                //print("< ios 11")
+                print("< ios 11")
                 cloudServiceController.requestPersonalizationToken(forClientToken: developerToken, withCompletionHandler: completionHandler)
             }
         }
@@ -234,7 +234,7 @@ class AppleMusicControl: NSObject {
     func fetchDeveloperToken() -> String? {
         
         // MARK: ADAPT: YOU MUST IMPLEMENT THIS METHOD
-        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTM2NTEzNzM1LCJleHAiOjE1NDA4MzM3MzV9.ER-u0V7vTvM3V-5j0v7cJIe5JxhAekWHpz_Hzmg2r4XPTJHqFti9k6mBgmZVabv7qjE7dB8TfZMapo35JG201g"
+        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTQ3NDExNjQ3LCJleHAiOjE1NTE3MzE2NDd9.TU8jwCl4rcuFvoEWjlVCnuyVweKxQaJylv-sN_gMak5KCdH2CJYBvQij6HijP1NucNyDt4Qm7HldZ70OD43Krw"
         return developerAuthenticationToken
     }
     

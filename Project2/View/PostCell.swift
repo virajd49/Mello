@@ -44,6 +44,7 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
     var source: String!
     var helper_id: String!
     var preview_url: String!
+    var albumArtUrl: String!
     //When we give data to this post we want to load the data
     let getView = BottomView()
     
@@ -72,19 +73,38 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
                     self.albumArtImage.isHidden = true
                 }
             }else{
-            self.playerView.isHidden = false
-            self.playerView.bringSubview(toFront: playerView)
-                self.playerView.load(withVideoId: self.videoID , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "start": self.videostart, "end": self.videoend, "rel": 0])
-                
+            //self.albumArtImage.bringSubview(toFront: albumArtImage)
+            self.albumArtImage.isHidden = false
+            self.playerView.isHidden = true
+            //self.playerView.bringSubview(toFront: playerView)
+             //self.playerView.load(withVideoId: self.videoID , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "start": self.videostart, "end": self.videoend, "rel": 0])
+            //WE CHANGED THIS - MOVED THE LOADING TO WHEN THE USER TAPS ON THE VIDEO CELL - TO PREVENT SCROLLING LAG CAUSED BY ALL THE YOUTUBE CELLS TRYING TO LOAD THE VIDEOS WHEN THEY ARE DEQUEUED - TRADEOFF - LOOKS SHITTY AND TAKES FOREVER TO LOAD BEFORE IT PLAYS - NEED TO FIND A WAY TO SHIFT THIS LOADING TO A BACKGROUND THREAD - RAN INTO A WEIRD ERROR WHEN I TRIED BEFORE
+           
             }
         }
     }
     func updateUI(){
         
-        self.albumArtImage.image  = UIImage(named: post.albumArtImage!)
+        
+//        if let albumArtURL = URL(string: post.albumArtUrl) {
+//            URLSession.shared.dataTask(with: albumArtURL, completionHandler: { (data, response, error) in
+//
+//                if error != nil {
+//                    print(error)
+//                    return
+//                }
+//
+//                DispatchQueue.main.async {
+//                    self.albumArtImage.image  = UIImage(data: data!)
+//                }
+//
+//            }).resume()
+//        }
+        self.albumArtUrl = post.albumArtUrl
+        self.albumArtImage.loadImageUsingCacheWithUrlString(imageurlstring: self.albumArtUrl)
         //self.albumArt.image = post.albumArtImage
         self.nativeAppImage.image = UIImage(named: post.sourceAppImage!)
-        self.postTypeImage.image =  UIImage(named: post.typeImage!)
+        self.postTypeImage.image = UIImage(named: post.typeImage!)
         self.postTypeImage.layer.cornerRadius = self.postTypeImage.frame.size.width / 2
         self.profileImageView.image = UIImage(named: post.profileImage!)
         self.usernameLabel.text = post.username

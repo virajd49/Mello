@@ -14,6 +14,10 @@ import PromiseKit
 
 class AppleMusicManager {
     
+    enum MyError: Error {
+        case runtimeError(String)
+    }
+    
     
     let userDefaults = UserDefaults.standard
     /// The completion handler that is called when an Apple Music Catalog Search API call completes.
@@ -44,7 +48,7 @@ class AppleMusicManager {
     func fetchDeveloperToken() -> String? {
         
         // MARK: ADAPT: YOU MUST IMPLEMENT THIS METHOD
-        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTM2NTEzNzM1LCJleHAiOjE1NDA4MzM3MzV9.ER-u0V7vTvM3V-5j0v7cJIe5JxhAekWHpz_Hzmg2r4XPTJHqFti9k6mBgmZVabv7qjE7dB8TfZMapo35JG201g"
+        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTQ3NDExNjQ3LCJleHAiOjE1NTE3MzE2NDd9.TU8jwCl4rcuFvoEWjlVCnuyVweKxQaJylv-sN_gMak5KCdH2CJYBvQij6HijP1NucNyDt4Qm7HldZ70OD43Krw"
         return developerAuthenticationToken
     }
     
@@ -302,20 +306,25 @@ class AppleMusicManager {
         //print(countryCode)
         
         guard let developerToken = fetchDeveloperToken() else {
+            seal.reject("Error fetching developer token: performAppleMusicCatalogSearchNew" as! Error)
             fatalError("Developer Token not configured. See README for more details.")
         }
         
         let urlRequest = AppleMusicRequestFactory.createSearchRequest(with: term, countryCode: countryCode, developerToken: developerToken)
         
-        //print(urlRequest)
-        //print (developerToken)
-        let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
-            //print(error)
-            //print(response)
+        print(urlRequest)
+        print (developerToken)
+        URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
+            print(error)
+            print(response)
             guard error == nil, let urlResponse = response as? HTTPURLResponse, urlResponse.statusCode == 200 else {
+                if error != nil {
+                print(error)
                 seal.reject (error!)
-                //print("error response")
-                //print(error)
+                } else {
+                    seal.reject("Http error response performAppleMusicCatalogSearchNew" as! Error)
+                }
+                print("error response")
                 return
             }
             //print(urlResponse)
@@ -329,10 +338,12 @@ class AppleMusicManager {
                 
             } catch {
                 fatalError("An error occurred: \(error.localizedDescription)")
+                seal.reject(MyError.runtimeError("JSON processing error - performAppleMusicCatalogSearch"))
+                fatalError("An error occurred: \(error.localizedDescription)")
             }
-        }
+        }.resume()
         
-        task.resume()
+        //task.resume()
     }
   }
     
@@ -362,7 +373,7 @@ class AppleMusicManager {
             guard let data = data else {return}
             
             let dataAsString = String(data: data, encoding: .utf8)
-            print(dataAsString)
+            //print(dataAsString)
             //print(urlResponse)
             //print("response should be above this guy")
             

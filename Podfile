@@ -12,6 +12,8 @@ target 'Project2' do
   pod 'Firebase/Auth'
   pod 'Firebase/Storage'
   pod 'PromiseKit', '~> 6.0'
+  pod 'GoogleAPIClientForREST/YouTube', '~> 1.2.1'
+  pod 'Google/SignIn', '~> 3.0.3'
 
   target 'Project2Tests' do
     inherit! :search_paths
