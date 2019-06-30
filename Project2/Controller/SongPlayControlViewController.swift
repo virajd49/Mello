@@ -28,6 +28,7 @@ class SongPlayControlViewController: UIViewController {
     var the_new_temp: Float?
     var it_has_been_a_second: Int?
     var current_song_player: String?
+    var user_defaults = UserDefaults.standard
     
     // MARK: - Properties
     var currentSong: Post? {
@@ -51,15 +52,19 @@ class SongPlayControlViewController: UIViewController {
         self.spotify_player = SPTAudioStreamingController.sharedInstance()
         the_temp = 0.0
         the_new_temp = 0.0
-        current_song_player = "apple"
+        current_song_player = self.user_defaults.string(forKey: "UserAccount")?.lowercased()
         if current_song_player == "apple"{
+            print ("current_song_player == spotify")
             if apple_player.playbackState == MPMusicPlaybackState.playing{
+                print ("Timer was initiated")
                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
                 //self.play_bar.progress = playbar_progress
             }
         }  else if current_song_player == "spotify" {
+            print ("current_song_player == spotify")
             if (spotify_player?.playbackState.isPlaying)! {
-                self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
+                print ("Timer was initiated")
+                self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
                 //self.play_bar.progress = playbar_progress
             }
         } else {
@@ -74,8 +79,10 @@ class SongPlayControlViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-            self.timer.invalidate()
+        self.timer.invalidate()
     }
+    
+
     
 //    @objc func handleMusicPlayerControllerPlaybackStateDidChange (notification: NSNotification) {
 //        if self.apple_player.playbackState == .playing {

@@ -12,7 +12,7 @@ import Foundation
 
 class myTabBarController: UITabBarController, UITabBarControllerDelegate {
     
-    
+    var poller = now_playing_poller.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -22,11 +22,16 @@ class myTabBarController: UITabBarController, UITabBarControllerDelegate {
     
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         print("hey this worked MAN")
+        
         guard viewController is UploadViewController else { return true }
+        
+        let UploadVC = viewController as! UploadViewController
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         let newViewController = storyboard.instantiateViewController(withIdentifier: "UploadViewController2") as! UploadViewController2
-        newViewController.modalPresentationStyle = .fullScreen
-        tabBarController.present(newViewController, animated: true, completion: nil)
+        let navController = UINavigationController(rootViewController: newViewController) // Creating a navigation controller with newViewController at the root of the navigation stack.
+        UploadVC.present(navController, animated: true, completion: {
+                print("complete")
+            })
         return false
     }
     

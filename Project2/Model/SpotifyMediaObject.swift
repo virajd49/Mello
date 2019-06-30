@@ -46,7 +46,7 @@ class SpotifyMediaObject: Decodable {
         let external_ids: isrc_id?
 //        let external_urls: [external_urls]?
 //        let href : String?
-//        let id : String?
+        let id : String?
 //        let is_local: Bool?
         let name :  String?
 //        let popularity : Int?

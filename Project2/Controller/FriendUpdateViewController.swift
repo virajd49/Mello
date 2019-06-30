@@ -157,7 +157,7 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
                 if destination.player == "Youtube"{
                 destination.youtube_player_setup()
                 }else if destination.player == "Spotify"{
-                    destination.Spotifyplayer?.queueSpotifyURI(destination.song_ID, callback: { (error) in
+                    destination.Spotifyplayer.queueSpotifyURI(destination.song_ID, callback: { (error) in
                         if (error == nil) {
                             print("queued!")
                         }

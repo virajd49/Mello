@@ -28,7 +28,7 @@ class Setting: NSObject {
 
 class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    let current_user = "Apple"
+    let current_user = "Spotify"
     var userDefaults = UserDefaults.standard
     var flag = false
     let blackview = UIView()
@@ -38,7 +38,8 @@ class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate
         cv.backgroundColor = UIColor.white
         return cv
     }()
-    let playlist_access = UserAccess(musicPlayerController: MPMusicPlayerController.applicationMusicPlayer, myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
+    //let playlist_access = UserAccess(musicPlayerController: MPMusicPlayerController.applicationMusicPlayer, myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
+    let playlist_access = UserAccess(myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
     
     let cellID = "cellID"
     let cellHeight: CGFloat = 50
@@ -55,9 +56,9 @@ class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate
                 settings.append(Setting(name: "Add to " + list[i] , nativeAppimageName: "apple_logo", addIconimageName: "icons8-add-100", mediaItem: list[i]))
             }
         } else{
-            let list: [String] = self.userDefaults.object(forKey: "Spotify_playlist_names") as! [String]
-            for i in 1...list.count-1 {
-                settings.append(Setting(name: "Add to " + list[i] , nativeAppimageName: "apple_logo", addIconimageName: "icons8-add-100", mediaItem: list[i]))
+            let dict: [String : String] = self.userDefaults.object(forKey: "Spotify_playlist_URIs") as! [String : String]
+            for i in dict.keys {
+                settings.append(Setting(name: "Add to " + i , nativeAppimageName: "apple_logo", addIconimageName: "icons8-add-100", mediaItem: i))
             }
         }
     }

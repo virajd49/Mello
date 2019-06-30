@@ -11,10 +11,13 @@
 import UIKit
 import QuartzCore
 import MediaPlayer
+import FLAnimatedImage
+import SDWebImage
 
 class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate {
 
 
+    @IBOutlet weak var gif_image_view: FLAnimatedImageView!
     @IBOutlet weak var progressBar: UIProgressView!
     @IBOutlet weak var albumArtImage: UIImageView!
     @IBOutlet weak var lyricView: UITextView!
@@ -132,10 +135,16 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
         self.preview_url = post.preview_url
         if self.typeFlag != "video"{
             self.videoID = "empty"
-        }else{
+        } else {
             self.trackidstring = "empty"
         }
-        
+        self.gif_image_view.isHidden = true
+        if post.GIF_url != "" {
+            self.gif_image_view.isHidden = false
+            self.gif_image_view.sd_setShowActivityIndicatorView(true)
+            self.gif_image_view.sd_setIndicatorStyle(.gray)
+            self.gif_image_view.sd_setImage(with: URL (string: post.GIF_url))
+        }
     }
     
 

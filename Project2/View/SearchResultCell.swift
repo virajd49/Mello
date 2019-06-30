@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import GoogleAPIClientForREST
 
-class SearchResultCell: UITableViewCell{
+class SearchResultCell: UITableViewCell {
     
     static let identifier = "searchresultcell"
  

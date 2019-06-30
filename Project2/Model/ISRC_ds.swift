@@ -83,5 +83,19 @@ class ISRC_ds {
         return isrc_ds
     }
     
+    func create_isrc_ds_apple_only() -> isrc_data_set {
+        
+        let isrc_ds = [ isrc_number : ["apple_set" : self.create_apple_set()]]
+        
+        return isrc_ds
+    }
+    
+    func create_isrc_ds_spotify_only() -> isrc_data_set {
+        
+        let isrc_ds = [ isrc_number : ["spotify_set" : self.create_spotify_set()]]
+        
+        return isrc_ds
+    }
+    
     
 }

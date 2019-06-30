@@ -13,13 +13,16 @@ import Firebase
 import Foundation
 
 
+enum MyError: Error {
+    case runtimeError(String)
+}
 
 class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate  {
     
-    enum MyError: Error {
-        case runtimeError(String)
-    }
     
+  
+    var super_temp_flag = true
+    var poller = now_playing_poller.shared
     var dismiss_chevron: UIButton?
     var navBarImage: UIImageView?
     var navBarImageView: UIView?
@@ -75,8 +78,8 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     let userDefaults = UserDefaults.standard
     var posts: [Post]?
     //var index_for_progress_bar : IndexPath? //for checking runaway porgress bars for other cells
-    var currently_playing_song_cell: IndexPath? //last tapped/currently playing cell, so that we can stop it if a youtube video starts playing
-    var currently_playing_youtube_cell: IndexPath? //last tapped/currently playing youtube cell, so that we can stop it if a youtube video starts playing
+    var currently_playing_song_cell: IndexPath! //last tapped/currently playing cell, so that we can stop it if a youtube video starts playing
+    var currently_playing_youtube_cell: IndexPath! //last tapped/currently playing youtube cell, so that we can stop it if a youtube video starts playing
     var currently_playing_song_id: String!
     var paused_cell: IndexPath?
     var last_viewed_youtube_cell: IndexPath?
@@ -95,7 +98,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     var executed_once: Bool!
     var playerView_offsetvalue: TimeInterval! //offset value for separate play/pause routine held by player_view
     var playerView_source_value: String!
-    let playlist_access = UserAccess(musicPlayerController: MPMusicPlayerController.applicationMusicPlayer, myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
+    let playlist_access = UserAccess(myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
     let window = UIApplication.shared.keyWindow
     var currentPost: Post!
     struct Storyboard {
@@ -153,6 +156,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
          NotificationCenter.default.addObserver(self, selector: #selector(stopAudioplayerforYoutube(notification:)), name: Notification.Name(rawValue: "Stop Audio Player!"), object: nil )
 //        Adding the currently playing bar on top of the table view
         //playingView = UIView(frame: CGRect(origin: CGPoint(x:0, y:568), size: CGSize(width: 375, height: 50)))
+        NotificationCenter.default.addObserver(self, selector: #selector(stop_newsfeed_player(notification:)), name: Notification.Name(rawValue: "Stop NewsFeed Player!"), object: nil)
         playingView = UIView(frame: CGRect(origin: CGPoint(x:0, y: (window?.frame.height)!), size: CGSize(width: 375, height: 50)))
         playingView?.backgroundColor = UIColor.white
         self.navigationController?.view.addSubview(playingView!)
@@ -363,12 +367,87 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         tableView.separatorColor = UIColor.clear //we don't want the default separator between the cells to be seen
     }
     
+    
+    @objc func stop_newsfeed_player(notification: NSNotification) {
+        print("Something is started playing in FriendUpdateController - stop News Feed player")
+        self.timer?.invalidate()
+        if currently_playing_song_cell != nil {
+            allCells[currently_playing_song_cell]?[0] =  false
+            allCells[currently_playing_song_cell]?[1] = false
+            currently_playing_song_cell = nil
+        }
+        
+    }
+    
+    
+    //------------------------------------------------------------------------------------------------------------------------------------------------------//
+    //-> this does not work -> don't have a perfect workaround yet -> all the surrounding comments are the remnants of attempted workarounds - still see Domain=MPCPlayerRequestErrorDomain Code=1 "No commands provided." intermittently - need to open bug with Apple
+    @objc func setcurrentplaybacktime() {
+        
+        print ("cureent playback time is \(self.appleplayer.currentPlaybackTime)")
+        if ((self.appleplayer.playbackState == .playing) && (self.appleplayer.currentPlaybackTime > 0.01)) {
+            self.timer.invalidate()
+            print(Float((self.appleplayer.currentPlaybackTime)))
+            self.appleplayer.currentPlaybackTime = 30.0
+            print(Float((self.appleplayer.currentPlaybackTime)))
+            print("current test")
+            self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
+                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+        }
+        
+    }
+    
+    func set_curr_playback() {
+        DispatchQueue.global(qos: .userInteractive).async {
+            let group  = DispatchGroup()
+            group.enter()
+            while (self.super_temp_flag) {
+                print ("while true")
+                if ((self.appleplayer.currentPlaybackTime > 0.01) && (self.appleplayer.currentPlaybackTime < 30.0) ) {
+                    self.super_temp_flag = false
+                    print(Float((self.appleplayer.currentPlaybackTime)))
+                    self.appleplayer.currentPlaybackTime = 30.0
+                    print(Float((self.appleplayer.currentPlaybackTime)))
+                    print("current test")
+                }
+            }
+            group.leave()
+            group.notify(queue: .main) {
+                self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
+                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+            }
+        }
+    }
+    
+    
+    func set_current_playback_time () {
+        while (self.super_temp_flag) {
+            print ("while true")
+            if ((self.appleplayer.currentPlaybackTime > 0.01)) {
+                self.super_temp_flag = false
+                print(Float((self.appleplayer.currentPlaybackTime)))
+                self.appleplayer.currentPlaybackTime = 30.0
+                print(Float((self.appleplayer.currentPlaybackTime)))
+                print("current test")
+                self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
+                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+            }
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------------------------------------------------//
+
+    
+    
     @objc func updateProgress_apple() {
         self.it_has_been_a_second = self.it_has_been_a_second! + 1
-        if (self.it_has_been_a_second! >= 10000){
-            print("update_apple")
-            the_temp = Float((self.appleplayer.currentPlaybackTime) - currentPost.startoffset)
-            the_new_temp = Float(the_temp! / self.duration)
+        if (self.it_has_been_a_second! >= 10000) {
+            print("update_apple \(Float(self.appleplayer.currentPlaybackTime))")
+            
+            //print("duration is \(self.duration)")
+            //print ("current post startoffset \(currentPost.startoffset)")
+            //print(Float((self.appleplayer.currentPlaybackTime)))
+            the_temp = Float(self.appleplayer.currentPlaybackTime) - 0.0 //<- Apple does not allow starting from a different point. No workaround so far. -> this does not work -> don't have a perfect workaround yet -> all the surrounding comments are the remnants of attempted workarounds - still see Domain=MPCPlayerRequestErrorDomain Code=1 "No commands provided." intermittently - need to open bug with Apple
+            the_new_temp = Float(the_temp!)/Float(self.duration)
             if ((the_new_temp!) > self.playBar.progress) {
                 self.playBar.progress = the_new_temp!
                 self.prog_bar!.progress = the_new_temp!
@@ -377,13 +456,13 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             } else {
                 //do regular increment
                 //print("regular increment")
-                self.playBar.progress += (0.000089/self.duration)
-                self.prog_bar!.progress += (0.000089/self.duration)
+                self.playBar.progress += (0.000189/self.duration)
+                self.prog_bar!.progress += (0.000189/self.duration)
             }
         } else {
             //print("regular increment")
-            self.playBar.progress += (0.000089/self.duration)
-            self.prog_bar!.progress += (0.000089/self.duration)
+            self.playBar.progress += (0.000189/self.duration)
+            self.prog_bar!.progress += (0.000189/self.duration)
             
         }
         if self.playBar.progress >= 1 {
@@ -415,7 +494,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         if (self.it_has_been_a_second! >= 10000){
             print("update_spotify")
             the_temp = Float(((self.spotifyplayer?.playbackState.position)!) - currentPost.startoffset)
-            the_new_temp = Float(the_temp! / self.duration)
+            the_new_temp = Float(the_temp!) / Float(self.duration)
             if ((the_new_temp!) > self.playBar.progress) {
                 self.playBar.progress = the_new_temp!
                 self.prog_bar!.progress = the_new_temp!
@@ -471,7 +550,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         if (self.it_has_been_a_second! >= 10000){
             //print("update_yt")
             the_temp = Float(((youtubeplayer?.currentTime())!) - currentPost.starttime)
-            the_new_temp = Float(the_temp! / self.duration)
+            the_new_temp = Float(the_temp!) / Float(self.duration)
             if ((the_new_temp!) > self.playBar.progress) {
                 self.playBar.progress = the_new_temp!
                 self.prog_bar!.progress = the_new_temp!
@@ -518,7 +597,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         if (self.it_has_been_a_second! >= 10000){
             print("update_ytmini")
             the_temp = Float(((youtubeplayer2?.currentTime())!) - currentPost.starttime)
-            the_new_temp = Float(the_temp! / self.duration)
+            the_new_temp = Float(the_temp!) / Float(self.duration)
             if ((the_new_temp!) > self.playBar.progress) {
                 self.playBar.progress = the_new_temp!
                 self.prog_bar?.progress = the_new_temp!
@@ -564,7 +643,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         if (self.it_has_been_a_second! >= 10000){
             print("update_av")
             the_temp = Float(((self.av_player?.deviceCurrentTime)!) - 0.0)
-            the_new_temp = Float(the_temp! / 30)
+            the_new_temp = Float(the_temp!) / 30.0
             if ((the_new_temp!) > self.playBar.progress) {
                 self.playBar.progress = the_new_temp!
                 self.prog_bar!.progress = the_new_temp!
@@ -625,7 +704,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 } else {
                     the_temp = Float((youtubeplayer?.currentTime())! - currentPost.starttime)
                 }
-                the_new_temp = Float(the_temp! / self.duration)
+                the_new_temp = Float(the_temp!) / Float(self.duration)
                 print(the_temp)
                 print (the_new_temp)
                 //print (self.duration)
@@ -707,8 +786,9 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     }
     
     
-    @objc func handleMusicPlayerControllerPlaybackStateDidChange (notification: NSNotification) {
+    @objc func handleMusicPlayerControllerPlaybackStateDidChange () {
         if self.appleplayer.playbackState == .playing {
+            print ("apple player ksjnkwrnlwinw just started playing - newsfeed - handleMusicPlayerControllerPlaybackStateDidChange")
             self.youtubeplayer?.stopVideo()
             self.youtubeplayer2?.stopVideo()
             self.miniplayer = false
@@ -801,9 +881,10 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         switch(state){
         case YTPlayerState.unstarted:
             print("unstarted youtube")
+            break;
         case YTPlayerState.queued:
             print("queued youtube")
-
+            break;
         case YTPlayerState.buffering:
             print (currently_playing_song_cell)
             if currently_playing_song_cell != nil{
@@ -812,6 +893,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             }else{
                 print ("there is no audio cell playing")
             }
+            break;
         case YTPlayerState.ended:
             print("Ended - Yes we come here")
             currently_playing_youtube_cell = nil
@@ -1128,7 +1210,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             }
             
 
-        }else if (paused_cell != nil){ //something was paused and nothing new was played
+        } else if (paused_cell != nil){ //something was paused and nothing new was played
         
             print("something was paused")
             let previousCell = self.tableView.cellForRow(at: paused_cell!) as? PostCell
@@ -1136,7 +1218,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 if userDefaults.string(forKey: "UserAccount") == "Spotify" {
                     print("something was paused: spotify")
                     print(previousCell?.trackidstring)
-                    self.spotifyplayer?.playSpotifyURI(previousCell?.trackidstring, startingWith: 0, startingWithPosition: self.playerView_offsetvalue, callback: { (error) in
+                    self.spotifyplayer?.playSpotifyURI(previousCell!.trackidstring, startingWith: 0, startingWithPosition: self.playerView_offsetvalue, callback: { (error) in
                             if (error == nil) {
                                 print("playing number 3")
                                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
@@ -1159,11 +1241,11 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                     }
                     currently_playing_song_cell = paused_cell
                     //paused_cell = nil
-            }else if (playerView_source_value == "apple"){
+            }else if (playerView_source_value == "apple") {
                 if userDefaults.string(forKey: "UserAccount") == "Spotify" {
                     print("something was paused: spotify")
                     print(previousCell?.helper_id)
-                    self.spotifyplayer?.playSpotifyURI(previousCell?.helper_id, startingWith: 0, startingWithPosition: self.playerView_offsetvalue, callback: { (error) in
+                    self.spotifyplayer?.playSpotifyURI(previousCell!.helper_id, startingWith: 0, startingWithPosition: self.playerView_offsetvalue, callback: { (error) in
                         if (error == nil) {
                             print("playing number 3")
                             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
@@ -1218,7 +1300,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             if let tapIndexPath = self.tableView.indexPathForRow(at: tapLocation) {
                 print ("tap edit here 3")
                 if let tappedCell = self.tableView.cellForRow(at: tapIndexPath) as? PostCell {  //find the cell we tapped on
-                    
+                   
                     //debug
                    print("detects video cell too")
                    print (tapIndexPath)
@@ -1231,7 +1313,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         print("this is not a video cell")
                     if tappedCell.playingflag == false {     //If this is a new untapped cell OR paused cell
                         if currently_playing_song_cell == nil {      //if no other cell is currently playing
-                                if paused_cell == tapIndexPath{     //If this is a previously paused cell
+                                if paused_cell == tapIndexPath {     //If this is a previously paused cell
                                     print ("paused_cell == tapIndexPath")
                                     
                                             currently_playing_song_cell = tapIndexPath  //record current cell
@@ -1242,8 +1324,8 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                                             }
                                             self.playButton(cell: tappedCell)
                                             update_global(cell_control: true, tapped_cell: tappedCell, tapped_index: currently_playing_song_cell!)
-                                }
-                                else{
+                                } else {
+                                            //Here - since paused_cell != tapIndexPath, meaning - the currently tapped cell, we also need to check if there is any previously paused cell - anf reset it's playing/paused flags to false/false.
                                             print ("paused_cell != tapIndexPath")   //If this is a new untapped cell
                                             playerView_source_value = tappedCell.source
                                             currently_playing_song_cell = tapIndexPath
@@ -1269,6 +1351,14 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         }else{ //if some other cell is playing right now
                             let previousCell = self.tableView.cellForRow(at: currently_playing_song_cell!) as? PostCell //record what the other cell that was playing was
                             //debug
+                            
+                            if tappedCell.pausedflag == true {
+                                //This means - this cell was played - then paused - then scrolled away from - and a new cell was played - and we never reset this cells play/pause flags to false/false. Since we want to treat this cell as a brand new one now - reset all flags to false/false.
+                                tappedCell.pausedflag = false
+                                tappedCell.playingflag = false
+                                update_global(cell_control: true, tapped_cell: tappedCell, tapped_index: tapIndexPath) 
+                            }
+                            
                             print(currently_playing_song_cell)
                             print("these are nil?")
                             print(previousCell?.playingflag as Any)
@@ -1301,9 +1391,9 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                                     }
                                 })
                                 }
-                            }else{
+                            } else {
                                     print ("switching within same player")
-                                    }
+                            }
                             playerView_source_value = tappedCell.source
                             currently_playing_song_cell = tapIndexPath
                             currently_playing_song_id = tappedCell.trackidstring
@@ -1540,7 +1630,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                     print(cell.startoffset)
                     if userDefaults.string(forKey: "UserAccount") == "Spotify" {
                         self.spotifyplayer = SPTAudioStreamingController.sharedInstance()
-                        self.spotifyplayer?.playSpotifyURI(cell.trackidstring, startingWith: 0, startingWithPosition: 0, callback: { (error) in
+                        self.spotifyplayer?.playSpotifyURI(cell.trackidstring, startingWith: 0, startingWithPosition: currentPost.startoffset, callback: { (error) in
                             if (error == nil) {
                                 print("Spotify is playing! 2")
                                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
@@ -1556,9 +1646,18 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                     } else if userDefaults.string(forKey: "UserAccount") == "Apple" {
                         if cell.helper_id != "default" {
                             self.appleplayer.setQueue(with: [cell.helper_id])
+                            //self.appleplayer.stop()
+                            print ("current playback time after the stop \(self.appleplayer.currentPlaybackTime)")
+                            print("should be calling setcurrentplaybacktime")
+//                            self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.setcurrentplaybacktime), userInfo: nil, repeats: true)
+//                            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
                             self.appleplayer.play()
+                            //self.appleplayer.currentPlaybackTime = cell.startoffset //-> this does not work -> don't have a perfect workaround yet -> all the surrounding comments are the remnants of attempted workarounds - still se Domain=MPCPlayerRequestErrorDomain Code=1 "No commands provided." intermittently - need to open bug with Apple
                             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
                             RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                            //self.super_temp_flag = true
+                            //self.set_current_playback_time()
+                            //self.set_curr_playback()
                             print("Apple is playing")
                             self.current_song_player = "apple"
                         } else if cell.preview_url != "nil" {
@@ -1572,18 +1671,28 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 } else if cell.source == "apple"{
                     print ("source is apple")
                     print (cell.trackidstring)
+                    print (currentPost.startoffset)
                     if userDefaults.string(forKey: "UserAccount") == "Apple" {
                         self.appleplayer.setQueue(with: [cell.trackidstring])
+                        //self.appleplayer.stop()
+                        print ("current playback time after the stop \(self.appleplayer.currentPlaybackTime)")
+                        print("should be calling setcurrentplaybacktime")
+//                        self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.setcurrentplaybacktime), userInfo: nil, repeats: true)
+//                        RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
                         self.appleplayer.play()
+                        //self.appleplayer.currentPlaybackTime = cell.startoffset //-> this does not work -> don't have a perfect workaround yet -> all the surrounding comments are the remnants of attempted workarounds - still se Domain=MPCPlayerRequestErrorDomain Code=1 "No commands provided." intermittently - need to open bug with Apple
                         self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                        RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                        RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                        self.super_temp_flag = true
+                        //self.set_current_playback_time()
+                        //self.set_curr_playback()
                         self.current_song_player = "apple"
                         print("Apple is playing")
                     } else if userDefaults.string(forKey: "UserAccount") == "Spotify" {
                         if cell.helper_id != "default" {
                             print (cell.helper_id)
                             self.spotifyplayer = SPTAudioStreamingController.sharedInstance()
-                            self.spotifyplayer?.playSpotifyURI(cell.helper_id, startingWith: 0, startingWithPosition: 0, callback: { (error) in
+                            self.spotifyplayer?.playSpotifyURI(cell.helper_id, startingWith: 0, startingWithPosition: currentPost.startoffset, callback: { (error) in
                                 if (error == nil) {
                                     print("Spotify is playing! 2")
                                     self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)

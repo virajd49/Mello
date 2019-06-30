@@ -19,7 +19,7 @@ extern NSString *const kGIDSignInErrorDomain;
 
 // A list of potential error codes returned from the Google Identity SDK.
 typedef NS_ENUM(NSInteger, GIDSignInErrorCode) {
-  // Indicates an unknown error has occurred.
+  // Indicates an unknown error has occured.
   kGIDSignInErrorCodeUnknown = -1,
   // Indicates a problem reading or writing to the application keychain.
   kGIDSignInErrorCodeKeychain = -2,
@@ -33,8 +33,6 @@ typedef NS_ENUM(NSInteger, GIDSignInErrorCode) {
   kGIDSignInErrorCodeHasNoAuthInKeychain = -4,
   // Indicates the user canceled the sign in request.
   kGIDSignInErrorCodeCanceled = -5,
-  // Indicates an Enterprise Mobility Management related error has occurred.
-  kGIDSignInErrorCodeEMM = -6,
 };
 
 // A protocol implemented by the delegate of |GIDSignIn| to receive a refresh token or an error.

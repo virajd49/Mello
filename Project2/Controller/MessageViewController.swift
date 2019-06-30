@@ -8,9 +8,12 @@
 
 import Foundation
 import UIKit
+import MediaPlayer
 
 class MessageViewController: UIViewController, YTPlayerViewDelegate {
     
+    @IBOutlet weak var test_album_art_image: UIImageView!
+    let musicPlayerController = MPMusicPlayerController.applicationMusicPlayer
     let bottomView = BottomView()
     var youtube: YTPlayerView!
     var mini_youtube: YTPlayerView!
@@ -38,6 +41,19 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         
     }
     
+    @IBAction func begin_playback(_ sender: Any) {
+        
+        self.beginPlayback(itemID: "1224353520")
+    }
+    
+    @IBAction func play_pause(_ sender: Any) {
+        
+        self.togglePlayPause()
+        
+    }
+    
+    
+    
     
     @IBAction func alertbutton(_ sender: Any) {
         
@@ -59,6 +75,12 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         super.viewDidLoad()
         
         
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
+        tapGesture.delegate = self as? UIGestureRecognizerDelegate
+        test_album_art_image.addGestureRecognizer(tapGesture)
+        
+        musicPlayerController.beginGeneratingPlaybackNotifications()
         youtube = YTPlayerView.init(frame: CGRect(x: 67, y: 431, width: 240, height: 128))
         mini_youtube = YTPlayerView.init(frame: CGRect(x: 67, y: 260, width: 240, height: 128))
         self.view.addSubview(youtube!)
@@ -78,6 +100,36 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         
        
     }
+    
+    
+    func beginPlayback(itemID: String) {
+        musicPlayerController.setQueue(with: ["1224353520"])
+        
+        musicPlayerController.play()
+        togglePlayPause()
+    }
+    
+    // MARK: Playback Control Methods
+    
+    func togglePlayPause() {
+        if musicPlayerController.playbackState == .playing {
+            musicPlayerController.pause()
+            togglePlayPause()
+        } else {
+            musicPlayerController.play()
+            musicPlayerController.currentPlaybackTime = 30.0
+        }
+    }
+    
+    
+    @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
+        
+        
+        self.togglePlayPause()
+    }
+    
+    
+    
     
     
 }

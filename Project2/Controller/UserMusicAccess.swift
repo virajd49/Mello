@@ -10,15 +10,15 @@ import Foundation
 import StoreKit
 import UIKit
 import MediaPlayer
-
-
+import PromiseKit
+//This class is used to pull resources from the Users own library - Not the entire catalogue
 
 
 class UserAccess {
     
     
     //let userdefaults = UserDefaults.standard
-    var musicPlayerController = MPMusicPlayerController.applicationMusicPlayer
+    //var musicPlayerController = MPMusicPlayerController.applicationMusicPlayer
     var myPlaylistQuery = MPMediaQuery.playlists()
     var myLibrarySongsQuery = MPMediaQuery.songs()
     var session: SPTSession!
@@ -28,17 +28,18 @@ class UserAccess {
     lazy var all_spotify_playlist_dict = ["":[""]]
     var username: String
     var access_token: String
+    var ErrorPointer: ErrorPointer
     
     
-    init(musicPlayerController: MPMusicPlayerController, myPlaylistQuery: MPMediaQuery, myLibrarySongsQuery: MPMediaQuery) {
-        self.musicPlayerController = musicPlayerController
+    init(myPlaylistQuery: MPMediaQuery, myLibrarySongsQuery: MPMediaQuery) {
+        //self.musicPlayerController = musicPlayerController
         self.myPlaylistQuery = myPlaylistQuery
         self.myLibrarySongsQuery = myLibrarySongsQuery
-        //self.access_token = (self.userDefaults.object(forKey: "Spotify_access_token") as! String)
-        self.access_token = "BQChhry-k4ofBoCQqMFiEPTMXwWE5lPcHQt7b05pnOJhdA5dibaZpbEiiKCQZKuwF3ASJs3bm4VxNfzGcsiPSYSTHAEgGBSi5ItLKaEhPFFfOKguD5yuKsrohGkG23keL74nOhaZXQs3MzNWgRxEdFiEvw"
+        self.access_token = (self.userDefaults.object(forKey: "spotify_access_token") as! String)
+        //self.access_token = "BQChhry-k4ofBoCQqMFiEPTMXwWE5lPcHQt7b05pnOJhdA5dibaZpbEiiKCQZKuwF3ASJs3bm4VxNfzGcsiPSYSTHAEgGBSi5ItLKaEhPFFfOKguD5yuKsrohGkG23keL74nOhaZXQs3MzNWgRxEdFiEvw"
         
-        //self.username = (self.userDefaults.object(forKey: "current_spotify_username") as! String)
-        self.username = "virajdeshpande88@gmail.com"
+        self.username = (self.userDefaults.object(forKey: "current_spotify_username") as! String)
+        //self.username = "virajdeshpande88@gmail.com"
     }
     
     //this function fills up full_library_spotifytrackIDs, all_playlist_URIs and all_spotify_playlist_names
@@ -71,6 +72,7 @@ class UserAccess {
         })
         */
     func get_spotify_playlists (){
+        print ("get_spotify_playlists")
         //print("\(self.username) yeah this guy")
         //print ("hey 1")
         
@@ -92,10 +94,14 @@ class UserAccess {
                         repeat{
                             for i in 0...(list.items.count-1) {
                                 let playlist = list.items[i] as! SPTPartialPlaylist
+                                print(playlist)
+                                print(playlist.name)
+                                print(playlist.uri)
+                                print(playlist.playableUri)
                                 //self.all_playlist_URIs.append("\(playlist.uri)")
                                 //self.all_playlist_URIs.append("\(playlist.uri!)")
                                 if !(self.all_playlist_URIs.keys.contains(playlist.name)){
-                                    self.all_playlist_URIs[playlist.name] = "\(playlist.uri!)"
+                                    self.all_playlist_URIs[playlist.name] = "\(playlist.uri)"
                                 }
                                 //self.all_spotify_playlist_dict.append(playlist.name)
                                 //print("\(self.all_playlist_URIs) at the append")
@@ -120,6 +126,7 @@ class UserAccess {
                                         self.userDefaults.set(self.all_spotify_playlist_dict, forKey: "Spotify_playlist_dict")
                                     }else {
                                         print("error in snap checking playlists")
+                                        print(error)
                                     }
                                 })
                             
@@ -155,36 +162,28 @@ class UserAccess {
     }
     
     func get_spotify_all_tracks() {
-        
+        print ("get_spotify_all_tracks")
         //this request is to get all the tracks in the users library
-        let request3: URLRequest = try! SPTYourMusic.createRequestForCurrentUsersSavedTracks(withAccessToken: self.access_token)
+        let request3: URLRequest = try! SPTYourMusic.createRequestForCurrentUsersSavedTracks(withAccessToken: self.access_token, error: ErrorPointer)
         //print (request3)
         SPTRequest.sharedHandler().perform(request3) { (error, response, data) in
+            print("Just completed the request")
             if error == nil {
+                print ("error != nil")
                 //print (self.access_token)
-                var listPage = try! SPTListPage(from: data, with: response, expectingPartialChildren: false, rootObjectKey: nil)
-                //print (listPage.items)
+                var listPage = try! SPTListPage(from: data!, with: response, expectingPartialChildren: false, rootObjectKey: nil)
+                print("printing listpage.items")
+                print (listPage.items)
                 //this while loop goes through all the pages and appends the tracks to full_library_spotifytrackIDs
-                repeat {
-                     for track in listPage.items {
-                        var stringID = "\((track as! SPTSavedTrack).uri)"
-                        self.full_library_spotifytrackIDs.append(stringID)
-                        //print((track as! SPTSavedTrack).uri)
-                     }
-                    
-                     if listPage.hasNextPage{
-                         listPage.requestNextPage(withAccessToken: self.access_token, callback: { (error, ListPage)  in
-                             if (error == nil) {
-                                listPage = ListPage as! SPTListPage
-                             }else {
-                                print ("error: could not get nextPage")
-                             }
-                             })
-                      }
-                    
-                   } while (listPage.hasNextPage)
-                print (self.full_library_spotifytrackIDs)
-                self.userDefaults.set(self.full_library_spotifytrackIDs, forKey: "Spotify_library_tracks")
+                // the while loop had to changed to a recursive function becuase the SPTListPage.requestNextPage was taking too long and the while loop would just skip to the next iteration without letting the request complete. So we replaced it with s combination of recursion + Promises in the spotify_get_page_after_function - we call the function with the first page - if it has a next page - we request for it - when we get it we call the function with the new page - when that funciton call returns - we fulfill the promise - We run this asynchronously to not block the main thread.
+                DispatchQueue.global(qos: .userInitiated).async {
+                    self.spotify_get_page_after(this_page: listPage).done {
+                        print("Done appending the songs")
+                        print (self.full_library_spotifytrackIDs)
+                        self.userDefaults.set(self.full_library_spotifytrackIDs, forKey: "Spotify_library_tracks")
+                        print("set spotify track id list")
+                    }
+                }
             } else {
                 print ("error getting all tracks")
                 print (error)
@@ -192,7 +191,43 @@ class UserAccess {
             
         }
         //print("\(self.full_library_spotifytrackIDs) at the return")
+        print("Returning from get_spotify_all_tracks")
         return
+    }
+    
+    func spotify_get_page_after (this_page: SPTListPage) ->Promise<Void> {
+        return Promise { seal in
+            print("spotify_get_page_after")
+            var page = this_page
+            
+            for track in page.items {
+                var stringID = "\((track as! SPTSavedTrack).uri)"
+                self.full_library_spotifytrackIDs.append(stringID)
+                print((track as! SPTSavedTrack).uri)
+                print(page.hasNextPage)
+            }
+            
+            if page.hasNextPage {
+                page.requestNextPage(withAccessToken: self.access_token, callback: { (error, ListPage)  in
+                    print(error)
+                    print(ListPage)
+                    if (error == nil) {
+                        print("error == nil")
+                        var NewPage = ListPage as! SPTListPage
+                        self.spotify_get_page_after(this_page: NewPage).done {
+                            seal.fulfill(())
+                        }
+                    } else {
+                        print ("error: could not get nextPage")
+                        seal.fulfill(())
+                    }
+                })
+            } else {
+                print ("Got all pages")
+                seal.fulfill(())
+            }
+        }
+        
     }
     
     func spotify_check_in_library(trackid: String) -> String {
@@ -301,7 +336,7 @@ class UserAccess {
         var library_tracks = userDefaults.object(forKey: "Spotify_library_tracks") as? [String] //pulling from userdefaults
         print(library_tracks)
         if mediacollection == "Library"{
-            let request: URLRequest = try! SPTYourMusic.createRequest(forSavingTracks: [URL(string: "\(mediaItem)") as Any], forUserWithAccessToken: self.access_token)
+            let request: URLRequest = try! SPTYourMusic.createRequest(forSavingTracks: [URL(string: "\(mediaItem)") as Any], forUserWithAccessToken: self.access_token, error: ErrorPointer)
             SPTRequest.sharedHandler().perform(request) { (error, response, data) in
                 if error == nil {
                     print (response)
@@ -312,17 +347,22 @@ class UserAccess {
                     print(error)
                 }
             }
-            SPTYourMusic.saveTracks(["\(mediaItem)"], forUserWithAccessToken: self.access_token, callback: nil)
+            SPTYourMusic.saveTracks(["\(mediaItem)"], forUserWithAccessToken: self.access_token, callback: {(error, Result) in
+                if error != nil {
+                    print ("Save tracks returned error")
+                    print (error)
+                }
+            })
             
         }else{
             let playlist_name = self.userDefaults.object(forKey: "Spotify_playlist_URIs") as! [String: String] //pulling from userdefaults
             var playlist_dict = self.userDefaults.object(forKey: "Spotify_playlist_dict") as! [String: [String]] //pulling from userdefaults
             let playlist_URI = playlist_name[mediacollection] as! String
-            let request: URLRequest = try! SPTPlaylistSnapshot.createRequest(forAddingTracks: [URL(string: "\(mediaItem)") as Any], toPlaylist: URL(string: "\(playlist_URI)"), withAccessToken: self.access_token )
+            let request: URLRequest = try! SPTPlaylistSnapshot.createRequest(forAddingTracks: [URL(string: "\(mediaItem)") as Any], toPlaylist: URL(string: "\(playlist_URI)")!, withAccessToken: self.access_token, error: ErrorPointer )
             SPTRequest.sharedHandler().perform(request) { (error, response, data) in
                 if error == nil {
                     print(response)
-                    let playist = try? SPTPlaylistSnapshot(from: data, with: response)
+                    let playist = try? SPTPlaylistSnapshot(from: data!, error: self.ErrorPointer)
                     //playist?.addTracks(toPlaylist: [URL(string: "\(String(describing: playlist_name[mediacollection]))")], withAccessToken: self.access_token, callback: nil)
                     playlist_dict[mediacollection]?.append("\(URL(string: mediaItem))")
                     print(playlist_dict)

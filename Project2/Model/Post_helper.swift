@@ -23,7 +23,7 @@ class Post_helper {
     let userDefaults = UserDefaults.standard
     let appleMusicManager = AppleMusicManager()
     var spotify_mediaItems: [SpotifyMediaObject.item]!
-    var apple_mediaItems: [[MediaItem]]!
+    var apple_mediaItems: [MediaItem]!
     var apple_struct : song_db_struct?
     var spotify_struct : song_db_struct?
     
@@ -54,9 +54,21 @@ class Post_helper {
             self.spotify_mediaItems = searchItems
             seal.fulfill(())
         }
-        print ("YAAAAAAAAAAS!!!!!!!!!!!!!!!")
+        print ("YAAAAAAAAAAS!!!!!!!!!!!!!!! search by song name")
         }
     }
+    
+    func perform_search_for_spotify_new_songURI (uri: String) -> Promise<Void> {
+        return Promise { seal in
+            appleMusicManager.performSpotifyCatalogSearchNew_songURI(with: uri).done { searchItems in
+                
+                self.spotify_mediaItems = searchItems
+                seal.fulfill(())
+            }
+            print ("YAAAAAAAAAAS!!!!!!!!!!!!!!! search by songURI ")
+        }
+    }
+    
     
     func perform_search_for_apple (name: String) -> Promise<Void> {
         return Promise { seal in
@@ -75,9 +87,10 @@ class Post_helper {
 
     func spotify_search (song_name: String, song_id: String) -> Promise<song_db_struct> {
         return Promise { seal in
-        print("in spotify search")
-        var variable = song_db_struct()
-        perform_search_for_spotify_new(name: song_name).done { Void in
+            print("in spotify search")
+            var variable = song_db_struct()
+            perform_search_for_spotify_new(name: song_name).done { Void in
+                if !self.spotify_mediaItems.isEmpty {
                                                         print (self.spotify_mediaItems)
                                                         var count,i : Int!
                                                         count = self.spotify_mediaItems.count
@@ -99,12 +112,19 @@ class Post_helper {
                                                         variable.song_name = self.spotify_mediaItems[i].name
                                                         variable.isrc_number = self.spotify_mediaItems[i].external_ids?.isrc
                                                         variable.preview_url = self.spotify_mediaItems[i].preview_url
-                                                        self.spotify_struct = variable
-                                                        
-                                                        
       //  })
-        
-             seal.fulfill(self.spotify_struct ?? variable)
+                } else {
+                    variable.release_date = ""
+                    variable.album_name = ""
+                    variable.song_name = ""
+                    variable.playable_id = ""
+                    variable.artist_name = ""
+                    variable.isrc_number = ""
+                    variable.preview_url = ""
+                }
+                     self.spotify_struct = variable
+                     seal.fulfill(self.spotify_struct ?? variable)
+                
             }
         }
     }
@@ -114,41 +134,50 @@ class Post_helper {
         print ("in apple search")
         var variable = song_db_struct()
             perform_search_for_apple(name: song_name).done { Void in
-
+                if !self.apple_mediaItems.isEmpty {
                                                             var count : Int!
-                                                            count = self.apple_mediaItems[0].count
+                                                            count = self.apple_mediaItems.count
                                                             var i : Int!
                                                             i = 0
                                                                 for l in 0..<count {
                                                                     print ("-----------Apple Search----------------")
-                                                                    print (self.apple_mediaItems[0][l].artistName)
-                                                                    print (self.apple_mediaItems[0][l].identifier)
-                                                                    print (self.apple_mediaItems[0][l].isrc)
-                                                                    print (self.apple_mediaItems[0][l].name)
-                                                                    print (self.apple_mediaItems[0][l].albumName)
-                                                                    print (self.apple_mediaItems[0][l].url)
-                                                                    print (self.apple_mediaItems[0][l].releaseDate)
-                                                                    print (self.apple_mediaItems[0][l].previews)
-                                                                    print (self.apple_mediaItems[0].count)
+                                                                    print (self.apple_mediaItems[l].artistName)
+                                                                    print (self.apple_mediaItems[l].identifier)
+                                                                    print (self.apple_mediaItems[l].isrc)
+                                                                    print (self.apple_mediaItems[l].name)
+                                                                    print (self.apple_mediaItems[l].albumName)
+                                                                    print (self.apple_mediaItems[l].url)
+                                                                    print (self.apple_mediaItems[l].releaseDate)
+                                                                    print (self.apple_mediaItems[l].previews)
+                                                                    print (self.apple_mediaItems.count)
                                                                     print ("-----------------------------------")
-                                                                    if song_id == self.apple_mediaItems[0][l].identifier {
+                                                                    if song_id == self.apple_mediaItems[l].identifier {
                                                                         i = l
                                                                         break
                                                                     }
                                                                     
                                                             }
                 
-                                                            variable.release_date = self.apple_mediaItems[0][i].releaseDate
-                                                            variable.album_name = self.apple_mediaItems[0][i].albumName
-                                                            variable.song_name = self.apple_mediaItems[0][i].name
-                                                            variable.playable_id = self.apple_mediaItems[0][i].identifier
-                                                            variable.artist_name = self.apple_mediaItems[0][i].artistName
-                                                            variable.isrc_number = self.apple_mediaItems[0][i].isrc
-                                                            variable.preview_url = (((self.apple_mediaItems[0][i].previews as! NSArray)[0] as! [String:String])["url"])
-                                                            self.apple_struct = variable
-                                                            print (variable.song_name)
-        
-                    seal.fulfill(self.apple_struct ?? variable)
+                                                            variable.release_date = self.apple_mediaItems[i].releaseDate
+                                                            variable.album_name = self.apple_mediaItems[i].albumName
+                                                            variable.song_name = self.apple_mediaItems[i].name
+                                                            variable.playable_id = self.apple_mediaItems[i].identifier
+                                                            variable.artist_name = self.apple_mediaItems[i].artistName
+                                                            variable.isrc_number = self.apple_mediaItems[i].isrc
+                                                            variable.preview_url = (((self.apple_mediaItems[i].previews as! NSArray)[0] as! [String:String])["url"])
+                    
+                } else {
+                    variable.release_date = ""
+                    variable.album_name = ""
+                    variable.song_name = ""
+                    variable.playable_id = ""
+                    variable.artist_name = ""
+                    variable.isrc_number = ""
+                    variable.preview_url = ""
+                }
+                self.apple_struct = variable
+                print (variable.song_name)
+                seal.fulfill(self.apple_struct ?? variable)
             }
     }
   }

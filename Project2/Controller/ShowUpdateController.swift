@@ -40,8 +40,8 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     override func viewDidLoad() {
         super.viewDidLoad()
         //youtubeplayer = YTPlayerView(frame: CGRect(origin: CGPoint(x: 37, y: 94), size: CGSize(width: 300, height: 300))
-        self.Spotifyplayer?.playbackDelegate = self as SPTAudioStreamingPlaybackDelegate
-        self.Spotifyplayer?.delegate = self as SPTAudioStreamingDelegate
+        self.Spotifyplayer.playbackDelegate = self as SPTAudioStreamingPlaybackDelegate
+        self.Spotifyplayer.delegate = self as SPTAudioStreamingDelegate
         self.lyric_view.isHidden = true
         self.lyric_view.layer.cornerRadius = 10
         let tapGesture = UISwipeGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
@@ -49,7 +49,8 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         self.view.addGestureRecognizer(tapGesture)
         
         self.modalPresentationStyle = UIModalPresentationStyle.overFullScreen
-        
+        self.profilePic.layer.cornerRadius = 50
+        self.profilePic.clipsToBounds = true
         containerView.clipsToBounds = false
         containerView.layer.shadowColor = UIColor.black.cgColor
         containerView.layer.shadowOpacity = 1
@@ -166,10 +167,11 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
              print ("error in playing!")
                 }
             })*/
-            self.Spotifyplayer?.playSpotifyURI(self.song_ID, startingWith: 0, startingWithPosition: 10.0, callback: { (error) in
+            self.Spotifyplayer.playSpotifyURI(self.song_ID, startingWith: 0, startingWithPosition: 10.0, callback: { (error) in
             if (error == nil) {
                 print("playing!")
-                print(self.Spotifyplayer?.metadata.currentTrack?.name)
+                print(self.Spotifyplayer.metadata.currentTrack?.name)
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: "Stop NewsFeed Player!"), object: nil)
             }
             
         })
@@ -203,7 +205,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         
         self.timer?.invalidate()
         self.playBar.progress = 0.0
-        self.Spotifyplayer?.setIsPlaying(false, callback: { (error) in
+        self.Spotifyplayer.setIsPlaying(false, callback: { (error) in
             if (error == nil) {
                 print("paused")
                 //self.timer?.invalidate()

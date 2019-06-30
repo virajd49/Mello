@@ -78,7 +78,7 @@ class AppleMusicControl: NSObject {
        current authorization is `SKCloudServiceAuthorizationStatusNotDetermined`
          */
         guard SKCloudServiceController.authorizationStatus() == .notDetermined else { return }
-        
+        print ("requestCloudServiceAuthorization - STATUS NOT DETERMINED")
         /*
         `SKCloudServiceController.requestAuthorization(_:)` triggers a prompt for the user asking if they wish to allow the application
          that requested authorization access to the device's cloud services information.  This allows the application to query information
@@ -110,7 +110,7 @@ class AppleMusicControl: NSObject {
          current authorization is `MPMediaLibraryAuthorizationStatusNotDetermined`
          */
         guard MPMediaLibrary.authorizationStatus() == .notDetermined else { return }
-        
+        print (" requestMediaLibraryAuthorization - STATUS NOT DETERMINED")
         /*
          `MPMediaLibrary.requestAuthorization(_:)` triggers a prompt for the user asking if they wish to allow the application
          that requested authorization access to the device's media library.
@@ -149,8 +149,8 @@ class AppleMusicControl: NSObject {
                 print("Unexpected value from SKCloudServiceController for storefront country code.")
                 return
             }
-            //print ("we did this guy 1")
-            //print (countryCode)
+            print ("we did this guy 1")
+            print (countryCode)
             self?.cloudServiceStorefrontCountryCode = countryCode
             
             let userDefaults = UserDefaults.standard
@@ -165,7 +165,7 @@ class AppleMusicControl: NSObject {
                  On iOS 11.0 or later, if the `SKCloudServiceController.authorizationStatus()` is `.authorized` then you can request the storefront
                  country code.
                  */
-                //print("we did this guy 2")
+                print("we did this guy 2")
                 cloudServiceController.requestStorefrontCountryCode(completionHandler: completionHandler)
             } else {
                 appleMusicManager.performAppleMusicGetUserStorefront(userToken: userToken, completion: completionHandler)
@@ -179,8 +179,9 @@ class AppleMusicControl: NSObject {
         guard let developerToken = self.fetchDeveloperToken() else {
             return
         }
-        //print("we did this guy 4")
+        print("we did this guy 4")
         self.requestStorefrontCountryCode()
+        self.cloudServiceStorefrontCountryCode = "us"
         if SKCloudServiceController.authorizationStatus() == .authorized {
             
             let completionHandler: (String?, Error?) -> Void = { [weak self] (token, error) in
@@ -204,7 +205,7 @@ class AppleMusicControl: NSObject {
                 
                 if self?.cloudServiceStorefrontCountryCode == "" {
                     self?.requestStorefrontCountryCode()
-                    //print ("we did this guy 3")
+                    print ("we did this guy 3")
                 }
                 
                 NotificationCenter.default.post(name: (self?.cloudServiceDidUpdateNotification)!, object: nil)
@@ -212,6 +213,7 @@ class AppleMusicControl: NSObject {
             
             if #available(iOS 11.0, *) {
                 print("ios 11")
+                print("developer token is \(developerToken)")
                 cloudServiceController.requestUserToken(forDeveloperToken: developerToken, completionHandler: completionHandler)
             } else {
                 print("< ios 11")
@@ -234,7 +236,7 @@ class AppleMusicControl: NSObject {
     func fetchDeveloperToken() -> String? {
         
         // MARK: ADAPT: YOU MUST IMPLEMENT THIS METHOD
-        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTQ3NDExNjQ3LCJleHAiOjE1NTE3MzE2NDd9.TU8jwCl4rcuFvoEWjlVCnuyVweKxQaJylv-sN_gMak5KCdH2CJYBvQij6HijP1NucNyDt4Qm7HldZ70OD43Krw"
+        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTUyNzQ3ODI1LCJleHAiOjE1NTQ0NzU4MjV9.y1eH2tJqx-bIdS3WP8PSDFN6XMeVbhK0z8Xfez2ky5eJoY7_EJtj9QafoJvhsGW63Lov3zC7ioxJPF7_FEU1Og"
         return developerAuthenticationToken
     }
     
@@ -271,10 +273,10 @@ class AppleMusicControl: NSObject {
             if let token = UserDefaults.standard.string(forKey: AppleMusicControl.userTokenUserDefaultsKey) {
                 userToken = token
                 self.requestStorefrontCountryCode()
-                //print("then this")
+                print("then this")
             } else {
                 /// The token was not stored previously then request one.
-                
+                print("was not stored previously")
                 requestUserToken()
             }
             
