@@ -146,13 +146,14 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         self.youtubeplayer?.layer.cornerRadius = 10
         self.youtubeplayer?.load(withVideoId: self.song_ID , playerVars: ["autoplay": 1
             , "playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 0, "start": update_start, "end": update_end, "rel": 0, "iv_load_policy": 3])
+        print("youtube_player_setup done")
         
     }
     
     
     
     func play_update() {
-        
+        print("play_update")
         switch (player) {
         
         case "Spotify":
@@ -183,6 +184,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
             break
         case "Youtube":
             self.youtubeplayer?.playVideo()
+            print("now playing")
             break
         default:
             print("Invalid player type")
@@ -237,6 +239,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
 
 extension ShowUpdateController {
     func playerViewDidBecomeReady(_ playerView: YTPlayerView) {
+        print("playerViewDidBecomeReady")
         self.youtubeplayer?.playVideo()
     }
 }

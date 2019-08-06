@@ -1132,7 +1132,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
      @objc func tapEdit2(recognizer: UITapGestureRecognizer)  {
         
         print("In tap edit2")
-        if (currently_playing_song_cell != nil){  //something is playing right now
+        if (currently_playing_song_cell != nil) {  //something is playing right now
             print("something is playing")
             if (self.appleplayer.playbackState == .playing){
                 print("true")
@@ -1622,7 +1622,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 } else {
                     print ("something went wrong")
                 }
-            } else{
+            } else {
                 cell.playingflag = true
                 if cell.source == "spotify" {
                     print ("source is spotify 2")

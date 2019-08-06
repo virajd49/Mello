@@ -19,6 +19,7 @@
 //              Don't Stop Me Now - The Platinum Collection - Greatest Hits I II & III does not match to the exact same album on spotify because the
 //                                                                                  album name only contains "The Platinum Collection"
 //              That's the Way - The complete BBC sessions - does not match because Spotify has the name as 'That's the Way - 1/4/71 Paris Theatre; 2016 Remaster' and Apple has the name as 'That's the Way (1/4/71 Paris Theatre)' - Possible solution - also include an album name match search - and then go through all the songs and see if we have an isrc match.
+//                Antisocial Ed Sheeran & Travis Scott
 
 //THE ISRC DATABASE NEEDS AN UPGRADE!!!!!!!:
 //                 Apple songs have different song id's in different regioins: So what to do? Make a separate db for every region? Or change the apple metadata

@@ -141,6 +141,8 @@ struct Post {
         
     }
     
+    
+    //FIXME This is an internal deubuging method. When we make changes to the Post structure we clear the database and pull posts from hardcoded values written above. When we want to push the values abck to the database we call this function by calling the bring up miniplayer view function on the newsfeed
     static func dict_posts () {
         
         print ("In dict_posts")

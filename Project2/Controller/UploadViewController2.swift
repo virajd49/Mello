@@ -18,8 +18,48 @@ import FLAnimatedImage
 import SDWebImage
 
 
-class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewDataSource, CALayerDelegate, UIScrollViewDelegate, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate, UITextViewDelegate, YTPlayerViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, SwiftyGiphyGridLayoutDelegate {
+class upload_path_keeper {
+    
+    
+    static let shared = upload_path_keeper()
+    var new_post_selected = false
+    var upload_path = "none"
+    var keeper_post: Post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
+    /* Values
+        none - nothing is being uploaded
+        default - basic upload path from tab bar button
+        oom - oom upload
+        hero - hero upload
+    */
+    
+    func set_upload_path(as path: String) {
+        upload_path = path
+    }
+    
+    func get_upload_path() -> String {
+        return upload_path
+    }
+    
+    func pass_a_post(post: Post) {
+        self.keeper_post = post
+        self.new_post_selected = true
+    }
+    
+    func grab_keeper_post() ->Post {
+        return self.keeper_post
+        self.new_post_selected = false
+    }
+}
 
+
+class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewDataSource, CALayerDelegate, UIScrollViewDelegate, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate, UITextViewDelegate, YTPlayerViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, SwiftyGiphyGridLayoutDelegate {
+    
+    var flow = "default_upload"
+    /*
+        default_upload_flow
+        hero_upload_flow
+        omm_upload_flow
+    */
     let kSwiftyGiphyCollectionViewCell = "SwiftyGiphyCollectionViewCell"
     var allowResultPaging: Bool = true
     let searchController = UISearchController(searchResultsController: nil)
@@ -115,6 +155,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     var selected_search_result_post: Post!
     var selected_search_result_post_image: UIImage!
     var selected_search_result_song_db_struct = song_db_struct()
+    var path_keeper = upload_path_keeper.shared
     var video_search_results = [GTLRYouTube_SearchResult]() {
         didSet {
             DispatchQueue.main.async {
@@ -219,7 +260,8 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.my_table?.dataSource = self
         self.my_table?.isHidden = true
         self.back_button.isHidden = true
-        
+        self.navigationItem.setHidesBackButton(true, animated:true);
+
         hide_custom_scrolling_aparattus_toggle(set : true)
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
@@ -915,7 +957,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     
-    
+ /*
     @IBAction func upload_done(_ sender: Any) {
         
         self.uploading = false
@@ -1043,6 +1085,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.reset_custom_scroller()
         self.scroller_timer.invalidate()
     }
+ */
     
     func end_post_media () -> Bool {
         
@@ -1499,11 +1542,11 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
 //                        self.song_name_label.text = tappedCell.youtube_video_resource.snippet?.title
 //                        self.artist_name_label.text = ""
                         //Here we do the query to get the video reponse object to get the duration - we set it in displayResultWithTicket2
-                        let video_search_query = GTLRYouTubeQuery_VideosList.query(withPart: "snippet,contentDetails,statistics")
-                        video_search_query.identifier = tappedCell.youtube_video_resource.identifier?.videoId ?? ""
-                        service.executeQuery(video_search_query,
-                                             delegate: self,
-                                             didFinish: #selector(displayResultWithTicket2(ticket:finishedWithObject:error:)))
+                        //let video_search_query = GTLRYouTubeQuery_VideosList.query(withPart: "snippet,contentDetails,statistics")
+                        //video_search_query.identifier = tappedCell.youtube_video_resource.identifier?.videoId ?? ""
+                        //service.executeQuery(video_search_query,
+                                            // delegate: self,
+                                             //didFinish: #selector(displayResultWithTicket2(ticket:finishedWithObject:error:)))
 //                        self.yt_id = tappedCell.youtube_video_resource.identifier?.videoId
 //                        self.uploading = true
                     }
@@ -1714,11 +1757,11 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         
         self.now_playing_mini_image.isHidden = true
         self.now_playing_mini_image_container.isHidden = true
-        self.back_button?.isHidden = false
-        toggle_hide_upload_selection(hide: false)
+        //self.back_button?.isHidden = false
+        //toggle_hide_upload_selection(hide: false)
         
         //get the song id from the current_playing_context and play the song from the start in our own player - this should stop the system player
-        
+ /*
         if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
             self.spotifyplayer.playSpotifyURI(self.temp_spotify_media_context_uri!, startingWith: 0, startingWithPosition: 0.0, callback: { (error) in
                 if (error == nil) {
@@ -1768,7 +1811,9 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.slider_leading_constraint.constant = 0
         self.color_animate_trailing.constant = 262.5
         self.collection_view_for_scroll.setContentOffset(CGPoint(x: -97.0, y: 0.0), animated: true)
+    */
         
+        self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
     }
     
     
@@ -1811,7 +1856,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     @objc func updateScrubber () {
         //self.audio_scrubber_ot.value = Float((self.spotifyplayer?.playbackState.position)!)
     }
-    
+/*
     func get_post_from_cell (cell_index: IndexPath) -> Promise<Post> {
         return Promise { seal in
         print("we got to get_post_from_cell")
@@ -2112,26 +2157,54 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
     }
-    
+*/
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print ("prepare for segue")
         let destinationVC = segue.destination as! UploadViewController3
-        destinationVC.selected_search_result_post = self.selected_search_result_post
-        destinationVC.upload_flag = self.upload_flag
-        destinationVC.duration = self.duration
-        destinationVC.duration_for_number_of_cells = self.duration_for_number_of_cells
-        destinationVC.selected_search_result_post_image = self.selected_search_result_post_image
-        definesPresentationContext = false //If you keep it as true then, the search bar in the controller that you push on the navigation stack remains unresponsive.
-        
-        print (self.selected_search_result_post_image)
-        print (destinationVC.selected_search_result_post_image)
-        print (self.duration_for_number_of_cells)
-        print (self.duration)
-        print (self.upload_flag)
-        print (destinationVC.duration_for_number_of_cells)
-        print (destinationVC.duration)
-        print (destinationVC.upload_flag)
+        destinationVC.flow = self.flow
+        if self.upload_flag != "now_playing" {
+            destinationVC.selected_search_result_post = self.selected_search_result_post
+            destinationVC.selected_search_result_song_db_struct = self.selected_search_result_song_db_struct
+            destinationVC.upload_flag = self.upload_flag
+            destinationVC.duration = self.duration
+            destinationVC.duration_for_number_of_cells = self.duration_for_number_of_cells
+            destinationVC.selected_search_result_post_image = self.selected_search_result_post_image
+            
+            
+            definesPresentationContext = false //If you keep it as true then, the search bar in the controller that you push on the navigation stack remains unresponsive.
+            
+            print (self.selected_search_result_post_image)
+            print (destinationVC.selected_search_result_post_image)
+            print (self.duration_for_number_of_cells)
+            print (self.duration)
+            print (self.upload_flag)
+            print (destinationVC.duration_for_number_of_cells)
+            print (destinationVC.duration)
+            print (destinationVC.upload_flag)
+        } else {
+             destinationVC.upload_flag = self.upload_flag
+            
+            if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
+              
+                destinationVC.spotify_current_uri = self.temp_spotify_media_context_uri
+                destinationVC.duration = (self.temp_spotify_media_context_duration!) / 1000
+                destinationVC.duration_for_number_of_cells = Int(ceil(Double(self.temp_spotify_media_context_duration!) / 1000))
+                destinationVC.uploading = true
+                
+            } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
+                
+                if let mediaItem = self.apple_system_player.nowPlayingItem {
+                  
+                    destinationVC.apple_id = mediaItem.playbackStoreID
+                    destinationVC.duration = Int(mediaItem.playbackDuration)
+                    destinationVC.duration_for_number_of_cells = Int(ceil(mediaItem.playbackDuration))
+                    destinationVC.uploading = true
+                }
+            }
+            
+            
+        }
     }
     
     
