@@ -27,7 +27,7 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     var playing: Bool = false
     let appleauthority = AppleMusicControl()
     var access_token = ""
-    var ErrorPointer: ErrorPointer
+    var ErrorPointer: ErrorPointer = nil
     private let scopes = [kGTLRAuthScopeYouTubeReadonly,kGTLRAuthScopeYouTube]
     let signInButton = GIDSignInButton()
     private let service = GTLRYouTubeService()
@@ -257,7 +257,7 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         SPTAuth.defaultInstance().requestedScopes = [SPTAuthStreamingScope, SPTAuthPlaylistReadPrivateScope, SPTAuthPlaylistModifyPublicScope, SPTAuthPlaylistModifyPrivateScope, SPTAuthUserLibraryReadScope, SPTAuthUserLibraryModifyScope, SPTAuthUserReadPrivateScope]
         //loginUrl = SPTAuth.defaultInstance().spotifyAppAuthenticationURL()
         //This is the AppAuthenticationURL format  - using hardcoded value because SPTAuth from the old sdk does not have 'user-read-playback-state'
-        loginUrl = URL(string: "spotify-action://authorize?nolinks=true&nosignup=true&response_type=code&scope=streaming%20playlist-read-private%20playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-library-read%20user-library-modify&utm_source=spotify-sdk&utm_medium=ios-sdk&utm_campaign=ios-sdk&redirect_uri=viraj-project2%3A%2F%2Fspotify-login-callback&show_dialog=true&client_id=5b5198fe415746c0a9410281d041a4f9")
+        loginUrl = URL(string: "spotify-action://authorize?nolinks=true&nosignup=true&response_type=code&scope=streaming%20playlist-read-private%20playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-library-read%20user-library-modify%20user-read-recently-played&utm_source=spotify-sdk&utm_medium=ios-sdk&utm_campaign=ios-sdk&redirect_uri=viraj-project2%3A%2F%2Fspotify-login-callback&show_dialog=true&client_id=5b5198fe415746c0a9410281d041a4f9")
         print(loginUrl)
         print(SPTAuth.defaultInstance().spotifyAppAuthenticationURL())
         print(SPTAuth.defaultInstance().spotifyWebAuthenticationURL())

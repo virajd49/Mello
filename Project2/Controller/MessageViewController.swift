@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import MediaPlayer
+import PostgresClientKit
 
 class MessageViewController: UIViewController, YTPlayerViewDelegate {
     
@@ -98,7 +99,75 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         alertController.addAction(OKAction)
         alertController.addAction(destroyAction)
         
+        postgres_testing()
        
+    }
+    
+    func postgres_testing () {
+        
+        select_postgres()
+       
+    }
+    
+    func select_postgres () {
+        do {
+            var configuration = PostgresClientKit.ConnectionConfiguration()
+            configuration.host = "ec2-18-222-104-142.us-east-2.compute.amazonaws.com"
+            //configuration.database = "example"
+            configuration.user = "postgres"
+            configuration.credential = .md5Password(password: "123TestDB!")
+            configuration.ssl = false               // SSL/TLS is disabled    ??
+            configuration.credential = .trust       //connects without authenticating   ??
+            
+            let connection = try PostgresClientKit.Connection(configuration: configuration)
+            defer { connection.close() }
+            
+            let text = "SELECT cust_id, cust_name, cust_age FROM customer WHERE cust_name = $1;"
+            let statement = try connection.prepareStatement(text: text)
+            defer { statement.close() }
+            
+            let cursor = try statement.execute(parameterValues: [ "Viraj" ])
+            defer { cursor.close() }
+            
+            for row in cursor {
+                let columns = try row.get().columns
+                let cust_id = try columns[0].int()
+                let cust_name = try columns[1].string()
+                let cust_age = try columns[2].int()
+                
+                
+                print("""
+                    cust_id: \(cust_id) cust_name: \(cust_name) cust_age: \(cust_age)
+                    """)
+            }
+        } catch {
+            print(error) // better error handling goes here
+        }
+    }
+    
+    func insert_postgres () {
+        do {
+            var configuration = PostgresClientKit.ConnectionConfiguration()
+            configuration.host = "ec2-18-222-104-142.us-east-2.compute.amazonaws.com"
+            //configuration.database = "example"
+            configuration.user = "postgres"
+            configuration.credential = .md5Password(password: "123TestDB!")
+            configuration.ssl = false               // SSL/TLS is disabled    ??
+            configuration.credential = .trust       //connecrs without authenticating   ??
+            
+            let connection = try PostgresClientKit.Connection(configuration: configuration)
+            defer { connection.close() }
+            
+            let text = "INSERT INTO customer (cust_id, cust_name, cust_age) VALUES (9, 'Viraj', 25);"
+            let statement = try connection.prepareStatement(text: text)
+            defer { statement.close() }
+            
+            let cursor = try statement.execute()
+            defer { cursor.close() }
+            
+        } catch {
+            print(error) // better error handling goes here
+        }
     }
     
     

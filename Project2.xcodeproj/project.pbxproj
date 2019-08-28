@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		0C10BC38212E4A2200C587B2 /* SongPlayControlViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C10BC37212E4A2200C587B2 /* SongPlayControlViewController.swift */; };
+		0C13B8A423082DDA00A449E8 /* SpotifyRecentlyPlayedMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C13B8A323082DDA00A449E8 /* SpotifyRecentlyPlayedMediaObject.swift */; };
+		0C13B8A62308CB8800A449E8 /* AlbumMediaItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C13B8A52308CB8700A449E8 /* AlbumMediaItem.swift */; };
+		0C13B8A82309079D00A449E8 /* UploadViewControllerAlbumDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C13B8A72309079C00A449E8 /* UploadViewControllerAlbumDisplay.swift */; };
 		0C1A44CA20E80EEB009CFE18 /* FriendUpdateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1A44C920E80EEB009CFE18 /* FriendUpdateViewController.swift */; };
 		0C1A44CC20E81254009CFE18 /* FriendUpdateCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1A44CB20E81254009CFE18 /* FriendUpdateCell.swift */; };
 		0C1C022F22AC2E1800A00A84 /* UserAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1C022E22AC2E1800A00A84 /* UserAccount.swift */; };
@@ -22,6 +25,8 @@
 		0C2B711522B08E9C001EADDF /* UploadViewController3.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C2B711422B08E9C001EADDF /* UploadViewController3.swift */; };
 		0C3116CE212CF17900A97FC7 /* MaxiSongCardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3116CD212CF17900A97FC7 /* MaxiSongCardViewController.swift */; };
 		0C3116D1212CF61400A97FC7 /* UIView+Snapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C3116D0212CF61400A97FC7 /* UIView+Snapshot.swift */; };
+		0C31515522FBB7A400B6C252 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0CA67B5D2156E52B00E63939 /* GoogleService-Info.plist */; };
+		0C31515622FBB7A400B6C252 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 0CA67B5D2156E52B00E63939 /* GoogleService-Info.plist */; };
 		0C4090AE210BEEB40065C015 /* ShowUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4090AD210BEEB40065C015 /* ShowUpdateController.swift */; };
 		0C4608CC2130EE3C00950D28 /* Frame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C4608CB2130EE3C00950D28 /* Frame.swift */; };
 		0C46BE5F22ECD959001A19DC /* Apple_artist_search_result_cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C46BE5E22ECD958001A19DC /* Apple_artist_search_result_cell.swift */; };
@@ -33,8 +38,6 @@
 		0C598D81214D90A200D34EFC /* SpotifyMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C598D80214D90A200D34EFC /* SpotifyMediaObject.swift */; };
 		0C5C99EA216448E60077AFA6 /* Post_helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C5C99E9216448E60077AFA6 /* Post_helper.swift */; };
 		0C69ECA5221A32A700B1889C /* SpotifyCurrentPlayingMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C69ECA4221A32A700B1889C /* SpotifyCurrentPlayingMediaObject.swift */; };
-		0C69ECA6221A32A700B1889C /* SpotifyCurrentPlayingMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C69ECA4221A32A700B1889C /* SpotifyCurrentPlayingMediaObject.swift */; };
-		0C69ECA7221A32A700B1889C /* SpotifyCurrentPlayingMediaObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C69ECA4221A32A700B1889C /* SpotifyCurrentPlayingMediaObject.swift */; };
 		0C6BC85022DEA6A200F76E8C /* oom_post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C6BC84F22DEA6A200F76E8C /* oom_post.swift */; };
 		0C7F2ED921B4A7DB00601B8D /* ImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7F2ED821B4A7DB00601B8D /* ImageCacheManager.swift */; };
 		0C7F61132057696900AF813D /* PostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C7F61122057696900AF813D /* PostCell.swift */; };
@@ -105,6 +108,9 @@
 
 /* Begin PBXFileReference section */
 		0C10BC37212E4A2200C587B2 /* SongPlayControlViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SongPlayControlViewController.swift; sourceTree = "<group>"; };
+		0C13B8A323082DDA00A449E8 /* SpotifyRecentlyPlayedMediaObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyRecentlyPlayedMediaObject.swift; sourceTree = "<group>"; };
+		0C13B8A52308CB8700A449E8 /* AlbumMediaItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumMediaItem.swift; sourceTree = "<group>"; };
+		0C13B8A72309079C00A449E8 /* UploadViewControllerAlbumDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadViewControllerAlbumDisplay.swift; sourceTree = "<group>"; };
 		0C1A44C920E80EEB009CFE18 /* FriendUpdateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendUpdateViewController.swift; sourceTree = "<group>"; };
 		0C1A44CB20E81254009CFE18 /* FriendUpdateCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendUpdateCell.swift; sourceTree = "<group>"; };
 		0C1C022E22AC2E1800A00A84 /* UserAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccount.swift; sourceTree = "<group>"; };
@@ -247,8 +253,10 @@
 				0C90F83222E3C14F00D1A773 /* grab_and_store_oom.swift */,
 				0CE1287120A51BE500E6C4C7 /* MediaItem.swift */,
 				0CEDE1DF22EA915700C0799D /* ArtistMediaItem.swift */,
+				0C13B8A52308CB8700A449E8 /* AlbumMediaItem.swift */,
 				0C598D80214D90A200D34EFC /* SpotifyMediaObject.swift */,
 				0CEDE1E122EA916900C0799D /* SpotifyArtistMediaObject.swift */,
+				0C13B8A323082DDA00A449E8 /* SpotifyRecentlyPlayedMediaObject.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -292,8 +300,9 @@
 				0C7F6116205775B600AF813D /* NewsFeedTableViewController.swift */,
 				0CDAA5302241C83D00CDC90A /* ProfilePageViewController.swift */,
 				0C1C023622ADCD8F00A00A84 /* PostViewController.swift */,
-				0CF86727205EC24F00A07271 /* SignInViewController.swift */,
+				0CEDE1E322EAB41F00C0799D /* SearchResultsController.swift */,
 				0CE1287520A51C3A00E6C4C7 /* SerializatonError.swift */,
+				0CF86727205EC24F00A07271 /* SignInViewController.swift */,
 				0C4090AD210BEEB40065C015 /* ShowUpdateController.swift */,
 				0C10BC37212E4A2200C587B2 /* SongPlayControlViewController.swift */,
 				0C1EF5B020B247E900B9114E /* UserMusicAccess.swift */,
@@ -301,7 +310,7 @@
 				0CB3BEF721B34CB40049E279 /* UploadViewController2.swift */,
 				0C2B711422B08E9C001EADDF /* UploadViewController3.swift */,
 				0CDB8B9922C9B12B00FA7B12 /* UploadViewController4.swift */,
-				0CEDE1E322EAB41F00C0799D /* SearchResultsController.swift */,
+				0C13B8A72309079C00A449E8 /* UploadViewControllerAlbumDisplay.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -484,15 +493,18 @@
 				TargetAttributes = {
 					0CFA3E602055ED0F00BFA4BB = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 1030;
 						ProvisioningStyle = Automatic;
 					};
 					0CFA3E742055ED1000BFA4BB = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 1030;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 0CFA3E602055ED0F00BFA4BB;
 					};
 					0CFA3E7F2055ED1000BFA4BB = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 1030;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 0CFA3E602055ED0F00BFA4BB;
 					};
@@ -534,6 +546,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0C31515522FBB7A400B6C252 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -541,6 +554,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0C31515622FBB7A400B6C252 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -572,6 +586,8 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-Project2/Pods-Project2-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/BlueSSLService/SSLService.framework",
+				"${BUILT_PRODUCTS_DIR}/BlueSocket/Socket.framework",
 				"${BUILT_PRODUCTS_DIR}/FLAnimatedImage/FLAnimatedImage.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMOAuth2/GTMOAuth2.framework",
 				"${BUILT_PRODUCTS_DIR}/GTMSessionFetcher/GTMSessionFetcher.framework",
@@ -580,6 +596,7 @@
 				"${BUILT_PRODUCTS_DIR}/GoogleUtilities/GoogleUtilities.framework",
 				"${BUILT_PRODUCTS_DIR}/NSTimer-Blocks/NSTimer_Blocks.framework",
 				"${BUILT_PRODUCTS_DIR}/ObjectMapper/ObjectMapper.framework",
+				"${BUILT_PRODUCTS_DIR}/PostgresClientKit/PostgresClientKit.framework",
 				"${BUILT_PRODUCTS_DIR}/PromiseKit/PromiseKit.framework",
 				"${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework",
 				"${BUILT_PRODUCTS_DIR}/SwiftyGiphy/SwiftyGiphy.framework",
@@ -588,6 +605,8 @@
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SSLService.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Socket.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FLAnimatedImage.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMOAuth2.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GTMSessionFetcher.framework",
@@ -596,6 +615,7 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleUtilities.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NSTimer_Blocks.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/ObjectMapper.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PostgresClientKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/PromiseKit.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SDWebImage.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SwiftyGiphy.framework",
@@ -705,6 +725,7 @@
 				0C53E69321E03CB60002E72D /* Extensions.swift in Sources */,
 				0C3116D1212CF61400A97FC7 /* UIView+Snapshot.swift in Sources */,
 				0CDB8B9A22C9B12B00FA7B12 /* UploadViewController4.swift in Sources */,
+				0C13B8A423082DDA00A449E8 /* SpotifyRecentlyPlayedMediaObject.swift in Sources */,
 				0C2B711522B08E9C001EADDF /* UploadViewController3.swift in Sources */,
 				0C598D81214D90A200D34EFC /* SpotifyMediaObject.swift in Sources */,
 				0C7F6117205775B600AF813D /* NewsFeedTableViewController.swift in Sources */,
@@ -715,6 +736,7 @@
 				0C21D58120F44237004E870A /* MenuBar.swift in Sources */,
 				0C4090AE210BEEB40065C015 /* ShowUpdateController.swift in Sources */,
 				0C4608CC2130EE3C00950D28 /* Frame.swift in Sources */,
+				0C13B8A82309079D00A449E8 /* UploadViewControllerAlbumDisplay.swift in Sources */,
 				0C46BE6122ECD977001A19DC /* Spotify_artist_search_result_cell.swift in Sources */,
 				0CE372B6214597CC00AE319F /* Artwork.swift in Sources */,
 				0CEDE1E422EAB41F00C0799D /* SearchResultsController.swift in Sources */,
@@ -733,6 +755,7 @@
 				0CEDE1E222EA916900C0799D /* SpotifyArtistMediaObject.swift in Sources */,
 				0C1C023122AC2E4000A00A84 /* Hero.swift in Sources */,
 				0C90F83322E3C14F00D1A773 /* grab_and_store_oom.swift in Sources */,
+				0C13B8A62308CB8800A449E8 /* AlbumMediaItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -741,7 +764,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0CFA3E7A2055ED1000BFA4BB /* Project2Tests.swift in Sources */,
-				0C69ECA6221A32A700B1889C /* SpotifyCurrentPlayingMediaObject.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -750,7 +772,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				0CFA3E852055ED1000BFA4BB /* Project2UITests.swift in Sources */,
-				0C69ECA7221A32A700B1889C /* SpotifyCurrentPlayingMediaObject.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -901,6 +922,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = 282H2U8VFT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -918,7 +940,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.viraj.Project2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Project2-Bridging-Header.h";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -929,6 +951,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = NO;
 				DEVELOPMENT_TEAM = 282H2U8VFT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -946,7 +969,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.viraj.Project2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Project2-Bridging-Header.h";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -958,6 +981,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = 282H2U8VFT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Project2/Frameworks",
@@ -967,7 +992,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.viraj.Project2Tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Project2.app/Project2";
 			};
@@ -980,6 +1005,8 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = 282H2U8VFT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Project2/Frameworks",
@@ -989,7 +1016,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.viraj.Project2Tests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Project2.app/Project2";
 			};
@@ -1001,6 +1028,8 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = 282H2U8VFT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Project2/Frameworks",
@@ -1010,7 +1039,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.viraj.Project2UITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Project2;
 			};
@@ -1022,6 +1051,8 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = NO;
+				DEVELOPMENT_TEAM = 282H2U8VFT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Project2/Frameworks",
@@ -1031,7 +1062,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.viraj.Project2UITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Project2;
 			};

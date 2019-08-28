@@ -60,7 +60,7 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
             self.playerView.isHidden = true
             
                 if self.typeFlag == "audio" {
-                    self.albumArtImage.bringSubview(toFront: albumArtImage)
+                    self.albumArtImage.bringSubviewToFront(albumArtImage)
                     self.albumArtImage.isHidden = false
                     self.lyricView.isHidden = true
                     /*
@@ -71,7 +71,7 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
                 }else {
                     //self.albumArtButton.bringSubview(toFront: albumArtButton)
                     //self.albumArtButton.backgroundColor = UIColor.clear
-                    self.lyricView.bringSubview(toFront: lyricView)
+                    self.lyricView.bringSubviewToFront(lyricView)
                     self.lyricView.isHidden = false
                     self.albumArtImage.isHidden = true
                 }

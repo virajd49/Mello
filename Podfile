@@ -15,6 +15,7 @@ target 'Project2' do
   pod 'GoogleAPIClientForREST/YouTube', '~> 1.2.1'
   pod 'GoogleSignIn', '~> 4.1.1'
   pod 'SwiftyGiphy', '~> 1.0'
+  pod 'PostgresClientKit', '~> 0.3'
 
   target 'Project2Tests' do
     inherit! :search_paths

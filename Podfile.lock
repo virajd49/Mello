@@ -1,4 +1,7 @@
 PODS:
+  - BlueSocket (1.0.48)
+  - BlueSSLService (1.0.48):
+    - BlueSocket (~> 1.0.48)
   - Firebase/Auth (5.16.0):
     - Firebase/CoreOnly
     - FirebaseAuth (= 5.3.0)
@@ -100,6 +103,9 @@ PODS:
   - nanopb/encode (0.3.901)
   - NSTimer-Blocks (0.0.1)
   - ObjectMapper (3.4.2)
+  - PostgresClientKit (0.3.2):
+    - BlueSocket (~> 1.0)
+    - BlueSSLService (~> 1.0)
   - PromiseKit (6.8.3):
     - PromiseKit/CorePromise (= 6.8.3)
     - PromiseKit/Foundation (= 6.8.3)
@@ -126,11 +132,14 @@ DEPENDENCIES:
   - Firebase/Storage
   - GoogleAPIClientForREST/YouTube (~> 1.2.1)
   - GoogleSignIn (~> 4.1.1)
+  - PostgresClientKit (~> 0.3)
   - PromiseKit (~> 6.0)
   - SwiftyGiphy (~> 1.0)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - BlueSocket
+    - BlueSSLService
     - Firebase
     - FirebaseAnalytics
     - FirebaseAuth
@@ -151,11 +160,14 @@ SPEC REPOS:
     - nanopb
     - NSTimer-Blocks
     - ObjectMapper
+    - PostgresClientKit
     - PromiseKit
     - SDWebImage
     - SwiftyGiphy
 
 SPEC CHECKSUMS:
+  BlueSocket: ff75aa92edb147aebf43ce7b20bf7a3693f8dcca
+  BlueSSLService: 754768ebcf47f135d730b19dd1d1a899b340f9fe
   Firebase: 749a8ff4962f9d8c79dda1966de20f6f77583d67
   FirebaseAnalytics: d35d47c03c50c73c14a7fd31463c5775843e78a9
   FirebaseAuth: c9b3ff063c223d2841d97240af547ce511bce19a
@@ -176,10 +188,11 @@ SPEC CHECKSUMS:
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   NSTimer-Blocks: 88faf9aef5f250ead087f3f67ae642517083bf36
   ObjectMapper: 0d4402610f4e468903ae64629eec4784531e5c51
+  PostgresClientKit: 942e12f741b3e8d40eca4efcb494af7d18d9eed7
   PromiseKit: 94c6e781838c5bf4717677d0d882b0e7250c80fc
   SDWebImage: ecc03494e973b93b80213649d32175f8d2d17d4d
   SwiftyGiphy: 6fb86ca967445826a9b1aa629ce22d970bca579d
 
-PODFILE CHECKSUM: 6f2f401e727d1657b6df00d7f4cd6ec74c1117e4
+PODFILE CHECKSUM: 1fe5b25f4b76068249eed2eb89759bd6be553a04
 
 COCOAPODS: 1.5.3

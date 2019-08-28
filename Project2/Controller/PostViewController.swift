@@ -57,7 +57,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
         var back_button = UIButton(type: .custom)
         back_button.frame = CGRect.init(x: 0, y: 0, width: 30, height: 30)
         back_button.translatesAutoresizingMaskIntoConstraints = false
-        back_button.imageEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 5)
+        back_button.imageEdgeInsets = UIEdgeInsets.init(top: 0, left: -10, bottom: 0, right: 5)
         back_button.setImage(UIImage(named: "icons8-back-30"), for: .normal)
         back_button.tintColor = UIColor.black
         back_button.setTitle("", for: .normal)
@@ -74,15 +74,15 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
         if self.grab_oom.stored_oom.flag == "audio" {
             self.youtubeplayer.isHidden = true
             self.lyric_view.isHidden = true
-            self.visual_aid_container.bringSubview(toFront: self.album_art)
+            self.visual_aid_container.bringSubviewToFront(self.album_art)
         } else if self.grab_oom.stored_oom.flag == "video" {
             self.album_art.isHidden = true
             self.lyric_view.isHidden = true
-            self.view.bringSubview(toFront: self.youtubeplayer)
+            self.view.bringSubviewToFront(self.youtubeplayer)
         } else if self.grab_oom.stored_oom.flag == "lyric" {
             self.youtubeplayer.isHidden = true
             self.album_art.isHidden = true
-            self.visual_aid_container.bringSubview(toFront: self.lyric_view)
+            self.visual_aid_container.bringSubviewToFront(self.lyric_view)
         }
         
         self.prog_bar.progress = 0
@@ -202,7 +202,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
                         if (error == nil) {
                             print("Spotify is playing! 2")
                             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
-                            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                            RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                             //print(self.Spotifyplayer?.metadata.currentTrack?.name)
                             //print(self.Spotifyplayer?.metadata.currentTrack?.albumName)
                             //print(self.Spotifyplayer?.metadata.nextTrack?.name)
@@ -221,7 +221,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
                         self.appleplayer.play()
                         //self.appleplayer.currentPlaybackTime = cell.startoffset //-> this does not work -> don't have a perfect workaround yet -> all the surrounding comments are the remnants of attempted workarounds - still se Domain=MPCPlayerRequestErrorDomain Code=1 "No commands provided." intermittently - need to open bug with Apple
                         self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                        RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                        RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                         //self.super_temp_flag = true
                         //self.set_current_playback_time()
                         //self.set_curr_playback()
@@ -248,7 +248,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
                     self.appleplayer.play()
                     //self.appleplayer.currentPlaybackTime = cell.startoffset //-> this does not work -> don't have a perfect workaround yet -> all the surrounding comments are the remnants of attempted workarounds - still se Domain=MPCPlayerRequestErrorDomain Code=1 "No commands provided." intermittently - need to open bug with Apple
                     self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                    RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                    RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                     //self.set_current_playback_time()
                     //self.set_curr_playback()
                     print("Apple is playing")
@@ -260,7 +260,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
                             if (error == nil) {
                                 print("Spotify is playing! 2")
                                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
-                                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                                RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                                 //print(self.Spotifyplayer?.metadata.currentTrack?.name)
                                 //print(self.Spotifyplayer?.metadata.currentTrack?.albumName)
                                 //print(self.Spotifyplayer?.metadata.nextTrack?.name)
@@ -313,7 +313,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
                 av_player.prepareToPlay()
                 av_player.play()
                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_av), userInfo: nil, repeats: true)
-                RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
             } catch {
                 print (error)
             }
@@ -492,7 +492,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
         case YTPlayerState.playing:
             print ("PostVC we know state changed")
             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_yt), userInfo: nil, repeats: true)
-            RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+            RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
             print("-----------------------------------------Timer started------------------------------------------")
             break;
         case YTPlayerState.paused:

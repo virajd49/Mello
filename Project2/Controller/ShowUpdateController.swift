@@ -43,9 +43,10 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         self.Spotifyplayer.playbackDelegate = self as SPTAudioStreamingPlaybackDelegate
         self.Spotifyplayer.delegate = self as SPTAudioStreamingDelegate
         self.lyric_view.isHidden = true
+        self.lyric_view.isEditable = false
         self.lyric_view.layer.cornerRadius = 10
         let tapGesture = UISwipeGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
-        tapGesture.direction = UISwipeGestureRecognizerDirection.down
+        tapGesture.direction = UISwipeGestureRecognizer.Direction.down
         self.view.addGestureRecognizer(tapGesture)
         
         self.modalPresentationStyle = UIModalPresentationStyle.overFullScreen
@@ -63,18 +64,18 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         containerView.isHidden = false
         self.playerView.isHidden = true
         if self.player == "Youtube" {
-        self.view.bringSubview(toFront: youtubeplayer!)
+        self.view.bringSubviewToFront(youtubeplayer!)
             containerView.isHidden = true
         }
         
         if (self.lyric_text != "") {
             print("here")
-            self.view.bringSubview(toFront: lyric_view)
+            self.view.bringSubviewToFront(lyric_view)
             self.lyric_view.isHidden = false
             self.lyric_view.text = self.lyric_text
             self.view.backgroundColor = UIColor.black
         }
-        albumArt.image = UIImage(named: albumArt_string!)
+        //albumArt.image = UIImage(named: albumArt_string!)
         /*
         self.test_view = UIView(frame: CGRect(origin: CGPoint(x:37, y:94), size: CGSize(width: 300, height: 300)))
         
@@ -110,7 +111,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         let vc = self
         //vc.view.backgroundColor = .clear
         win.rootViewController = vc
-        win.windowLevel = UIWindowLevelAlert + 1
+        win.windowLevel = UIWindow.Level.alert + 1
         win.makeKeyAndVisible()
         UIApplication.shared.keyWindow?.rootViewController?.present(vc, animated: true, completion: nil)
         //vc.present(self, animated: true, completion: nil)
@@ -139,7 +140,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     func youtube_player_setup() {
         self.youtubeplayer = YTPlayerView.init(frame: CGRect(origin: CGPoint(x:37, y:94), size: CGSize(width: 300, height: 300)))
         self.youtubeplayer?.delegate = self
-        self.youtubeplayer?.contentMode = UIViewContentMode.scaleAspectFill
+        self.youtubeplayer?.contentMode = UIView.ContentMode.scaleAspectFill
         self.view.addSubview(youtubeplayer!)
         self.youtubeplayer?.backgroundColor = UIColor.white
         self.youtubeplayer?.clipsToBounds = true
@@ -154,6 +155,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     
     func play_update() {
         print("play_update")
+        print(player)
         switch (player) {
         
         case "Spotify":

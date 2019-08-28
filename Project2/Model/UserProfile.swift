@@ -35,7 +35,7 @@ class UserProfile {
                 for child in snapshot.children {
                     let snap = child as! DataSnapshot
                     print (snap.key)
-                    let index = snap.key as! String
+                    let index = snap.key 
                     let absolute_index = index.replacingOccurrences(of: "Post", with: "")
                     let temp_dict = snap.value as! [String : Any]
                     //                print(temp_dict)

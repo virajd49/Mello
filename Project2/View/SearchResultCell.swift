@@ -49,6 +49,18 @@ class SearchResultCell: UITableViewCell {
         }
     }
     
+    var spotify_recently_played_mediaItem: SpotifyRecentlyPlayedMediaObject.item! {
+        didSet{
+            media_image.image = nil
+            media_name_label.text = spotify_recently_played_mediaItem.track?.name ?? ""
+            artist_name? = spotify_recently_played_mediaItem.track?.artists![0].name ?? ""
+            media_id = spotify_recently_played_mediaItem.track?.uri ?? ""
+            isrc = spotify_recently_played_mediaItem.track?.external_ids?.isrc ?? ""
+            yt_video_duration = 0.0
+            
+        }
+    }
+    
     var youtube_video_resource = GTLRYouTube_SearchResult() {
         didSet{
             media_image.image = nil

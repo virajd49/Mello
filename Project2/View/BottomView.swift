@@ -197,7 +197,7 @@ class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate
         }else{
             playlist_access.add_to_mediaItem(mediacollection: setting.mediaItem, mediaItem: self.song_id)
         }
-        let cell = self.collectionView.cellForItem(at: indexPath) as! BottomViewCell!
+        let cell = self.collectionView.cellForItem(at: indexPath) as! BottomViewCell?
         cell?.addIconImageView.image = UIImage(named: "icons8-waste-96")
         
         

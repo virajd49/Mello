@@ -25,7 +25,7 @@ public class SwiftyGiphyViewController: UIViewController {
 
     fileprivate let collectionView: UICollectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: SwiftyGiphyGridLayout())
 
-    fileprivate let loadingIndicator = UIActivityIndicatorView(activityIndicatorStyle: .whiteLarge)
+    fileprivate let loadingIndicator = UIActivityIndicatorView(style: .whiteLarge)
 
     fileprivate let errorLabel: UILabel = UILabel()
 
@@ -157,7 +157,7 @@ public class SwiftyGiphyViewController: UIViewController {
             collectionViewLayout.delegate = self
         }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(updateBottomLayoutConstraintWithNotification(notification:)), name: NSNotification.Name.UIKeyboardWillChangeFrame, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateBottomLayoutConstraintWithNotification(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
 
         fetchNextTrendingDataPage()
     }
@@ -476,10 +476,10 @@ extension SwiftyGiphyViewController {
             return
         }
 
-        let animationDuration = (userInfo[UIKeyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
-        let keyboardEndFrame = (userInfo[UIKeyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
+        let animationDuration = (userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as! NSNumber).doubleValue
+        let keyboardEndFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue
         let convertedKeyboardEndFrame = view.convert(keyboardEndFrame, from: view.window)
-        let rawAnimationCurve = (userInfo[UIKeyboardAnimationCurveUserInfoKey] as! NSNumber).uint32Value << 16
+        let rawAnimationCurve = (userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as! NSNumber).uint32Value << 16
         let animationCurve = UIView.AnimationOptions(rawValue: UInt(rawAnimationCurve))
 
         let newConstantValue: CGFloat = max(self.view.bounds.maxY - convertedKeyboardEndFrame.minY + constantAdjustment, 0.0)

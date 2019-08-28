@@ -89,9 +89,8 @@ class now_playing_poller {
             break;
         case "Spotify" :
             print("poller case Spotify")
-            let access_token = self.userDefaults.value(forKey: "spotify_access_token")
-            print("\(access_token)")
-            appleMusicManager.performSpotifyCurrentPlayingSearch(with: access_token as! String).done { spotify_current_playing_context in
+          
+            appleMusicManager.performSpotifyCurrentPlayingSearch().done { spotify_current_playing_context in
                
                 guard !spotify_current_playing_context.isEmpty else {
                     print ("Spotify: Nothing is playing - spotify_current_playing_context is nil")

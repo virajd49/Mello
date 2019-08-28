@@ -19,6 +19,7 @@ import SDWebImage
 
 
 class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, SearchResultsProtocolDelegate  {
+    
     @IBOutlet weak var super_container_view: UIView!
     @IBOutlet weak var upper_container_view: UIView!
     
@@ -37,12 +38,21 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var done_editing: UIButton!
     @IBOutlet weak var cancel_editing: UIButton!
     @IBOutlet weak var delete_post: UIButton!
+    
+    let imageCacheManager = ImageCacheManager()
+    var testimonial_leadConstraint : NSLayoutConstraint?
+    var testimonial_trailConstraint : NSLayoutConstraint?
+    var testimonial_topConstraint : NSLayoutConstraint?
+    var testimonial_botConstraint : NSLayoutConstraint?
+    var separator_botConstraint : NSLayoutConstraint?
+    var selected_post: Post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
+    
     var heroes = [Hero]()
     var selected_hero_number = 1
     var upload_flag = ""  //artist / track / GIF
     var resultsController = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "SearchResultsController") as! SearchResultsController
     var searchController: UISearchController!
-    let testimonial: UITextView = UITextView.init(frame: CGRect(x: 0, y: 0, width: 375, height: 100))
+    let testimonial: UITextView = UITextView.init(frame: CGRect(x: 0, y: 0, width: 375, height: 75))
     var empty_table_image_view = UIImageView(frame: CGRect(x: 162.5, y: 225, width: 50, height: 50))
     var empty_table_message_view = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 375))
     var path_keeper = upload_path_keeper.shared
@@ -59,11 +69,11 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var temp_artist_image_url: String!
     var temp_content_array = [Post]()
     var selected_content_cell: Int!
-    
+    var app_mus_mgr = AppleMusicManager()
     
     override func viewWillAppear(_ animated: Bool) {
         print("viewwillappear")
-        self.tabBarController?.tabBar.layer.zPosition = -1
+        //self.tabBarController?.tabBar.layer.zPosition = -1
         self.resultsController.delegate = self
         self.searchController.searchBar.delegate = self
         
@@ -91,7 +101,7 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var back_button = UIButton(type: .custom)
         back_button.frame = CGRect.init(x: 0, y: 0, width: 30, height: 30)
         back_button.translatesAutoresizingMaskIntoConstraints = false
-        back_button.imageEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 5)
+        back_button.imageEdgeInsets = UIEdgeInsets.init(top: 0, left: -10, bottom: 0, right: 5)
         back_button.setImage(UIImage(named: "icons8-back-30"), for: .normal)
         back_button.tintColor = UIColor.black
         back_button.setTitle("", for: .normal)
@@ -130,6 +140,7 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         let tapGesture3 = UITapGestureRecognizer(target: self, action: #selector(tapEdit3(recognizer:)))
         let tapGesture4 = UITapGestureRecognizer(target: self, action: #selector(tapEdit4(recognizer:)))
         let tapGesture5 = UITapGestureRecognizer(target: self, action: #selector(tapEdit5(recognizer:)))
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
         
         self.heroes_1.addGestureRecognizer(tapGesture1)
         self.heroes_2.addGestureRecognizer(tapGesture2)
@@ -153,17 +164,35 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         self.testimonial.addGestureRecognizer(longPressGesture6)
         self.Hero_content_table.addGestureRecognizer(longPressGesture7)
+        self.Hero_content_table.addGestureRecognizer(tapGesture)
         
         self.done_editing.isHidden = true
         self.cancel_editing.isHidden = true
         self.delete_post.isHidden = true
         self.hero_add_content_button.isHidden = true
         var view1: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: 375, height: 103));
-        testimonial.textContainerInset = UIEdgeInsetsMake(0, 5, 0, 5)
+        testimonial.textContainerInset = UIEdgeInsets.init(top: 0, left: 5, bottom: 0, right: 5)
         var separator_view = UIView(frame: CGRect(x: 15, y: 100, width: 345, height: 1))
         separator_view.backgroundColor = UIColor.lightGray
         view1.addSubview(testimonial);
         view1.addSubview(separator_view)
+        
+        let view1_widthConstraint = NSLayoutConstraint(item: view1, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 375)
+        let testimonial_widthConstraint = NSLayoutConstraint(item: testimonial, attribute: NSLayoutConstraint.Attribute.width, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 375)
+        let separator_heightConstraint = NSLayoutConstraint(item: separator_view, attribute: NSLayoutConstraint.Attribute.height, relatedBy: NSLayoutConstraint.Relation.equal, toItem: nil, attribute: NSLayoutConstraint.Attribute.notAnAttribute, multiplier: 1, constant: 1)
+        NSLayoutConstraint.activate([view1_widthConstraint, testimonial_widthConstraint, separator_heightConstraint])
+        
+        view1.addConstraintWithFormat(format: "V:|-0-[v0]-10-[v1]-1-|", views: testimonial, separator_view)
+        view1.addConstraintWithFormat(format: "H:|-15-[v0]-15-|", views: separator_view)
+        view1.addConstraintWithFormat(format: "H:|-0-[v0]-0-|", views: testimonial)
+        
+        testimonial.sizeToFit()
+        testimonial.isScrollEnabled = false
+        testimonial.translatesAutoresizingMaskIntoConstraints = false
+       
+        view1.sizeToFit()
+        view1.translatesAutoresizingMaskIntoConstraints = false
+      
         
         self.Hero_content_table.tableHeaderView = view1;
         testimonial.text = "Add Testimonial..."
@@ -232,12 +261,12 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         
         //searchcontroller stuff
-        searchController =  UISearchController(searchResultsController: self.resultsController )
+        searchController =  UISearchController(searchResultsController: self.resultsController)
         searchController.searchResultsUpdater = self.resultsController
         searchController.obscuresBackgroundDuringPresentation = true
-        searchController.searchBar.placeholder = "Search Posts"
+        searchController.searchBar.placeholder = "Search Artists"
         searchController.searchBar.delegate = self
-        searchController.searchBar.searchBarStyle = UISearchBarStyle.minimal
+        searchController.searchBar.searchBarStyle = UISearchBar.Style.minimal
         searchController.searchBar.isHidden = true
         definesPresentationContext = true
         searchController.hidesNavigationBarDuringPresentation = false
@@ -245,6 +274,11 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         resultsController.delegate = self
         
         self.fetch_heroes()
+        
+        
+        //podcast test
+        
+        //self.app_mus_mgr.performSpotifyCatalogSearch_test_podcasts(with: "why'd you ")
         
     }
     
@@ -276,6 +310,8 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
             
             //DB update
             //Hero.add_new_post_to_hero_firebase(hero_key: "Hero\(self.selected_hero_number)", hero: self.heroes[self.selected_hero_number - 1], new_post:)
+            
+            Hero.push_new_content_list_to_firebase(hero_key: "Hero\(self.selected_hero_number)", content_list:  self.heroes[selected_hero_number - 1].contentList!)
         } else if self.editing_hero {
             
              //local  Hero array update
@@ -290,7 +326,9 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
             temp_hero.testimonialText = self.temp_testimonial_text
             temp_hero.contentList = temp_content_dict
             
+            //local update
             self.heroes.append(temp_hero)
+            
              //DB update
             Hero.add_new_hero_to_firebase(new_hero: temp_hero, new_hero_number: selected_hero_number)
         }
@@ -334,12 +372,13 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     
     @IBAction func delete_post_action(_ sender: Any) {
-        print("delete_post_action")
+        print("delete_post_action - post value = Post\(self.selected_content_cell + 1)")
         self.heroes[self.selected_hero_number - 1].contentList!.removeValue(forKey: "Post\(self.selected_content_cell + 1)")
+        self.temp_content_array.remove(at: self.selected_content_cell
+        )
         self.Hero_content_table.reloadData()
         print("---------content_list----------")
         print(self.heroes[self.selected_hero_number - 1].contentList!)
-        Hero.remove_post_from_hero_firebase(hero_key: "Hero\(self.selected_hero_number)", content_list: self.heroes[self.selected_hero_number - 1].contentList!)
         UI_for_edit_mode(is_on: true)
         
     }
@@ -450,6 +489,9 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     
     @objc func backAction () {
+        if self.edit_mode_is_on {
+            self.UI_for_edit_mode(is_on: false)
+        }
         self.navigationController?.popViewController(animated: true)
     }
     
@@ -783,11 +825,12 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         self.editing_content_only = true
         self.editing_testimonial_only = false
          UI_for_edit_mode(is_on: true)
-        if recognizer.state == UIGestureRecognizerState.ended {
+        if recognizer.state == UIGestureRecognizer.State.ended {
             let tapLocation = recognizer.location(in: self.Hero_content_table)
             if let tapIndexPath = self.Hero_content_table?.indexPathForRow(at: tapLocation) {
                 
                 self.selected_content_cell = tapIndexPath[1]
+                print("\(self.selected_content_cell)")
                 
                 let flag = self.heroes[self.selected_hero_number - 1].contentList!["Post\(tapIndexPath[1] + 1)"]?.flag
                 
@@ -818,6 +861,18 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
             //self.super_container_view.backgroundColor = UIColor.lightGray
             self.upper_container_view.backgroundColor = UIColor(white: 1, alpha: 0.2)
             //table view back ground view
+            
+            if !self.temp_content_array.isEmpty {
+                self.temp_content_array.removeAll()
+            }
+            
+            if self.heroes.count >= self.selected_hero_number {
+                if !self.heroes[self.selected_hero_number - 1].contentList!.isEmpty {
+                    for i in 1...self.heroes[self.selected_hero_number - 1].contentList!.count {
+                        self.temp_content_array.append(self.heroes[self.selected_hero_number - 1].contentList!["Post\(i)"]!)
+                    }
+                }
+            }
         } else {
             
             //Done editing button - hide this
@@ -828,6 +883,11 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
             self.profile_image.alpha = 1
             //self.super_container_view.backgroundColor = UIColor.white
             self.upper_container_view.backgroundColor = UIColor.white
+            
+            if !self.temp_content_array.isEmpty {
+                self.temp_content_array.removeAll()
+            }
+            
         }
     }
     
@@ -977,6 +1037,29 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
+    @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
+        print ("tapedit here 1")
+        if recognizer.state == UIGestureRecognizer.State.ended {
+            print ("tap edit here 2")
+            let tapLocation = recognizer.location(in: self.Hero_content_table)
+            if let tapIndexPath = self.Hero_content_table.indexPathForRow(at: tapLocation) {
+                print ("tap edit here 3")
+                
+                var post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
+                
+                if self.edit_mode_is_on {
+                    if self.editing_hero || self.editing_content_only {
+                        post = self.temp_content_array[tapIndexPath[1]]
+                    }
+                } else {
+                    post = (self.heroes[self.selected_hero_number - 1].contentList?["Post\(tapIndexPath[1] + 1)"])!
+                }
+                
+                self.selected_post = post
+                performSegue(withIdentifier: "heroes_to_show_update", sender: self)
+            }
+        }
+    }
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         print ("searchBarTextDidBeginEditing")
@@ -991,5 +1074,68 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "heroes_to_show_update" {
+            if let destination = segue.destination as? ShowUpdateController {
+                print("prepare")
+                
+                
+                
+                if self.selected_post.flag == "audio" {
+                    print ("audio")
+                    imageCacheManager.fetchImage(url: URL(string: self.selected_post.albumArtUrl)!, completion: { (image) in
+                        destination.albumArt.image = image
+                    })
+                    destination.song_ID = self.selected_post.trackid
+                    //destination.song_ID = "spotify:show:4xEBxMawkpToKdcnSTI7Ze"   //podcast test for spotify
+                    destination.player  = "Spotify"
+                    destination.update_start = self.selected_post.starttime
+                    destination.update_end = self.selected_post.endtime
+                    destination.lyric_text = ""
+                } else if self.selected_post.flag == "video" {
+                    print("video")
+                    destination.song_ID = self.selected_post.videoid
+                    destination.player  = "Youtube"
+                    destination.update_start = self.selected_post.starttime
+                    destination.update_end = self.selected_post.endtime
+                    destination.lyric_text = ""
+                } else if self.selected_post.flag == "lyric" {
+                    print("lyric")
+                    destination.song_ID = self.selected_post.trackid
+                    destination.player  = "Spotify"
+                    destination.update_start = self.selected_post.starttime
+                    destination.update_end = self.selected_post.endtime
+                    destination.lyric_text = self.selected_post.lyrictext
+                } else {
+                    return
+                }
+            
+               
+                if destination.player == "Youtube"{
+                    destination.youtube_player_setup()
+                }else if destination.player == "Spotify"{
+                    destination.Spotifyplayer.queueSpotifyURI(destination.song_ID, callback: { (error) in
+                        if (error == nil) {
+                            print("queued!")
+                        }
+                        
+                    })
+                }else {
+                    destination.apple_music_player.setQueue(with: [destination.song_ID])
+                }
+                
+                //destination.youtubeplayer?.load(withVideoId: "U_xI_vKkkmg" , playerVars: ["playsinline": 1, "showinfo": 0, "modestbranding" : 1, "controls": 1, "start": 26, "end": 84, "rel": 0])
+            }
+        }
+    }
+    
+    
 }
 
+class TagLabel: UILabel {
+    
+    override func draw(_ rect: CGRect) {
+        let inset = UIEdgeInsets(top: 2, left: 5, bottom: 0, right: 5)
+        super.drawText(in: rect.inset(by: inset))
+    }
+}

@@ -25,7 +25,7 @@ func global_yt_player_init (with oom_post: Post) {
     print("global_yt_player_init called")
     global_yt_player = YTPlayerView.init(frame: CGRect(origin: CGPoint(x:0, y:109), size: CGSize(width: 375, height: 240)))
     //self.youtubeplayer?.delegate = self
-    global_yt_player?.contentMode = UIViewContentMode.scaleAspectFill
+    global_yt_player?.contentMode = UIView.ContentMode.scaleAspectFill
     //self.view.addSubview(youtubeplayer!)
     global_yt_player?.backgroundColor = UIColor.white
     global_yt_player?.clipsToBounds = true
@@ -41,32 +41,9 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
     
     
     @IBOutlet weak var my_collection_view: UICollectionView!
-    @IBOutlet weak var test_view_profile_image: UIImageView!
+
     
-    @IBOutlet weak var profile_image_top_constraint: NSLayoutConstraint!
-    @IBOutlet weak var heroes_1: UIImageView!
-    @IBOutlet weak var heroes_2: UIImageView!
-    @IBOutlet weak var heroes_3: UIImageView!
-    @IBOutlet weak var heroes_4: UIImageView!
-    @IBOutlet weak var heroes_5: UIImageView!
-    
-    @IBOutlet weak var oom_album_art_container: UIView!
-    @IBOutlet weak var oom_album_art: UIImageView!
-    
-    @IBOutlet weak var separation_bar_view: UIView!
-    @IBOutlet weak var testimonial_view: UITextView!
-    
-    @IBOutlet weak var backButton: UIButton!
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "my_content_cell", for: indexPath) as! my_content_cell
-        
-        return cell
-    }
+  
     
     var tapGesture1 = UITapGestureRecognizer()
     var tapGesture2 = UITapGestureRecognizer()
@@ -74,44 +51,23 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
     var main_profile_image = UIImageView()
     var grab_oom = grab_and_store_oom.shared
     var oom_post: Post!
+    var selected_post: Post!
+    var posts: [Post]!
+    var imageCacheManager = ImageCacheManager()
     
     @IBOutlet weak var test_view: UIView!
     
     override func viewDidLoad() {
         
-        self.test_view.isHidden = true
         tapGesture1 = UITapGestureRecognizer(target: self, action: #selector(present_oom_view(recognizer:)))
-        tapGesture2 = UITapGestureRecognizer(target: self, action: #selector(hide_oom_view(recognizer:)))
         tapGesture3 = UITapGestureRecognizer(target: self, action: #selector(present_heroes_view(recognizer:)))
-        tapGesture2.delegate = self.test_view_profile_image as? UIGestureRecognizerDelegate
-        self.test_view_profile_image.addGestureRecognizer(tapGesture2)
         self.my_collection_view.delegate = self
         self.my_collection_view.dataSource = self
-        self.test_view_profile_image.layer.cornerRadius = 50
-        self.test_view_profile_image.clipsToBounds = true
-        self.heroes_1.layer.cornerRadius = 21
-        self.heroes_2.layer.cornerRadius = 21
-        self.heroes_3.layer.cornerRadius = 21
-        self.heroes_4.layer.cornerRadius = 21
-        self.heroes_5.layer.cornerRadius = 21
-        self.heroes_1.isHidden = true
-        self.heroes_2.isHidden = true
-        self.heroes_3.isHidden = true
-        self.heroes_4.isHidden = true
-        self.heroes_5.isHidden = true
-        self.heroes_1.alpha = 0
-        self.heroes_2.alpha = 0
-        self.heroes_3.alpha = 0
-        self.heroes_4.alpha = 0
-        self.heroes_5.alpha = 0
-        self.backButton.alpha = 0
-        self.separation_bar_view.alpha = 0
-        self.testimonial_view.alpha = 0
-        self.oom_album_art.isHidden = true
-        self.backButton.isHidden = true
-        self.oom_album_art_container.isHidden = true
-        self.separation_bar_view.isHidden = true
-        self.testimonial_view.isHidden = true
+        self.fetchPosts()
+       
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
+        my_collection_view.addGestureRecognizer(tapGesture)
+        
 
     }
     
@@ -124,11 +80,37 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
         }
     }
     
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if let posts = posts {  //because it is optional
+            return posts.count   //number of sections = number of posts
+        }
+        return 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "my_content_cell", for: indexPath) as! my_content_cell
+        
+        
+        cell.post = self.posts?.reversed()[indexPath[1]]
+        
+        return cell
+    }
+    
+    func fetchPosts() {
+        Post.fetch_profile_posts().done { posts in
+            self.posts = posts
+            self.my_collection_view.reloadData()
+        }
+        self.my_collection_view.reloadData()
+        
+    }
+    
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         // 1
         switch kind {
         // 2
-        case UICollectionElementKindSectionHeader:
+        case UICollectionView.elementKindSectionHeader:
             // 3
             guard
                 let headerView = collectionView.dequeueReusableSupplementaryView(
@@ -191,36 +173,68 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "to_oom" {
             let destinationVC = segue.destination as! UINavigationController
-            let postVC = destinationVC.childViewControllers[0] as! PostViewController
+            let postVC = destinationVC.children[0] as! PostViewController
             postVC.OOM_post = self.oom_post
             postVC.setup_media()
             postVC.youtube_player_setup_from_global_player()
         } else if segue.identifier == "to_hero" {
             
+        } else if segue.identifier == "profile_to_show_update" {
+            if let destination = segue.destination as? ShowUpdateController {
+                print("prepare")
+                
+                if (self.selected_post != nil) {
+                    
+                    if self.selected_post.flag == "audio" {
+                        print ("audio")
+                        imageCacheManager.fetchImage(url: URL(string: self.selected_post.albumArtUrl)!, completion: { (image) in
+                            destination.albumArt.image = image
+                        })
+                        destination.song_ID = self.selected_post.trackid
+                        destination.player  = "Spotify"
+                        destination.update_start = self.selected_post.starttime
+                        destination.update_end = self.selected_post.endtime
+                        destination.lyric_text = ""
+                    } else if self.selected_post.flag == "video" {
+                        print("video")
+                        destination.song_ID = self.selected_post.videoid
+                        destination.player  = "Youtube"
+                        destination.update_start = self.selected_post.starttime
+                        destination.update_end = self.selected_post.endtime
+                        destination.lyric_text = ""
+                    } else if self.selected_post.flag == "lyric" {
+                        print("lyric")
+                        destination.song_ID = self.selected_post.trackid
+                        destination.player  = "Spotify"
+                        destination.update_start = self.selected_post.starttime
+                        destination.update_end = self.selected_post.endtime
+                        destination.lyric_text = self.selected_post.lyrictext
+                    } else {
+                        return
+                    }
+                    
+                    
+                    if destination.player == "Youtube"{
+                        destination.youtube_player_setup()
+                    }else if destination.player == "Spotify"{
+                        destination.Spotifyplayer.queueSpotifyURI(destination.song_ID, callback: { (error) in
+                            if (error == nil) {
+                                print("queued!")
+                            }
+                            
+                        })
+                    }else {
+                        destination.apple_music_player.setQueue(with: [destination.song_ID])
+                    }
+                    
+                }
+                
+                //destination.youtubeplayer?.load(withVideoId: "U_xI_vKkkmg" , playerVars: ["playsinline": 1, "showinfo": 0, "modestbranding" : 1, "controls": 1, "start": 26, "end": 84, "rel": 0])
+            }
         }
     }
     
-    @objc func hide_oom_view (recognizer: UITapGestureRecognizer) {
-        print("preset_test_view")
-        
-        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseIn], animations: {
-            self.test_view.backgroundColor = UIColor.clear
-            self.oom_album_art_container.alpha = 0
-            self.oom_album_art.alpha = 0
-            self.backButton.alpha = 0
-            self.profile_image_top_constraint.constant = 47
-            self.view.layoutIfNeeded()
-            
-        }, completion : {
-            (value: Bool) in
-            self.main_profile_image.isHidden = false
-            self.test_view.isHidden = true
-            self.oom_album_art_container.isHidden = true
-            self.oom_album_art.isHidden = true
-            self.backButton.isHidden = true
-        })
- 
-    }
+   
     
     @objc func present_heroes_view (recognizer: UITapGestureRecognizer) {
         print("preset_test_view")
@@ -263,26 +277,36 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
         
     }
     
+    
+    @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
+        print ("tapedit here 1")
+        if recognizer.state == UIGestureRecognizer.State.ended {
+            print ("tap edit here 2")
+            let tapLocation = recognizer.location(in: self.my_collection_view)
+            if let tapIndexPath = self.my_collection_view.indexPathForItem(at: tapLocation) {
+                print ("tap edit here 3")
+                
+                var post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
+                
+                
+                self.selected_post = self.posts.reversed()[tapIndexPath[1]]
+                performSegue(withIdentifier: "profile_to_show_update", sender: self)
+            }
+        }
+    }
+    
+    
 
     @IBAction func back_button(_ sender: Any) {
         
         
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseIn], animations: {
             self.test_view.backgroundColor = UIColor.clear
-            self.heroes_1.alpha = 0
-            self.heroes_2.alpha = 0
-            self.heroes_3.alpha = 0
-            self.heroes_4.alpha = 0
-            self.heroes_5.alpha = 0
-            self.backButton.alpha = 0
-            self.separation_bar_view.alpha = 0
-            self.testimonial_view.alpha = 0
-            self.profile_image_top_constraint.constant = 47
             
             
-            //for oom view
-            self.oom_album_art_container.alpha = 0
-            self.oom_album_art.alpha = 0
+            
+            
+          
             
             
             self.view.layoutIfNeeded()
@@ -290,18 +314,9 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
         }, completion : {
             (value: Bool) in
             
-            self.main_profile_image.isHidden = false
-            self.test_view.isHidden = true
-            self.oom_album_art_container.isHidden = true
-            self.oom_album_art.isHidden = true
-            self.heroes_1.isHidden = true
-            self.heroes_2.isHidden = true
-            self.heroes_3.isHidden = true
-            self.heroes_4.isHidden = true
-            self.heroes_5.isHidden = true
-            self.backButton.isHidden = true
-            self.separation_bar_view.isHidden = true
-            self.testimonial_view.isHidden = true
+          
+         
+          
             
         })
         

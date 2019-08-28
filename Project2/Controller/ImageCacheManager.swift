@@ -18,10 +18,10 @@ class ImageCacheManager {
         cache.name = "ImageCacheManager"
         
         // Max 20 images in memory.
-        cache.countLimit = 20
+        cache.countLimit = 30
         
         // Max 10MB used.
-        cache.totalCostLimit = 10 * 1024 * 1024
+        cache.totalCostLimit = 20 * 1024 * 1024
         
         return cache
     }()

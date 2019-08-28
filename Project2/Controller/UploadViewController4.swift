@@ -67,7 +67,7 @@ class UploadViewController4: UIViewController {
         navigationItem.titleView = searchController.searchBar //the SearchBar here is redundant - only used so that the Navigation Bar stays at the correct height.
         print ("nav bar height is \(bounds.height)")
         self.hero_list_view.isHidden = true
-         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.plain, target: self, action: #selector(done_button))
+         self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItem.Style.plain, target: self, action: #selector(done_button))
         list_hero_names()
     }
     
@@ -130,7 +130,7 @@ class UploadViewController4: UIViewController {
         if let check_post = self.selected_search_result_post {
         if let presenter = self.presentingViewController as? myTabBarController {
             print("we got tabbar as presenter")
-            if let newsfeed = presenter.viewControllers?[0].childViewControllers[0] as? NewsFeedTableViewController {
+            if let newsfeed = presenter.viewControllers?[0].children[0] as? NewsFeedTableViewController {
                 print ("we got newsfeed")
                 print ("\(newsfeed.posts?.count)")
                 let new_post_number = newsfeed.posts?.count
@@ -193,17 +193,17 @@ class UploadViewController4: UIViewController {
                 print ("top_view_controller is myTabBarController")
             }
             
-            if let secondary_top_view_controller = top_view_controller.childViewControllers[0] as? UINavigationController {
+            if let secondary_top_view_controller = top_view_controller.children[0] as? UINavigationController {
                 print ("childViewControllers[0]  is UINavigationController")
-            } else if let secondary_top_view_controller = top_view_controller.childViewControllers[0]  as? PostViewController {
+            } else if let secondary_top_view_controller = top_view_controller.children[0]  as? PostViewController {
                 print ("childViewControllers[0]  is PostViewController")
-            } else if let secondary_top_view_controller = top_view_controller.childViewControllers[0]  as? ProfilePageViewController {
+            } else if let secondary_top_view_controller = top_view_controller.children[0]  as? ProfilePageViewController {
                 print ("childViewControllers[0]  is ProfilePageViewController")
-            } else if let secondary_top_view_controller = top_view_controller.childViewControllers[0]  as? UploadViewController {
+            } else if let secondary_top_view_controller = top_view_controller.children[0]  as? UploadViewController {
                 print ("childViewControllers[0]  is UploadViewController")
-            } else if let secondary_top_view_controller = top_view_controller.childViewControllers[0]  as? UploadViewController2 {
+            } else if let secondary_top_view_controller = top_view_controller.children[0]  as? UploadViewController2 {
                 print ("childViewControllers[0]  is UploadViewController2")
-            } else if let secondary_top_view_controller = top_view_controller.childViewControllers[0]  as? myTabBarController {
+            } else if let secondary_top_view_controller = top_view_controller.children[0]  as? myTabBarController {
                 print ("childViewControllers[0]  is myTabBarController")
             }
         }
@@ -341,7 +341,7 @@ class UploadViewController4: UIViewController {
             
             for child in snapshot.children {
                 let snap = child as! DataSnapshot
-                index = snap.key as! String
+                index = snap.key 
                 let temp_dict = snap.value as! [String : Any]
                 
                 guard let artist_name = temp_dict["artistName"] as? String, artist_name == hero.artistName else {

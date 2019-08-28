@@ -43,7 +43,7 @@ struct Hero {
                     let snap = child as! DataSnapshot
                     print (snap.key)
                     print(snap.value)
-                    let index = snap.key as! String
+                    let index = snap.key 
                     let absolute_index = index.replacingOccurrences(of: "Hero", with: "")
                     let temp_dict = snap.value as! [String : Any]
                     //print(temp_dict)
@@ -350,7 +350,7 @@ struct Hero {
     }
     
     
-    static func remove_post_from_hero_firebase (hero_key: String, content_list: [String : Post]) {
+    static func push_new_content_list_to_firebase (hero_key: String, content_list: [String : Post]) {
         
         var hero_dict = [String: Any]()
         let ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
@@ -403,6 +403,9 @@ struct Hero {
         }
         
     }
+    
+    
+
  
     
 }

@@ -112,7 +112,7 @@ class MaxiSongCardViewController: UIViewController {
         coverImageContainer.layer.cornerRadius = cardCornerRadius
         coverImageContainer.layer.maskedCorners = [.layerMaxXMinYCorner, .layerMinXMinYCorner]
         let tapGesture = UISwipeGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
-        tapGesture.direction = UISwipeGestureRecognizerDirection.down
+        tapGesture.direction = UISwipeGestureRecognizer.Direction.down
         self.scrollView.addGestureRecognizer(tapGesture)
         
     }

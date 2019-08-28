@@ -248,14 +248,14 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
         
         GIFSearch_Bar.delegate = self
-        GIFSearch_Bar.searchBarStyle = UISearchBarStyle.minimal
+        GIFSearch_Bar.searchBarStyle = UISearchBar.Style.minimal
         self.GIFSearch_Bar.isHidden = true
         
         Now_playing_image.layer.cornerRadius = 10
         Youtube_player.isHidden = true
         Youtube_player.delegate = self
       
-        let cancelButtonAttributes = [NSAttributedStringKey.foregroundColor: UIColor.black]
+        let cancelButtonAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
         UIBarButtonItem.appearance().setTitleTextAttributes(cancelButtonAttributes , for: .normal)
         
         let keyboard_dismiss_tap = UITapGestureRecognizer(target: self, action: #selector(UploadViewController3.dismiss_keyboard))
@@ -325,7 +325,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         searchController.searchBar.placeholder = "Search Posts"
         searchController.searchBar.delegate = self
         //self.search_bar_container.addSubview(searchController.searchBar)
-        searchController.searchBar.searchBarStyle = UISearchBarStyle.minimal
+        searchController.searchBar.searchBarStyle = UISearchBar.Style.minimal
         searchController.searchBar.isHidden = true
         definesPresentationContext = true
         searchController.hidesNavigationBarDuringPresentation = false
@@ -340,9 +340,9 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         print ("--------------------------- set_navigation_bar_next_button -----------------------------")
         print (self.path_keeper.get_upload_path())
         if self.path_keeper.get_upload_path() == "hero" {
-            self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItemStyle.plain, target: self, action: #selector(done_button))
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItem.Style.plain, target: self, action: #selector(done_button))
         } else {
-             self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: UIBarButtonItemStyle.plain, target: self, action: #selector(next_button))
+             self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Next", style: UIBarButtonItem.Style.plain, target: self, action: #selector(next_button))
         }
     }
     
@@ -350,7 +350,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        if self.isMovingFromParentViewController {
+        if self.isMovingFromParent {
             // Your code...
             //toggle_hide_upload_selection(hide: true)
             self.uploading = false
@@ -484,7 +484,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             self.uploading = true
             self.grab_video_duration_for_selected_video()
             self.Youtube_player.isHidden = false
-            self.view.bringSubview(toFront: self.Youtube_player)
+            self.view.bringSubviewToFront(self.Youtube_player)
             self.Now_playing_image.isHidden = true
             self.Lyric_view.isHidden = true
             self.Youtube_player.load(withVideoId: self.selected_search_result_post.videoid ?? "" , playerVars: ["autoplay": 1, "playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "rel": 0, "iv_load_policy": 3])
@@ -494,23 +494,21 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             self.Song_name_label.text = self.selected_search_result_post.songname
             self.Artist_name_label.text = ""
         } else if self.upload_flag == "now_playing" {
-            
             if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
-                self.spotifyplayer.playSpotifyURI(self.spotify_current_uri!, startingWith: 0, startingWithPosition: 0.0, callback: { (error) in
+                self.Artist_name_label.text = ""
+                self.Now_playing_image.image = self.selected_search_result_post_image
+                self.spotifyplayer.playSpotifyURI(self.selected_search_result_post.trackid, startingWith: 0, startingWithPosition: 0.0, callback: { (error) in
                     if (error == nil) {
                         print("playing!")
                         self.animate_color()
                     }
                 })
-                //self.audio_scrubber_ot.maximumValue = Float(self.temp_spotify_media_context_duration!)
-                //self.test_slider.maximumValue = Float(self.temp_spotify_media_context_duration!)
-                self.Song_name_label.text = self.poller.spotify_currently_playing_object.item?.name
-                self.Artist_name_label.text = self.poller.spotify_currently_playing_object.item?.artists?[0].name
-                self.Now_playing_image.image = self.poller.return_image()
-                
-                
+                self.duration = (self.selected_search_result_post.original_track_length) / 1000
+                self.duration_for_number_of_cells = Int(ceil(Double(self.selected_search_result_post.original_track_length) / 1000))
+                self.spotify_current_uri = self.selected_search_result_post.trackid
+                self.Song_name_label.text = self.selected_search_result_post.songname
+                self.uploading = true
             } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
-                
                 if let mediaItem = self.apple_system_player.nowPlayingItem {
                     print ("\(mediaItem.playbackDuration)")
                     self.apple_system_player.pause()
@@ -522,7 +520,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                     self.Artist_name_label.text = mediaItem.artist
                     self.Now_playing_image.image = self.poller.return_image()
                     self.uploading = true
-                    
                 }
             }
         }
@@ -1121,7 +1118,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                     
                     //Presenter is TabBarController - it's 0th controller is NavBarController
                     //NavBar's child controller is Newsfeed Controller
-                    if let newsfeed = presenter.viewControllers?[0].childViewControllers[0] as? NewsFeedTableViewController {
+                    if let newsfeed = presenter.viewControllers?[0].children[0] as? NewsFeedTableViewController {
                         print ("we got newsfeed")
                         print ("\(newsfeed.posts?.count)")
                         let new_post_number = newsfeed.posts?.count
@@ -1167,7 +1164,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                             
                             //Presenter is TabBarController - it's 0th controller is NavBarController
                             //NavBar's child controller is Newsfeed Controller
-                            if let newsfeed = presenter.viewControllers?[0].childViewControllers[0] as? NewsFeedTableViewController {
+                            if let newsfeed = presenter.viewControllers?[0].children[0] as? NewsFeedTableViewController {
                                 print ("we got newsfeed")
                                 print ("\(newsfeed.posts?.count)")
                                 let new_post_number = newsfeed.posts?.count
@@ -1195,7 +1192,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                             
                             //Presenter is TabBarController - it's 0th controller is NavBarController
                             //NavBar's child controller is Newsfeed Controller
-                            if let newsfeed = presenter.viewControllers?[0].childViewControllers[0] as? NewsFeedTableViewController {
+                            if let newsfeed = presenter.viewControllers?[0].children[0] as? NewsFeedTableViewController {
                                 print ("we got newsfeed")
                                 let new_post_number = newsfeed.posts?.count
                                 self.add_new_post_to_firebase(new_post: upload_post, new_post_number: new_post_number!)
@@ -1321,7 +1318,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             if let mediaItem = self.apple_system_player.nowPlayingItem {
                 print ("\(mediaItem.playbackDuration)")
                 self.apple_system_player.pause()
-                self.apple_player.setQueue(with: [mediaItem.playbackStoreID as! String])
+                self.apple_player.setQueue(with: [mediaItem.playbackStoreID ])
                 self.apple_player.play()
                 self.apple_player.currentPlaybackTime = 0.0
                 self.animate_color()

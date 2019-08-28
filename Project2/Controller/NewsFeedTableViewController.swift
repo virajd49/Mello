@@ -280,21 +280,21 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         print (backingImageView?.frame.width)
         
         playingImage = UIImageView(image: #imageLiteral(resourceName: "clapton"))
-        playingImage?.contentMode = UIViewContentMode.scaleAspectFill
+        playingImage?.contentMode = UIView.ContentMode.scaleAspectFill
         playingImage?.frame = CGRect(x: 12, y: 5, width: 40, height: 40)
         playingView?.addSubview(playingImage!)
         //playingImage?.isHidden = true
         
         youtubeplayer2 = YTPlayerView.init(frame: CGRect(x: 12, y: 573, width: 40, height: 40))
         //playingView?.addSubview(youtubeplayer2!)
-        youtubeplayer2.contentMode = UIViewContentMode.scaleAspectFit
+        youtubeplayer2.contentMode = UIView.ContentMode.scaleAspectFit
         //mainWindow!.addSubview(self.youtubeplayer2!)
-        mainWindow!.bringSubview(toFront: self.temp_view2!)
+        mainWindow!.bringSubviewToFront(self.temp_view2!)
         self.temp_view2?.addSubview(self.youtubeplayer2!)
         self.temp_view2?.addConstraintWithFormat(format: "H:|-0-[v0]-0-|", views: self.youtubeplayer2)
         self.temp_view2?.addConstraintWithFormat(format: "V:|-0-[v0]-0-|", views: self.youtubeplayer2)
         self.temp_view2!.translatesAutoresizingMaskIntoConstraints = false
-        self.temp_view2?.bringSubview(toFront: youtubeplayer2)
+        self.temp_view2?.bringSubviewToFront(youtubeplayer2)
         youtubeplayer2.backgroundColor = UIColor.black
         youtubeplayer2?.delegate = self
         //playingView?.bringSubview(toFront: youtubeplayer2!)
@@ -335,7 +335,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         let tapGesture2 = UITapGestureRecognizer(target: self, action: #selector(tapEdit2(recognizer:)))
         let tapGesture3 = UITapGestureRecognizer(target: self, action: #selector(tapEdit3(recognizer:)))
         let tapGesture4 = UISwipeGestureRecognizer(target: self, action: #selector(tapEdit4(recognizer:)))
-        tapGesture4.direction = UISwipeGestureRecognizerDirection.down
+        tapGesture4.direction = UISwipeGestureRecognizer.Direction.down
         //temp_view?.addGestureRecognizer(tapGesture4)
         containerView?.addGestureRecognizer(tapGesture4)
         tableView.addGestureRecognizer(tapGesture)
@@ -363,7 +363,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         print("oi")
 
         tableView.estimatedRowHeight = Storyboard.postCellDefaultHeight //estimate the minimum height to  be this value
-        tableView.rowHeight = UITableViewAutomaticDimension //Actual height resized as per autolayout
+        tableView.rowHeight = UITableView.automaticDimension //Actual height resized as per autolayout
         tableView.separatorColor = UIColor.clear //we don't want the default separator between the cells to be seen
     }
     
@@ -392,7 +392,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             print(Float((self.appleplayer.currentPlaybackTime)))
             print("current test")
             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
         }
         
     }
@@ -414,7 +414,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             group.leave()
             group.notify(queue: .main) {
                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
             }
         }
     }
@@ -430,7 +430,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 print(Float((self.appleplayer.currentPlaybackTime)))
                 print("current test")
                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
             }
         }
     }
@@ -921,7 +921,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 }
                 self.duration = self.temp_duration
                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_yt), userInfo: nil, repeats: true)
-                RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
                 print("-----------------------------------------Timer started------------------------------------------")
                 currently_playing_youtube_cell = last_viewed_youtube_cell
                 no_other_video_is_active = false
@@ -944,7 +944,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 print("did we even come here ?? what is going on?")
                 self.timer.invalidate()
                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_ytmini), userInfo: nil, repeats: true)
-                RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
             }
             break;
         case YTPlayerState.paused:
@@ -1034,7 +1034,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             self.youtubeplayer2.isHidden = false
             self.temp_view2?.isHidden = false
         } else {
-            self.window?.bringSubview(toFront: self.temp_view!)
+            self.window?.bringSubviewToFront(self.temp_view!)
             UIView.animate(withDuration: 0.5, delay: 0, options: [.curveEaseIn], animations: {
                 
                 self.temp_view?.frame = CGRect(origin: CGPoint(x: 25, y: 5), size: CGSize(width: 325, height: 325))
@@ -1222,7 +1222,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                             if (error == nil) {
                                 print("playing number 3")
                                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
-                                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                                RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                                 self.current_song_player = "spotify"
                             }else {
                                 print ("error in playing 3!")
@@ -1234,7 +1234,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         //self.appleplayer.currentPlaybackTime = self.playerView_offsetvalue
                         self.appleplayer.play()
                         self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                        RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                        RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
                         self.current_song_player = "apple"
                         //self.appleplayer.currentPlaybackTime = self.playerView_offsetvalue
                         print (self.playerView_offsetvalue)
@@ -1249,7 +1249,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         if (error == nil) {
                             print("playing number 3")
                             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
-                            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                            RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                             self.current_song_player = "spotify"
                         }
                         else {
@@ -1263,7 +1263,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                     //self.appleplayer.currentPlaybackTime = self.playerView_offsetvalue
                     self.appleplayer.play()
                     self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                    RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                    RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
                     self.current_song_player = "apple"
                     //self.appleplayer.currentPlaybackTime = self.playerView_offsetvalue
                     print (self.playerView_offsetvalue)
@@ -1274,7 +1274,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 if (self.miniplayer!) {
                     self.youtubeplayer2.playVideo()
                     self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_ytmini), userInfo: nil, repeats: true)
-                    RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                    RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
                     currently_playing_youtube_cell = paused_cell
                 } else {
                 }
@@ -1294,7 +1294,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     
     @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
         print ("tapedit here 1")
-        if recognizer.state == UIGestureRecognizerState.ended {
+        if recognizer.state == UIGestureRecognizer.State.ended {
             print ("tap edit here 2")
             let tapLocation = recognizer.location(in: self.tableView)
             if let tapIndexPath = self.tableView.indexPathForRow(at: tapLocation) {
@@ -1555,7 +1555,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         if (error == nil) {
                             print("Spotify is playing! 1")
                             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
-                            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                            RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                             self.current_song_player = "spotify"
                             print(self.spotifyplayer?.metadata.currentTrack?.name)
                         }
@@ -1568,13 +1568,13 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                             self.appleplayer.play()
                             self.appleplayer.currentPlaybackTime = playerView_offsetvalue
                             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                            RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                            RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
                             print ("Apple is playing")
                             self.current_song_player = "apple"
                         } else if cell.preview_url != "nil"{
                             self.play_av()
                             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_av), userInfo: nil, repeats: true)
-                            RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                            RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
                             self.current_song_player = "av_player"
                         } else {
                             print ("Last resort gracious failure - song cannot be played")
@@ -1590,7 +1590,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         self.appleplayer.play()
                         self.appleplayer.currentPlaybackTime = playerView_offsetvalue
                         self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                        RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+                        RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
                         self.current_song_player = "apple"
                         print("Apple is playing")
                     } else if userDefaults.string(forKey: "UserAccount") == "Spotify" {
@@ -1600,7 +1600,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                             if (error == nil) {
                                print("Spotify is playing! 1")
                                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
-                                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                                RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                                 self.current_song_player = "spotify"
                                //print(self.spotifyplayer?.metadata.currentTrack?.name)
                             }
@@ -1611,7 +1611,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         } else if cell.preview_url != "nil"{
                             self.play_av()
                             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_av), userInfo: nil, repeats: true)
-                            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                            RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                             self.current_song_player = "av_player"
                         } else {
                             print ("Last resort gracious faliure - song cannot be played")
@@ -1634,7 +1634,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                             if (error == nil) {
                                 print("Spotify is playing! 2")
                                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
-                                RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                                RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                                 self.current_song_player = "spotify"
                                 //print(self.Spotifyplayer?.metadata.currentTrack?.name)
                                 //print(self.Spotifyplayer?.metadata.currentTrack?.albumName)
@@ -1654,7 +1654,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                             self.appleplayer.play()
                             //self.appleplayer.currentPlaybackTime = cell.startoffset //-> this does not work -> don't have a perfect workaround yet -> all the surrounding comments are the remnants of attempted workarounds - still se Domain=MPCPlayerRequestErrorDomain Code=1 "No commands provided." intermittently - need to open bug with Apple
                             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                            RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                            RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                             //self.super_temp_flag = true
                             //self.set_current_playback_time()
                             //self.set_curr_playback()
@@ -1682,7 +1682,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         self.appleplayer.play()
                         //self.appleplayer.currentPlaybackTime = cell.startoffset //-> this does not work -> don't have a perfect workaround yet -> all the surrounding comments are the remnants of attempted workarounds - still se Domain=MPCPlayerRequestErrorDomain Code=1 "No commands provided." intermittently - need to open bug with Apple
                         self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
-                        RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                        RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                         self.super_temp_flag = true
                         //self.set_current_playback_time()
                         //self.set_curr_playback()
@@ -1696,7 +1696,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                                 if (error == nil) {
                                     print("Spotify is playing! 2")
                                     self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
-                                    RunLoop.main.add(self.timer, forMode: RunLoopMode.commonModes)
+                                    RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
                                     self.current_song_player = "spotify"
                                     //print(self.Spotifyplayer?.metadata.currentTrack?.name)
                                     //print(self.Spotifyplayer?.metadata.currentTrack?.albumName)
@@ -1815,7 +1815,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             av_player.prepareToPlay()
             av_player.play()
             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_av), userInfo: nil, repeats: true)
-            RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
+            RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
             self.current_song_player = "av_player"
         } catch {
             print (error)

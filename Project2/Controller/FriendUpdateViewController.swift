@@ -33,6 +33,7 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
     var temp_start_float: Float?
     var temp_end_float: Float?
     var temp_lyric_var: String?
+    let imageCacheManager = ImageCacheManager()
     
     
     struct Storyboard {
@@ -77,12 +78,12 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
         self.tableView.dataSource = self
         
         self.tableView.estimatedRowHeight = Storyboard.postCellDefaultHeight //estimate the minimum height to  be this value
-        self.tableView.rowHeight = UITableViewAutomaticDimension //Actual height resized as per autolayout
+        self.tableView.rowHeight = UITableView.automaticDimension //Actual height resized as per autolayout
         self.tableView.cellLayoutMarginsFollowReadableWidth = false
         self.tableView.separatorColor = UIColor.gray //we don't want the default separator between the cells to be seen
         
-        self.tableView.contentInset = UIEdgeInsetsMake(50, 0, 0, 0)
-        self.tableView.scrollIndicatorInsets = UIEdgeInsetsMake(50, 0, 0, 0)
+        self.tableView.contentInset = UIEdgeInsets.init(top: 50, left: 0, bottom: 0, right: 0)
+        self.tableView.scrollIndicatorInsets = UIEdgeInsets.init(top: 50, left: 0, bottom: 0, right: 0)
 
         // Do any additional setup after loading the view.
         
@@ -117,7 +118,7 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
     }
     
     @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
-        if recognizer.state == UIGestureRecognizerState.ended {
+        if recognizer.state == UIGestureRecognizer.State.ended {
             let tapLocation = recognizer.location(in: self.tableView)
             if let tapIndexPath = self.tableView.indexPathForRow(at: tapLocation) {
                 if let tappedCell = self.tableView.cellForRow(at: tapIndexPath) as? FriendUpdateCell {
@@ -148,8 +149,11 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
         if segue.identifier == "ShowUpdateSegue" {
             if let destination = segue.destination as? ShowUpdateController {
                 
-                destination.albumArt_string =  temp_albumArt_string
                 destination.song_ID = temp_song_ID
+                imageCacheManager.fetchImage(url: URL(string: temp_albumArt_string!)!, completion: { (image) in
+                    destination.albumArt.image = image
+                })
+                //destination.albumArt_string =  temp_albumArt_string
                 destination.player = temp_player_string
                 destination.update_start = temp_start_float
                 destination.update_end = temp_end_float

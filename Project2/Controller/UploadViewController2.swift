@@ -156,6 +156,15 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     var selected_search_result_post_image: UIImage!
     var selected_search_result_song_db_struct = song_db_struct()
     var path_keeper = upload_path_keeper.shared
+    
+    
+    var album_header_view = UIView.init(frame: CGRect(x: 0, y: 0, width: 375, height: 180))
+    var album_header_image_view = UIImageView.init(frame: CGRect(x: 10, y: 15, width: 150, height: 150))
+    var album_name_label_view = UILabel.init(frame: CGRect(x: 165, y: 15, width: 200, height: 30))
+    var album_artist_name_label_view = UILabel.init(frame: CGRect(x: 165, y: 50, width: 200, height: 30))
+    var album_artist_release_date_label_view = UILabel.init(frame: CGRect(x: 165, y: 85, width: 200, height: 30))
+    var selected_album_media_item: MediaItem!
+    
     var video_search_results = [GTLRYouTube_SearchResult]() {
         didSet {
             DispatchQueue.main.async {
@@ -170,7 +179,8 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     var mediaItems = [[MediaItem]]() {
         didSet {
             DispatchQueue.main.async {
-                //print ("reloading")
+                print ("reloading")
+                self.search_result_count = self.mediaItems.count ?? 0
                 self.my_table?.reloadData()
             }
         }
@@ -178,6 +188,16 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     var spotify_mediaItems = [[SpotifyMediaObject.item]]() {
         didSet {
+            DispatchQueue.main.async {
+                //print ("reloading")
+                self.my_table?.reloadData()
+            }
+        }
+    }
+    
+    var spotify_recently_played_mediaItems = [[SpotifyRecentlyPlayedMediaObject.item]] () {
+        didSet {
+            print ("spotify_recently_played_mediaItems didSet")
             DispatchQueue.main.async {
                 //print ("reloading")
                 self.my_table?.reloadData()
@@ -258,7 +278,10 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         my_table = table_view
         self.my_table?.delegate = self
         self.my_table?.dataSource = self
-        self.my_table?.isHidden = true
+        //self.my_table?.isHidden = true
+        
+        let bottomView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 110))
+        self.my_table?.tableFooterView = bottomView
         self.back_button.isHidden = true
         self.navigationItem.setHidesBackButton(true, animated:true);
 
@@ -294,14 +317,14 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         searchController.searchBar.placeholder = "Search Posts"
         searchController.searchBar.delegate = self
         //self.search_bar_container.addSubview(searchController.searchBar)
-        searchController.searchBar.searchBarStyle = UISearchBarStyle.minimal
+        searchController.searchBar.searchBarStyle = UISearchBar.Style.minimal
         searchController.searchBar.isHidden = true
         definesPresentationContext = true
         searchController.hidesNavigationBarDuringPresentation = false
         //self.search_bar_container.isHidden = true
         
         GIF_SearchBar.delegate = self
-        GIF_SearchBar.searchBarStyle = UISearchBarStyle.minimal
+        GIF_SearchBar.searchBarStyle = UISearchBar.Style.minimal
         self.GIF_SearchBar.isHidden = true
         
         now_playing_image.layer.cornerRadius = 10
@@ -313,7 +336,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         gradient.colors = [UIColor.black.cgColor, UIColor.black.cgColor, UIColor.clear.cgColor]
         gradient.locations = [0, 0.7, 1]
         gradient.delegate = self
-        let cancelButtonAttributes = [NSAttributedStringKey.foregroundColor: UIColor.black]
+        let cancelButtonAttributes = [NSAttributedString.Key.foregroundColor: UIColor.black]
         UIBarButtonItem.appearance().setTitleTextAttributes(cancelButtonAttributes , for: .normal)
         
         let keyboard_dismiss_tap = UITapGestureRecognizer(target: self, action: #selector(UploadViewController2.dismiss_keyboard))
@@ -337,7 +360,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.url_paste_view.textColor = UIColor.lightGray
         self.url_paste_view.text = "URL"
         self.url_paste_view.tintColor = UIColor.black
-        self.view.sendSubview(toBack: self.url_paste_container_view)
+        self.view.sendSubviewToBack(self.url_paste_container_view)
         self.now_playing_image.isHidden = true
         
         hide_custom_scrolling_aparattus_toggle(set : true)
@@ -447,12 +470,27 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         //self. = searchController.searchBar
         //self.tableView.tableHeaderView = searchController.searchBar
         navigationItem.titleView = searchController.searchBar
+        self.update_recently_played()
+        
+        
+        
+        //setup header view for album  - apple recently played selection nonsense
+        
+        self.album_header_view.addSubview(album_header_image_view)
+        self.album_header_view.addSubview(album_name_label_view)
+        self.album_header_view.addSubview(album_artist_name_label_view)
+        self.album_header_view.addSubview(album_artist_release_date_label_view)
         
     }
  
     
     override func viewWillDisappear(_ animated: Bool) {
         self.tabBarController?.tabBar.isHidden = false
+    }
+    
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.poller.grab_now_playing_item()
     }
     override var prefersStatusBarHidden: Bool {
         return true
@@ -475,12 +513,13 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         toggle_hide_upload_selection(hide: true)
         show_or_hide_miniplayer()
         searchController.searchBar.isHidden = true
-        self.my_table?.isHidden = true
+        self.my_table?.isHidden = false
         self.youtube_player.isHidden = true
         self.clear_tables()
         if !(self.back_button?.isHidden)! {
             self.back_button?.isHidden = true
         }
+        self.update_recently_played()
     }
     
     @IBAction func apple_upload_button(_ sender: Any) {
@@ -498,7 +537,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.clear_tables()
         self.my_table?.isHidden = false
         self.url_paste_container_view.isHidden = true
-        self.view.sendSubview(toBack: self.url_paste_container_view)
+        self.view.sendSubviewToBack(self.url_paste_container_view)
         if !(self.back_button?.isHidden)! {
             self.back_button?.isHidden = true
         }
@@ -522,7 +561,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.clear_tables()
         self.my_table?.isHidden = false
         self.url_paste_container_view.isHidden = true
-        self.view.sendSubview(toBack: self.url_paste_container_view)
+        self.view.sendSubviewToBack(self.url_paste_container_view)
         if !(self.back_button?.isHidden)! {
             self.back_button?.isHidden = true
         }
@@ -545,7 +584,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.clear_tables()
         self.my_table?.isHidden = false
         self.url_paste_container_view.isHidden = false
-        self.view.bringSubview(toFront: self.url_paste_container_view)
+        self.view.bringSubviewToFront(self.url_paste_container_view)
         
         if !(self.back_button?.isHidden)! {
             self.back_button?.isHidden = true
@@ -585,7 +624,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
             }
             if self.url_paste_view.text != "URL" {
                 self.url_paste_container_view.isHidden = false
-                self.view.bringSubview(toFront: url_paste_container_view)
+                self.view.bringSubviewToFront(url_paste_container_view)
             }
             searchController.searchBar.isHidden = false
             self.my_table?.isHidden = false
@@ -593,6 +632,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         } else if (self.upload_flag == "now_playing") {
             self.now_playing_mini_image.isHidden = false
             self.now_playing_mini_image_container.isHidden = false
+            self.my_table?.isHidden = false
             if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
                 if self.apple_system_player.playbackState == .playing {
                     self.apple_system_player.stop()
@@ -816,7 +856,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                 self.pane_view_for_keyboard_dismiss.isHidden = true
                 //self.view.sendSubview(toBack: self.pane_view_for_keyboard_dismiss)
                 self.url_paste_container_view.isHidden = true
-            self.view.sendSubview(toBack: self.url_paste_container_view)
+            self.view.sendSubviewToBack(self.url_paste_container_view)
                 self.toggle_hide_upload_selection(hide: false)
                 self.searchController.searchBar.isHidden = true
                 self.my_table?.isHidden = true
@@ -1212,7 +1252,8 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return self.search_result_count
+        print ("numberOfSections \(self.search_result_count)")
+        return self.mediaItems.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -1239,6 +1280,26 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                 print("\n we returned 0 for rows \n")
                 return 0
             }
+        } else if upload_flag == "now_playing" {
+            if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
+                print ("section \(section)")
+                if spotify_recently_played_mediaItems.count != 0 {
+                    return spotify_recently_played_mediaItems[section].count
+                } else {
+                    return 0
+                }
+            } else if self.userDefaults.string(forKey: "UserAccount") == "Apple" {
+                print("UserAccount is Apple")
+                print ("section \(section)")
+                if mediaItems.count != 0 {
+                    print("\(mediaItems[section].count) is the count")
+                    return mediaItems[section].count
+                } else {
+                    return 0
+                }
+            } else {
+                return 0
+            }
         } else {
             return 0
         }
@@ -1248,7 +1309,11 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         if self.upload_flag != "youtube" {
             if section == 0 {
                 if self.tableView(table_view, numberOfRowsInSection: section) > 0 {
-                    return NSLocalizedString("Songs", comment: "Songs")
+                    if self.upload_flag == "now_playing" {
+                        return NSLocalizedString("Recently Played", comment: "Recently Played")
+                    } else {
+                        return NSLocalizedString("Songs", comment: "Songs")
+                    }
                 }
             } else {
                 if self.tableView(table_view, numberOfRowsInSection: section) > 0 {
@@ -1263,7 +1328,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
+        print("dequeue tableview")
         if self.upload_flag != "youtube" {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: SearchResultCell.identifier,
                                                            for: indexPath) as? SearchResultCell else {
@@ -1356,6 +1421,96 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                     }
                 }
             //cell.media_image.image = UIImage(named: "Beatles")
+            } else if self.upload_flag == "now_playing" {
+                print("dequeue now playing")
+                if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
+                    print ("dequeue was called")
+                    print(indexPath.section)
+                    print(indexPath.row)
+                    
+                    let isIndexValid1 = spotify_recently_played_mediaItems.indices.contains(indexPath.section)
+                    let isIndexValid2 = spotify_recently_played_mediaItems[indexPath.section].indices.contains(indexPath.row)
+                    if (isIndexValid1 && isIndexValid2) {
+                        let spotify_recently_played_mediaItem = spotify_recently_played_mediaItems[indexPath.section][indexPath.row]
+                        
+                        cell.spotify_recently_played_mediaItem = spotify_recently_played_mediaItems[indexPath.section][indexPath.row]
+                        
+                        
+                        // Image loading.
+                        if spotify_recently_played_mediaItem.track?.album?.images?.count != 0 {
+                            print ("hurdle one")
+                            imageURL = URL(string: "\(spotify_recently_played_mediaItem.track?.album?.images?[0].url ?? "" )")
+                            print (spotify_recently_played_mediaItem.track?.album?.images?[0].url)
+                            print (imageURL)
+                        }
+                        
+                        
+                        if (imageURL != nil) {
+                            print ("hurdle two")
+                            if let image = imageCacheManager.cachedImage(url: imageURL!) {
+                                // Cached: set immediately.
+                                //®print ("Cached")
+                                cell.media_image.image = image
+                                cell.media_image.alpha = 1
+                            } else {
+                                // Not cached, so load then fade it in.
+                                cell.media_image.alpha = 0
+                                //print ("Not cached")
+                                imageCacheManager.fetchImage(url: imageURL!, completion: { (image) in
+                                    // Check the cell hasn't recycled while loading.
+                                    if (cell.spotify_recently_played_mediaItem.track?.uri ?? "") == spotify_recently_played_mediaItem.track?.uri {
+                                        //print ("yes we load it too")
+                                        cell.media_image.image = image
+                                        UIView.animate(withDuration: 0.3) {
+                                            cell.media_image.alpha = 1
+                                        }
+                                    }
+                                    //print ("fetched")
+                                })
+                            }
+                        }
+                    }
+                } else if self.userDefaults.string(forKey: "UserAccount") == "Apple" {
+                    
+                    print ("dequeue was called")
+                    print(indexPath.section)
+                    print(indexPath.row)
+                    print(search_result_count)
+                    print(mediaItems.count)
+                    let mediaItem = mediaItems[indexPath.section][indexPath.row]
+                    
+                    let isIndexValid1 = mediaItems.indices.contains(indexPath.section)
+                    let isIndexValid2 = mediaItems[indexPath.section].indices.contains(indexPath.row)
+                    if (isIndexValid1 && isIndexValid2) {
+                        
+                        cell.mediaItem = mediaItem
+                        print(cell.mediaItem.type)
+                        
+                        // Image loading.
+                        imageURL = mediaItem.artwork.imageURL(size: CGSize(width: 400, height: 400))
+                        if let image = imageCacheManager.cachedImage(url: imageURL!) {
+                            // Cached: set immediately.
+                            
+                            cell.media_image.image = image
+                            cell.media_image.alpha = 1
+                        } else {
+                            // Not cached, so load then fade it in.
+                            cell.media_image.alpha = 0
+                            
+                            imageCacheManager.fetchImage(url: imageURL!, completion: { (image) in
+                                // Check the cell hasn't recycled while loading.
+                                
+                                
+                                if (cell.mediaItem?.identifier ?? "") == mediaItem.identifier {
+                                    cell.media_image.image = image
+                                    UIView.animate(withDuration: 0.3) {
+                                        cell.media_image.alpha = 1
+                                    }
+                                }
+                            })
+                        }
+                    }
+                }
             }
         
             return cell
@@ -1468,100 +1623,120 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     
     @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
-        if recognizer.state == UIGestureRecognizerState.ended {
+        if recognizer.state == UIGestureRecognizer.State.ended {
             let tapLocation = recognizer.location(in: self.my_table)
             if let tapIndexPath = self.my_table?.indexPathForRow(at: tapLocation) {
                 
                 self.clean_cached_cell()
                 
-               if self.upload_flag != "youtube" {
-                   if let tappedCell = self.my_table?.cellForRow(at: tapIndexPath) as? SearchResultCell  {
-//                        self.youtube_player.isHidden = true
-//                        toggle_hide_upload_selection(hide: false)
-//                        self.searchController.view.endEditing(true)
-//                        searchController.searchBar.isHidden = true
-//                        self.my_table?.isHidden = true
-//                        self.back_button?.isHidden = false
-//                        self.view.bringSubview(toFront: self.back_button)
-//                        //self.search_bar_container.bringSubview(toFront: self.back_button)
-//                        self.selected_cell = tapIndexPath
-//
-                        if (self.upload_flag == "spotify") {
-//
-//                            self.now_playing_image.image = tappedCell.media_image.image
-//                            self.spotifyplayer.playSpotifyURI(tappedCell.spotify_mediaItem.uri!, startingWith: 0, startingWithPosition: 0.0, callback: { (error) in
-//                                if (error == nil) {
-//                                    print("playing!")
-//                                    self.animate_color()
-//                                }
-//                            })
-//                            //self.audio_scrubber_ot.maximumValue = Float(tappedCell.spotify_mediaItem.duration_ms!)
-//                            //self.test_slider.maximumValue = Float(tappedCell.spotify_mediaItem.duration_ms!)
-//                            self.duration = (tappedCell.spotify_mediaItem.duration_ms!) / 1000
-//                            self.duration_for_number_of_cells = Int(ceil(Double(tappedCell.spotify_mediaItem.duration_ms!) / 1000))
-//                            print (tappedCell.spotify_mediaItem.duration_ms)
-//                            print (Float(tappedCell.spotify_mediaItem.duration_ms!) / 1000)
-//                            //print(self.audio_scrubber_ot.maximumValue)
-//                            self.spotify_current_uri = tappedCell.spotify_mediaItem.uri
-//                            self.song_name_label.text = tappedCell.spotify_mediaItem.name
-//                            self.artist_name_label.text = tappedCell.spotify_mediaItem.artists![0].name
-//                             //self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.updateScrubber), userInfo: nil, repeats: true)
-//                            self.uploading = true
-                        } else if (self.upload_flag == "apple") {
-//                            self.now_playing_image.image = tappedCell.media_image.image
-//                            self.apple_player.setQueue(with: [tappedCell.mediaItem.identifier as! String])
-//                            self.apple_player.play()
-//                            self.apple_player.currentPlaybackTime = 30.0
-//                            self.animate_color()
-//                            //self.audio_scrubber_ot.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
-//                            //self.test_slider.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
-//                            print (tappedCell.mediaItem.durationInMillis!)
-//                            print (Float(tappedCell.mediaItem.durationInMillis!) / 1000)
-//                            self.duration = (tappedCell.mediaItem.durationInMillis!) / 1000
-//                            self.duration_for_number_of_cells = Int(ceil(Double(tappedCell.mediaItem.durationInMillis!) / 1000))
-//                            //print(self.audio_scrubber_ot.maximumValue)
-//                            self.apple_id = tappedCell.mediaItem.identifier
-//                            self.song_name_label.text = tappedCell.mediaItem.name
-//                            self.artist_name_label.text = tappedCell.mediaItem.artistName
-//                            self.uploading = true
+                
+                if self.upload_flag == "now_playing" && self.userDefaults.string(forKey: "UserAccount") == "Apple" {
+                    if let tappedCell = self.my_table?.cellForRow(at: tapIndexPath) as? SearchResultCell {
+                        print(tappedCell.mediaItem.type)
+                        if tappedCell.mediaItem.type.rawValue == "albums" {
+                            self.selected_album_media_item = tappedCell.mediaItem
+                            performSegue(withIdentifier: "2_to_album_display", sender: self)
                         }
                     }
-                } else  {
-                    if let tappedCell = self.my_table?.cellForRow(at: tapIndexPath) as? SearchResultCell_youtube  {
-//                        self.youtube_player.isHidden = false
-//                        self.searchController.view.endEditing(true)
-//                        toggle_hide_upload_selection(hide: false)
-//                        searchController.searchBar.isHidden = true
-//                        self.my_table?.isHidden = true
-//                        self.back_button?.isHidden = false
-//                        self.selected_cell = tapIndexPath
-//                        print ("gesture recognized")
-//                        self.youtube_player.isHidden = false
-//                        self.youtube_player.load(withVideoId: tappedCell.youtube_video_resource.identifier?.videoId ?? "" , playerVars: ["autoplay": 1, "playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "rel": 0, "iv_load_policy": 3])
-//                        self.youtube_player.playVideo()
-//                        self.song_name_label.text = tappedCell.youtube_video_resource.snippet?.title
-//                        self.artist_name_label.text = ""
-                        //Here we do the query to get the video reponse object to get the duration - we set it in displayResultWithTicket2
-                        //let video_search_query = GTLRYouTubeQuery_VideosList.query(withPart: "snippet,contentDetails,statistics")
-                        //video_search_query.identifier = tappedCell.youtube_video_resource.identifier?.videoId ?? ""
-                        //service.executeQuery(video_search_query,
-                                            // delegate: self,
-                                             //didFinish: #selector(displayResultWithTicket2(ticket:finishedWithObject:error:)))
-//                        self.yt_id = tappedCell.youtube_video_resource.identifier?.videoId
-//                        self.uploading = true
-                    }
-               }
+                } else {
                 
-//                self.collection_view_for_scroll.reloadData()
-//                self.slider_width.constant = (self.custom_progress_bar_bar.frame.width * self.Selection_view.frame.width) / CGFloat((self.duration_for_number_of_cells * 5) - 3)
-//                self.slider_leading_constraint.constant = 0
-//                self.color_animate_trailing.constant = 262.5
-//                self.collection_view_for_scroll.setContentOffset(CGPoint(x: -97.0, y: 0.0), animated: true)
-                self.cache_selected_cell(at: tapIndexPath)
-                
-                self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
+                   if self.upload_flag != "youtube" {
+                       if let tappedCell = self.my_table?.cellForRow(at: tapIndexPath) as? SearchResultCell  {
+    //                        self.youtube_player.isHidden = true
+    //                        toggle_hide_upload_selection(hide: false)
+    //                        self.searchController.view.endEditing(true)
+    //                        searchController.searchBar.isHidden = true
+    //                        self.my_table?.isHidden = true
+    //                        self.back_button?.isHidden = false
+    //                        self.view.bringSubview(toFront: self.back_button)
+    //                        //self.search_bar_container.bringSubview(toFront: self.back_button)
+    //                        self.selected_cell = tapIndexPath
+    //
+                            if (self.upload_flag == "spotify") {
+    //
+    //                            self.now_playing_image.image = tappedCell.media_image.image
+    //                            self.spotifyplayer.playSpotifyURI(tappedCell.spotify_mediaItem.uri!, startingWith: 0, startingWithPosition: 0.0, callback: { (error) in
+    //                                if (error == nil) {
+    //                                    print("playing!")
+    //                                    self.animate_color()
+    //                                }
+    //                            })
+    //                            //self.audio_scrubber_ot.maximumValue = Float(tappedCell.spotify_mediaItem.duration_ms!)
+    //                            //self.test_slider.maximumValue = Float(tappedCell.spotify_mediaItem.duration_ms!)
+    //                            self.duration = (tappedCell.spotify_mediaItem.duration_ms!) / 1000
+    //                            self.duration_for_number_of_cells = Int(ceil(Double(tappedCell.spotify_mediaItem.duration_ms!) / 1000))
+    //                            print (tappedCell.spotify_mediaItem.duration_ms)
+    //                            print (Float(tappedCell.spotify_mediaItem.duration_ms!) / 1000)
+    //                            //print(self.audio_scrubber_ot.maximumValue)
+    //                            self.spotify_current_uri = tappedCell.spotify_mediaItem.uri
+    //                            self.song_name_label.text = tappedCell.spotify_mediaItem.name
+    //                            self.artist_name_label.text = tappedCell.spotify_mediaItem.artists![0].name
+    //                             //self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.updateScrubber), userInfo: nil, repeats: true)
+    //                            self.uploading = true
+                            } else if (self.upload_flag == "apple") {
+    //                            self.now_playing_image.image = tappedCell.media_image.image
+    //                            self.apple_player.setQueue(with: [tappedCell.mediaItem.identifier as! String])
+    //                            self.apple_player.play()
+    //                            self.apple_player.currentPlaybackTime = 30.0
+    //                            self.animate_color()
+    //                            //self.audio_scrubber_ot.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
+    //                            //self.test_slider.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
+    //                            print (tappedCell.mediaItem.durationInMillis!)
+    //                            print (Float(tappedCell.mediaItem.durationInMillis!) / 1000)
+    //                            self.duration = (tappedCell.mediaItem.durationInMillis!) / 1000
+    //                            self.duration_for_number_of_cells = Int(ceil(Double(tappedCell.mediaItem.durationInMillis!) / 1000))
+    //                            //print(self.audio_scrubber_ot.maximumValue)
+    //                            self.apple_id = tappedCell.mediaItem.identifier
+    //                            self.song_name_label.text = tappedCell.mediaItem.name
+    //                            self.artist_name_label.text = tappedCell.mediaItem.artistName
+    //                            self.uploading = true
+                            }
+                        }
+                    } else  {
+                        if let tappedCell = self.my_table?.cellForRow(at: tapIndexPath) as? SearchResultCell_youtube  {
+    //                        self.youtube_player.isHidden = false
+    //                        self.searchController.view.endEditing(true)
+    //                        toggle_hide_upload_selection(hide: false)
+    //                        searchController.searchBar.isHidden = true
+    //                        self.my_table?.isHidden = true
+    //                        self.back_button?.isHidden = false
+    //                        self.selected_cell = tapIndexPath
+    //                        print ("gesture recognized")
+    //                        self.youtube_player.isHidden = false
+    //                        self.youtube_player.load(withVideoId: tappedCell.youtube_video_resource.identifier?.videoId ?? "" , playerVars: ["autoplay": 1, "playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "rel": 0, "iv_load_policy": 3])
+    //                        self.youtube_player.playVideo()
+    //                        self.song_name_label.text = tappedCell.youtube_video_resource.snippet?.title
+    //                        self.artist_name_label.text = ""
+                            //Here we do the query to get the video reponse object to get the duration - we set it in displayResultWithTicket2
+                            //let video_search_query = GTLRYouTubeQuery_VideosList.query(withPart: "snippet,contentDetails,statistics")
+                            //video_search_query.identifier = tappedCell.youtube_video_resource.identifier?.videoId ?? ""
+                            //service.executeQuery(video_search_query,
+                                                // delegate: self,
+                                                 //didFinish: #selector(displayResultWithTicket2(ticket:finishedWithObject:error:)))
+    //                        self.yt_id = tappedCell.youtube_video_resource.identifier?.videoId
+    //                        self.uploading = true
+                        }
+                   }
+                    
+    //                self.collection_view_for_scroll.reloadData()
+    //                self.slider_width.constant = (self.custom_progress_bar_bar.frame.width * self.Selection_view.frame.width) / CGFloat((self.duration_for_number_of_cells * 5) - 3)
+    //                self.slider_leading_constraint.constant = 0
+    //                self.color_animate_trailing.constant = 262.5
+    //                self.collection_view_for_scroll.setContentOffset(CGPoint(x: -97.0, y: 0.0), animated: true)
+                    self.cache_selected_cell(at: tapIndexPath)
+                    
+                    self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
+                }
             }
         }
+    }
+    
+    @objc func end_album_header () {
+        print("end album header")
+        self.navigationItem.leftBarButtonItem = nil
+        self.my_table?.tableHeaderView = nil
+        self.update_recently_played()
+        self.my_table?.scrollToRow(at: [0,0], at: UITableView.ScrollPosition.top, animated: true)
     }
     
     func cache_selected_cell(at indexPath: IndexPath) {
@@ -1647,6 +1822,45 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                           albumArtUrl: upload_cell.mediaItem.artwork.imageURL(size: CGSize(width: 375, height: 375)).absoluteString,
                                           original_track_length: upload_cell.mediaItem.durationInMillis!,
                                           GIF_url: "" )
+                
+            case "now_playing":
+                
+                //this is for recently played only
+                self.selected_search_result_post_image = upload_cell.media_image.image
+                self.selected_search_result_song_db_struct.album_name = upload_cell.spotify_recently_played_mediaItem.track?.album?.name
+                self.selected_search_result_song_db_struct.artist_name = upload_cell.spotify_recently_played_mediaItem.track?.artists?[0].name
+                self.selected_search_result_song_db_struct.isrc_number = upload_cell.spotify_recently_played_mediaItem.track?.external_ids?.isrc
+                self.selected_search_result_song_db_struct.playable_id = upload_cell.spotify_recently_played_mediaItem.track?.uri
+                self.selected_search_result_song_db_struct.preview_url = upload_cell.spotify_recently_played_mediaItem.track?.preview_url
+                self.selected_search_result_song_db_struct.release_date = upload_cell.spotify_recently_played_mediaItem.track?.album?.release_date
+                self.selected_search_result_song_db_struct.song_name = upload_cell.spotify_recently_played_mediaItem.track?.name
+                
+                self.selected_search_result_post = Post(albumArtImage:  "",
+                                                        sourceAppImage:  "Spotify_cropped",
+                                                        typeImage: "icons8-musical-notes-50" ,
+                                                        profileImage:  "FullSizeRender 10-2" ,
+                                                        username: "Viraj",
+                                                        timeAgo: "Just now",
+                                                        numberoflikes: "0 likes",
+                                                        caption: "",
+                                                        offset: 0.0,
+                                                        startoffset: 0.0, //<- Apple does not allow starting from a particular point. No workaround so far :( We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
+                                                        audiolength: 30.0 ,
+                                                        paused: false,
+                                                        playing: false,
+                                                        trackid: upload_cell.spotify_recently_played_mediaItem.track?.uri,
+                                                        helper_id: "",
+                                                        videoid: "empty",
+                                                        starttime: 0 ,
+                                                        endtime: 0,
+                                                        flag: ((self.lyrics) ? "lyric" : "audio"),
+                                                        lyrictext: "",
+                                                        songname: upload_cell.spotify_recently_played_mediaItem.track?.name,
+                                                        sourceapp: self.upload_flag,
+                                                        preview_url: (upload_cell.spotify_recently_played_mediaItem.track?.preview_url) ?? "nil",
+                                                        albumArtUrl: upload_cell.spotify_recently_played_mediaItem.track?.album?.images![0].url,
+                                                        original_track_length: upload_cell.spotify_recently_played_mediaItem.track?.duration_ms!,
+                                                        GIF_url: "" )
                 
             default:   //now_playing - do we need 'default' case? it's going to be apple/spotify anyway.
                 print ("default")
@@ -1813,7 +2027,46 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.collection_view_for_scroll.setContentOffset(CGPoint(x: -97.0, y: 0.0), animated: true)
     */
         
-        self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
+        self.selected_search_result_post_image = self.poller.return_image()
+        self.selected_search_result_song_db_struct.album_name = self.poller.spotify_currently_playing_object.item?.album?.name
+        self.selected_search_result_song_db_struct.artist_name = self.poller.spotify_currently_playing_object.item?.artists?[0].name
+        self.selected_search_result_song_db_struct.isrc_number = self.poller.spotify_currently_playing_object.item?.external_ids?.isrc
+        self.selected_search_result_song_db_struct.playable_id = self.poller.spotify_currently_playing_object.item?.uri
+        self.selected_search_result_song_db_struct.preview_url = self.poller.spotify_currently_playing_object.item?.preview_url
+        self.selected_search_result_song_db_struct.release_date = self.poller.spotify_currently_playing_object.item?.album?.release_date
+        self.selected_search_result_song_db_struct.song_name = self.poller.spotify_currently_playing_object.item?.name
+        
+        self.selected_search_result_post = Post(albumArtImage:  "",
+                                                sourceAppImage:  "Spotify_cropped",
+                                                typeImage: "icons8-musical-notes-50" ,
+                                                profileImage:  "FullSizeRender 10-2" ,
+                                                username: "Viraj",
+                                                timeAgo: "Just now",
+                                                numberoflikes: "0 likes",
+                                                caption: "",
+                                                offset: 0.0,
+                                                startoffset: 0.0, //<- Apple does not allow starting from a particular point. No workaround so far :( We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
+            audiolength: 30.0 ,
+            paused: false,
+            playing: false,
+            trackid: self.poller.spotify_currently_playing_object.item?.uri,
+            helper_id: "",
+            videoid: "empty",
+            starttime: 0 ,
+            endtime: 0,
+            flag: ((self.lyrics) ? "lyric" : "audio"),
+            lyrictext: "",
+            songname: self.poller.spotify_currently_playing_object.item?.name,
+            sourceapp: self.upload_flag,
+            preview_url: (self.poller.spotify_currently_playing_object.item?.preview_url) ?? "nil",
+            albumArtUrl: self.poller.spotify_currently_playing_object.item?.album?.images![0].url,
+            original_track_length: (self.temp_spotify_media_context_duration!) / 1000,
+            GIF_url: "" )
+        
+            self.duration = (self.temp_spotify_media_context_duration!) / 1000
+            self.duration_for_number_of_cells = Int(ceil(Double(self.temp_spotify_media_context_duration!) / 1000))
+        
+            self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
     }
     
     
@@ -2161,50 +2414,56 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print ("prepare for segue")
-        let destinationVC = segue.destination as! UploadViewController3
-        destinationVC.flow = self.flow
-        if self.upload_flag != "now_playing" {
+        if segue.identifier == "upload_2_to_3" {
+            let destinationVC = segue.destination as! UploadViewController3
+            destinationVC.flow = self.flow
+            
             destinationVC.selected_search_result_post = self.selected_search_result_post
             destinationVC.selected_search_result_song_db_struct = self.selected_search_result_song_db_struct
             destinationVC.upload_flag = self.upload_flag
             destinationVC.duration = self.duration
             destinationVC.duration_for_number_of_cells = self.duration_for_number_of_cells
             destinationVC.selected_search_result_post_image = self.selected_search_result_post_image
-            
-            
-            definesPresentationContext = false //If you keep it as true then, the search bar in the controller that you push on the navigation stack remains unresponsive.
-            
-            print (self.selected_search_result_post_image)
-            print (destinationVC.selected_search_result_post_image)
-            print (self.duration_for_number_of_cells)
-            print (self.duration)
-            print (self.upload_flag)
-            print (destinationVC.duration_for_number_of_cells)
-            print (destinationVC.duration)
-            print (destinationVC.upload_flag)
-        } else {
-             destinationVC.upload_flag = self.upload_flag
-            
-            if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
-              
-                destinationVC.spotify_current_uri = self.temp_spotify_media_context_uri
-                destinationVC.duration = (self.temp_spotify_media_context_duration!) / 1000
-                destinationVC.duration_for_number_of_cells = Int(ceil(Double(self.temp_spotify_media_context_duration!) / 1000))
-                destinationVC.uploading = true
+            if self.upload_flag != "now_playing" {
+    //            destinationVC.selected_search_result_post = self.selected_search_result_post
+    //            destinationVC.selected_search_result_song_db_struct = self.selected_search_result_song_db_struct
+    //            destinationVC.upload_flag = self.upload_flag
+    //            destinationVC.duration = self.duration
+    //            destinationVC.duration_for_number_of_cells = self.duration_for_number_of_cells
+    //            destinationVC.selected_search_result_post_image = self.selected_search_result_post_image
+                definesPresentationContext = false //If you keep it as true then, the search bar in the controller that you push on the navigation stack remains unresponsive.
+
+            } else {
+                 destinationVC.upload_flag = self.upload_flag
                 
-            } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
-                
-                if let mediaItem = self.apple_system_player.nowPlayingItem {
+                if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
                   
-                    destinationVC.apple_id = mediaItem.playbackStoreID
-                    destinationVC.duration = Int(mediaItem.playbackDuration)
-                    destinationVC.duration_for_number_of_cells = Int(ceil(mediaItem.playbackDuration))
+    //                destinationVC.spotify_current_uri = self.temp_spotify_media_context_uri
+    //                destinationVC.duration = self.duration
+    //                destinationVC.duration_for_number_of_cells = self.duration_for_number_of_cells
                     destinationVC.uploading = true
+                    
+                } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
+                    
+                    if let mediaItem = self.apple_system_player.nowPlayingItem {
+                      
+    //                    destinationVC.apple_id = mediaItem.playbackStoreID
+    //                    destinationVC.duration = Int(mediaItem.playbackDuration)
+    //                    destinationVC.duration_for_number_of_cells = Int(ceil(mediaItem.playbackDuration))
+                        destinationVC.uploading = true
+                    }
                 }
+                
+                
             }
             
+        } else if segue.identifier == "2_to_album_display" {
+             let destinationVC = segue.destination as! UploadViewControllerAlbumDisplay
             
+            destinationVC.flow = self.flow
+            destinationVC.albumMediaItem = self.selected_album_media_item
         }
+        
     }
     
     
@@ -2286,6 +2545,76 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
             if self.url_paste_container_view.isHidden == true {
                 self.url_paste_container_view.isHidden = false
             }
+        }
+    }
+    
+    
+    func update_recently_played () {
+        
+        
+        if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
+            appleMusicManager.performSpotifyRecentlyPlayedSearch().done { searchResults in
+                print ("performSpotifyRecentlyPlayedSearch done")
+                self.setterQueue.sync {
+                    self.spotify_recently_played_mediaItems = []
+                }
+                self.setterQueue.sync {
+                    self.spotify_recently_played_mediaItems = [searchResults]
+                    print(" count from setterqueue \(searchResults.count)")
+                                                                
+                    self.search_result_count = self.spotify_recently_played_mediaItems.count ?? 0
+                }
+            
+                return
+            }
+        } else if self.userDefaults.string(forKey: "UserAccount") == "Apple" {
+            print("apple recently_played_search")
+            let token = UserDefaults.standard.string(forKey: AppleMusicControl.userTokenUserDefaultsKey)
+            appleMusicManager.performAppleMusicGetRecentlyPlayed(userToken: token!, completion: { [weak self] (searchResults, error) in
+                                                                guard error == nil else {
+                                                                    
+                                                                    // Your application should handle these errors appropriately depending on the kind of error.
+                                                                    self?.setterQueue.sync {
+                                                                        self?.mediaItems = []
+                                                                    }
+                                                                    
+                                                                    let alertController: UIAlertController
+                                                                    
+                                                                    guard let error = error as NSError?, let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? Error else {
+                                                                        
+                                                                        alertController = UIAlertController(title: "Error",
+                                                                                                            message: "Encountered unexpected error.",
+                                                                                                            preferredStyle: .alert)
+                                                                        alertController.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+                                                                        
+                                                                        DispatchQueue.main.async {
+                                                                            self?.present(alertController, animated: true, completion: nil)
+                                                                        }
+                                                                        
+                                                                        return
+                                                                    }
+                                                                    
+                                                                    alertController = UIAlertController(title: "Error",
+                                                                                                        message: underlyingError.localizedDescription,
+                                                                                                        preferredStyle: .alert)
+                                                                    alertController.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+                                                                    
+                                                                    DispatchQueue.main.async {
+                                                                        self?.present(alertController, animated: true, completion: nil)
+                                                                    }
+                                                                    
+                                                                    return
+                                                                }
+                                                                
+                                                                self?.setterQueue.sync {
+                                                                    print(searchResults)
+                                                                    self?.search_result_count = self?.mediaItems.count ?? 0
+                                                                    self?.mediaItems = [searchResults]
+                                                                    print(searchResults.count)
+                                                                    print ("media items count \(self?.mediaItems.count) ")
+                                                                }
+                return
+            })
         }
     }
     
@@ -2389,7 +2718,8 @@ extension UploadViewController2: UISearchResultsUpdating  {
                 })
             }
             
-        } else {
+        }  else {
+            
             // Destroy current results
             searchCounter += 1
             latestSearchResponse = nil
@@ -2854,7 +3184,7 @@ extension UploadViewController2: UISearchBarDelegate {
                 self.pane_view_for_keyboard_dismiss.isHidden = false
                 //self.view.bringSubview(toFront: self.pane_view_for_keyboard_dismiss)
                 self.url_paste_container_view.isHidden = true
-                self.view.sendSubview(toBack: self.url_paste_container_view)
+                self.view.sendSubviewToBack(self.url_paste_container_view)
             }
         }
     }
@@ -2892,7 +3222,7 @@ extension UploadViewController2: UISearchBarDelegate {
                 //self.view.sendSubview(toBack: self.pane_view_for_keyboard_dismiss)
                 if self.upload_flag == "youtube" {
                     self.url_paste_container_view.isHidden = false
-                    self.view.bringSubview(toFront: self.url_paste_container_view)
+                    self.view.bringSubviewToFront(self.url_paste_container_view)
                 }
             }
         }

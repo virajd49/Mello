@@ -583,7 +583,7 @@ class SearchResultsController: UITableViewController, UISearchResultsUpdating, S
     }
     
     @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
-        if recognizer.state == UIGestureRecognizerState.ended {
+        if recognizer.state == UIGestureRecognizer.State.ended {
             let tapLocation = recognizer.location(in: self.tableView)
             if let tapIndexPath = self.tableView?.indexPathForRow(at: tapLocation) {
                 

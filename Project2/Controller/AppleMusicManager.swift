@@ -80,7 +80,7 @@ class AppleMusicManager {
             print(urlResponse)
             //print("response should be above this guy")
             let dataAsString = String(data: data!, encoding: .utf8)
-            //print(dataAsString)
+            print(dataAsString)
             do {
                 let mediaItems = try self.processMediaItemSections(from: data!)
                 completion(mediaItems, nil)
@@ -140,12 +140,13 @@ class AppleMusicManager {
     }
     
     func performAppleMusicGetRecentlyPlayed(userToken: String, completion: @escaping GetRecentlyPlayedCompletionHandler) {
+        print ("performAppleMusicGetRecentlyPlayed")
         guard let developerToken = fetchDeveloperToken() else {
             fatalError("Developer Token not configured.  See README for more details.")
         }
         
         let urlRequest = AppleMusicRequestFactory.createRecentlyPlayedRequest(developerToken: developerToken, userToken: userToken)
-        
+        print(urlRequest)
         let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
             guard error == nil, let urlResponse = response as? HTTPURLResponse, urlResponse.statusCode == 200 else {
                 completion([], error)
@@ -158,6 +159,11 @@ class AppleMusicManager {
                     let results = jsonDictionary[ResponseRootJSONKeys.data] as? [[String: Any]] else {
                         throw SerializationError.missing(ResponseRootJSONKeys.data)
                 }
+                
+                let dataAsString = String(data: data!, encoding: .utf8)
+                print(dataAsString)
+                //print(urlResponse)
+                //print("response should be above this guy")
                 
                 let mediaItems = try self.processMediaItems(from: results)
                 
@@ -295,6 +301,21 @@ class AppleMusicManager {
         return mediaItems
     }
     
+    //Used only for album searches by album id - done to get all the tracks in an album - because apple music returns onluy albums for recently played
+    func processMediaItemSections_album_relations_songs(from json: Data) throws -> [MediaItem] {
+        guard let jsonDictionary = try JSONSerialization.jsonObject(with: json, options: []) as? [String: Any],
+            let data = jsonDictionary[ResponseRootJSONKeys.data] as? [[String: Any]] else {
+                print ("this error processMediaItemSections")
+                throw SerializationError.missing(ResponseRootJSONKeys.data)
+        }
+        print ("processMediaItemSections 1 ")
+        var mediaItems = [MediaItem]()
+        let mediaItem = try processMediaItems(from: data)
+        mediaItems = mediaItem
+        
+        return mediaItems
+    }
+    
     
     func processSpotifyMediaItemSections(from json: Data) throws -> [SpotifyMediaObject.item] {
         
@@ -355,6 +376,13 @@ class AppleMusicManager {
         return artistMediaItems
     }
     
+    func processAlbumMediaItems(from json: [[String: Any]]) throws -> [AlbumMediaItem] {
+        let albumMediaItems = try json.map { try AlbumMediaItem(json: $0) }
+        return albumMediaItems
+    }
+    
+    
+    
 //    func processSpotifyMediaItems(from json: [[String: Any]]) throws -> [SpotifyMediaItem] {
 //        let songMediaItems = try json.map { try SpotifyMediaItem(json: $0) }
 //        return songMediaItems
@@ -372,6 +400,8 @@ class AppleMusicManager {
         
         return identifier
     }
+    
+   
     
     
     func performAppleMusicCatalogSearchNew(with term: String, countryCode: String ) -> Promise<[MediaItem]> {
@@ -564,13 +594,60 @@ class AppleMusicManager {
         }
     }
     
-    func performSpotifyCurrentPlayingSearch(with term: String) ->Promise<[SpotifyCurrentPlayingMediaObject.currently_playing_context]> {
+    func performAppleMusicCatalogSearch_album_relation_songs (with term: String, countryCode: String ) -> Promise<[MediaItem]> {
+        return Promise { seal in
+            //print("search got to here as well")
+            //print(term)
+            //print(countryCode)
+            
+            guard let developerToken = fetchDeveloperToken() else {
+                seal.reject("Error fetching developer token: performAppleMusicCatalogSearchNew" as! Error)
+                fatalError("Developer Token not configured. See README for more details.")
+            }
+            
+            let urlRequest = AppleMusicRequestFactory.createSearchRequest_for_album_relations_songs(with: term, countryCode: countryCode, developerToken: developerToken)
+            
+            print(urlRequest)
+            print (developerToken)
+            URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
+                print(error)
+                print(response)
+                guard error == nil, let urlResponse = response as? HTTPURLResponse, urlResponse.statusCode == 200 else {
+                    if error != nil {
+                        print(error)
+                        seal.reject (error!)
+                    } else {
+                        seal.reject("Http error response performAppleMusicCatalogSearchNew_songID" as! Error)
+                    }
+                    print("error response")
+                    return
+                }
+                //print(urlResponse)
+                //print("response should be above this guy")
+                let dataAsString = String(data: data!, encoding: .utf8)
+                print(dataAsString)
+                do {
+                    let MediaItems = try self.processMediaItemSections_album_relations_songs(from: data!)
+                    seal.fulfill(MediaItems)
+                    //print(mediaItems)
+                    
+                } catch {
+                    fatalError("An error occurred: \(error.localizedDescription)")
+                    seal.reject(MyError.runtimeError("JSON processing error - performAppleMusicCatalogSearch"))
+                }
+                }.resume()
+            
+            //task.resume()
+        }
+    }
+    
+    func performSpotifyCurrentPlayingSearch() ->Promise<[SpotifyCurrentPlayingMediaObject.currently_playing_context]> {
         return Promise { seal in
             print("JUST in performSpotifyCurrentPlayingSearch")
             //print(term)
             //print(countryCode)
             var empty_currently_playing_object_array = [SpotifyCurrentPlayingMediaObject.currently_playing_context]()
-            let urlRequest = AppleMusicRequestFactory.createSpotifySearchRequest_current_playing_item(with: term, accesstoken: self.userDefaults.value(forKey: "spotify_access_token") as! String)
+            let urlRequest = AppleMusicRequestFactory.createSpotifySearchRequest_current_playing_item(accesstoken: self.userDefaults.value(forKey: "spotify_access_token") as! String)
             
             print("The created url request \(urlRequest)")
             //print (developerToken)
@@ -624,6 +701,80 @@ class AppleMusicManager {
         }
         
     }
+    
+    func performSpotifyRecentlyPlayedSearch() -> Promise<[SpotifyRecentlyPlayedMediaObject.item]>{
+        return Promise { seal in
+            //print("search got to here as well")
+            //print(term)
+            //print(countryCode)
+            
+            let developerToken = (self.userDefaults.object(forKey: "spotify_access_token")) as! String
+            
+            let urlRequest = AppleMusicRequestFactory.createSpotifySearchRequest_recently_played(accesstoken: developerToken)
+            
+            //print(urlRequest)
+            //print (developerToken)
+            let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
+                //print(error)
+                //print(response)
+                guard error == nil, let urlResponse = response as? HTTPURLResponse, urlResponse.statusCode == 200 else {
+                    if error != nil {
+                        print(error)
+                        seal.reject (error!)
+                    } else {
+                        seal.reject("Http error response performSpotifyCatalogSearchNew" as! Error)
+                    }
+                    print("error response")
+                    return
+                }
+                
+                guard let data = data else {return}
+                
+                let dataAsString = String(data: data, encoding: .utf8)
+                print(dataAsString)
+                //print(urlResponse)
+                //print("response should be above this guy")
+                
+                do {
+                    let spotifyMediaObjects = try self.processSpotifyRecentlyPlayedMediaItemSections(from: data)
+                    seal.fulfill(spotifyMediaObjects)
+                    //print(spotifyMediaObjects)
+                    
+                } catch {
+                    fatalError("An error occurred: \(error.localizedDescription)")
+                }
+                
+            }
+            
+            task.resume()
+        }
+    }
+    
+    func processSpotifyRecentlyPlayedMediaItemSections(from json: Data) throws -> [SpotifyRecentlyPlayedMediaObject.item] {
+        
+        var tracks_1 = [SpotifyRecentlyPlayedMediaObject.item]()
+        
+        
+        do {
+            let tracks = try JSONDecoder().decode(SpotifyRecentlyPlayedMediaObject.items.self, from: json)
+            //                let isrc_id = try JSONDecoder().decode(SpotifyMediaObject.isrc_id.self, from: data)
+            //            print("\n----------------processSpotifyMediaItemSections---------------------")
+            //            //print(tracks.tracks.items)
+            //            print(tracks.tracks.items![0].external_ids?.isrc)
+            //            print(tracks.tracks.items![0].album?.name)
+            //            print(tracks.tracks.items![0].name)
+            //            print(tracks.tracks.items![0].artists![0].name)
+            //            print(tracks.tracks.items![0].preview_url)
+            //            print(tracks.tracks.items![0].uri)
+            //            print("-----------------processSpotifyMediaItemSections--------------------\n")
+            tracks_1 = tracks.items
+        } catch let jsonErr{
+            print ("Error Serializing JSON: ", jsonErr)
+        }
+        return tracks_1
+    }
+    
+   
     
     
     func processSpotifyCurrentlyPlayingMediaItemSections(from json: Data) throws -> [SpotifyCurrentPlayingMediaObject.currently_playing_context] {
@@ -761,5 +912,45 @@ class AppleMusicManager {
             task.resume()
         }
     }
+     
+    func performSpotifyCatalogSearch_test_podcasts(with term: String) {
+            //print("search got to here as well")
+            //print(term)
+            //print(countryCode)
+            
+            let developerToken = (self.userDefaults.object(forKey: "spotify_access_token")) as! String
+            
+            let urlRequest = AppleMusicRequestFactory.createSpotifySearchRequest_for_podcast(with: term, developerToken: developerToken)
+            
+            //print(urlRequest)
+            //print (developerToken)
+            let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
+                //print(error)
+                //print(response)
+                guard error == nil, let urlResponse = response as? HTTPURLResponse, urlResponse.statusCode == 200 else {
+                    if error != nil {
+                        print(error)
+                        
+                    } else {
+                        
+                    }
+                    print("error response")
+                    return
+                }
+                
+                guard let data = data else {return}
+                
+                let dataAsString = String(data: data, encoding: .utf8)
+                print(dataAsString)
+                //print(urlResponse)
+                //print("response should be above this guy")
+                
+                
+            }
+            
+            task.resume()
+        
+    }
+    
     
 }

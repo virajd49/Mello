@@ -22,13 +22,14 @@
 //                Antisocial Ed Sheeran & Travis Scott
 
 //THE ISRC DATABASE NEEDS AN UPGRADE!!!!!!!:
-//                 Apple songs have different song id's in different regioins: So what to do? Make a separate db for every region? Or change the apple metadata
+//                 Apple songs have different song id's in different regions: So what to do? Make a separate db for every region? Or change the apple metadata
 //                                                                              format to include all the song id's for a single song entry ?
 import Foundation
 import UIKit
 import MediaPlayer
 import Firebase
 import PromiseKit
+import PostgresClientKit
 
 
 class ISRC_worker {
@@ -459,7 +460,7 @@ class ISRC_worker {
     }
     
     
-    func get_this_song (target_catalog: String, song_data: song_db_struct) -> Promise<String>{
+    func get_this_song (target_catalog: String, song_data: song_db_struct) -> Promise<String> {
         return Promise { seal in
         var found_song = song_db_struct()
         //Check if the database has this isrc entry
@@ -487,7 +488,7 @@ class ISRC_worker {
                     }
                 }
                 ref.child("isrc_db").child(song_data.isrc_number ?? "nil").child("\(target_catalog)_set").observeSingleEvent(of: .value) { (snapshot2) in
-                    if snapshot2.exists(){
+                    if snapshot2.exists() {
                         print ("mofo is there!! hehe ")
                         //found_song = snapshot2.value as! song_db_struct
                         let temp_dict = snapshot2.value as! [String : String]

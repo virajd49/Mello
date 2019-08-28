@@ -28,7 +28,7 @@ class UserAccess {
     lazy var all_spotify_playlist_dict = ["":[""]]
     var username: String
     var access_token: String
-    var ErrorPointer: ErrorPointer
+    var ErrorPointer: ErrorPointer = nil
     
     
     init(myPlaylistQuery: MPMediaQuery, myLibrarySongsQuery: MPMediaQuery) {
@@ -113,7 +113,7 @@ class UserAccess {
                                         //print (snapshot.firstTrackPage.items)
                                         let snapshot_tracks = snapshot.firstTrackPage.items as! [SPTPlaylistTrack]
                                         for i in 0...snapshot_tracks.count-1 { //for each track in the snapshot list
-                                            let track_play = snapshot_tracks[i] as! SPTPlaylistTrack
+                                            let track_play = snapshot_tracks[i] 
                                             //print("at the append \(snapshot.name) \(track_play.playableUri)")
                                             if self.all_spotify_playlist_dict.keys.contains(snapshot.name){
                                              self.all_spotify_playlist_dict[snapshot.name]?.append("\(track_play.playableUri)")

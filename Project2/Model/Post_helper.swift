@@ -164,7 +164,7 @@ class Post_helper {
                                                             variable.playable_id = self.apple_mediaItems[i].identifier
                                                             variable.artist_name = self.apple_mediaItems[i].artistName
                                                             variable.isrc_number = self.apple_mediaItems[i].isrc
-                                                            variable.preview_url = (((self.apple_mediaItems[i].previews as! NSArray)[0] as! [String:String])["url"])
+                                                            variable.preview_url = (((self.apple_mediaItems[i].previews as NSArray)[0] as! [String:String])["url"])
                     
                 } else {
                     variable.release_date = ""
