@@ -11,6 +11,13 @@ import StoreKit
 import UIKit
 import MediaPlayer
 
+
+/*
+ 
+ This file is used to generate request URLs for different resources we request from Apple/Spotify
+ 
+ */
+
 struct AppleMusicRequestFactory {
     
     
@@ -26,6 +33,9 @@ struct AppleMusicRequestFactory {
     /// The Apple Music API endpoint for requesting a the storefront of the currently logged in iTunes Store account.
     static let userStorefrontPathURLString = "/v1/me/storefront"
     
+    
+    
+    //Used for basic apple song/album search by name
     static func createSearchRequest(with term: String, countryCode: String, developerToken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -60,6 +70,8 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    
+    //Used for standard apple Artist search by name
     static func createArtistSearchRequest(with term: String, countryCode: String, developerToken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -94,6 +106,8 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    
+    //Used for apple song search by id
     static func createSearchRequest_for_song_id (with term: String, countryCode: String, developerToken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -125,6 +139,8 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    
+    //Used to get all the tracks on a particluar album - given the album id
     static func createSearchRequest_for_album_relations_songs (with term: String, countryCode: String, developerToken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -157,7 +173,7 @@ struct AppleMusicRequestFactory {
     }
     
     
-    
+    //Used for standard spotify song search by song name
     static func createSpotifySearchRequest(with term: String, developerToken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -180,6 +196,8 @@ struct AppleMusicRequestFactory {
         
         //print(queryItems)
         
+        
+        //had to specify url components like this because doing it in the append manner above led to some errors for spotify
         urlComponents.queryItems = [URLQueryItem(name: "q", value: expectedTerms), URLQueryItem(name: "type", value: "track"), URLQueryItem(name: "market", value: "US"), URLQueryItem(name: "limit", value: "20"), URLQueryItem(name: "offset", value: "0")]
         
         
@@ -196,6 +214,8 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    
+    //Used for spotify artist search by name
     static func createSpotifyArtistSearchRequest(with term: String, developerToken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -218,6 +238,8 @@ struct AppleMusicRequestFactory {
         
         //print(queryItems)
         
+        //had to specify url components like this because doing it in the append manner above led to some errors for spotify
+
         urlComponents.queryItems = [URLQueryItem(name: "q", value: expectedTerms), URLQueryItem(name: "type", value: "artist"), URLQueryItem(name: "market", value: "US"), URLQueryItem(name: "limit", value: "20"), URLQueryItem(name: "offset", value: "0")]
         
         
@@ -234,6 +256,8 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    
+    //Standard apple function that came with the apple music kit example project
     static func createStorefrontsRequest(regionCode: String, developerToken: String) -> URLRequest {
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
@@ -250,6 +274,8 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    
+    //Standard apple function taht came with the apple music kit example project. Used to get recently played items by the user from apple music
     static func createRecentlyPlayedRequest(developerToken: String, userToken: String) -> URLRequest {
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
@@ -268,6 +294,7 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    //Standard apple function taht came with the apple music kit example project.
     static func createGetUserStorefrontRequest(developerToken: String, userToken: String) -> URLRequest {
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
@@ -285,6 +312,7 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    //Used to get currently playing item from spotify
     static func createSpotifySearchRequest_current_playing_item(accesstoken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -292,23 +320,6 @@ struct AppleMusicRequestFactory {
         urlComponents.scheme = "https"
         urlComponents.host = "api.spotify.com"
         urlComponents.path = "/v1/me/player/currently-playing"
-        //print(urlComponents.host)
-        //        let expectedTerms = term.replacingOccurrences(of: " ", with: "+")
-        //        let urlParameters = ["offset": "0",
-        //                             "limit": "15",
-        //                             "market": "US",
-        //                             "type": "track",
-        //                             "q": expectedTerms]
-        //
-        //        var queryItems = [URLQueryItem]()
-        //        for (key, value) in urlParameters {
-        //            queryItems.append(URLQueryItem(name: key, value: value))
-        //        }
-        //
-        //        //print(queryItems)
-        //
-        //        urlComponents.queryItems = [URLQueryItem(name: "q", value: expectedTerms), URLQueryItem(name: "type", value: "track"), URLQueryItem(name: "market", value: "US"), URLQueryItem(name: "limit", value: "20"), URLQueryItem(name: "offset", value: "0")]
-        //
         
         // Create and configure the `URLRequest`.
         print("in creation spotify")
@@ -323,6 +334,8 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    
+    //Used to search for a song using song ID from spotify
     static func createSpotifySearchRequest_songURI(with term: String, accesstoken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -330,24 +343,7 @@ struct AppleMusicRequestFactory {
         urlComponents.scheme = "https"
         urlComponents.host = "api.spotify.com"
         urlComponents.path = "/v1/tracks/\(term)"
-        //print(urlComponents.host)
-        //        let expectedTerms = term.replacingOccurrences(of: " ", with: "+")
-        //        let urlParameters = ["offset": "0",
-        //                             "limit": "15",
-        //                             "market": "US",
-        //                             "type": "track",
-        //                             "q": expectedTerms]
-        //
-        //        var queryItems = [URLQueryItem]()
-        //        for (key, value) in urlParameters {
-        //            queryItems.append(URLQueryItem(name: key, value: value))
-        //        }
-        //
-        //        //print(queryItems)
-        //
-        //        urlComponents.queryItems = [URLQueryItem(name: "q", value: expectedTerms), URLQueryItem(name: "type", value: "track"), URLQueryItem(name: "market", value: "US"), URLQueryItem(name: "limit", value: "20"), URLQueryItem(name: "offset", value: "0")]
-        //
-        
+      
         // Create and configure the `URLRequest`.
         print("in creation spotify")
         var urlRequest = URLRequest(url: urlComponents.url!)
@@ -362,6 +358,8 @@ struct AppleMusicRequestFactory {
         
     }
     
+    
+    //Used to search for a podcast in spotify using podcast name
     static func createSpotifySearchRequest_for_podcast (with term: String, developerToken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -402,7 +400,7 @@ struct AppleMusicRequestFactory {
         
     }
     
-    
+    //Used to get spotify recently played items
     static func createSpotifySearchRequest_recently_played(accesstoken: String) -> URLRequest {
         
         // Create the URL components for the network call.
@@ -410,23 +408,6 @@ struct AppleMusicRequestFactory {
         urlComponents.scheme = "https"
         urlComponents.host = "api.spotify.com"
         urlComponents.path = "/v1/me/player/recently-played"
-        //print(urlComponents.host)
-        //        let expectedTerms = term.replacingOccurrences(of: " ", with: "+")
-        //        let urlParameters = ["offset": "0",
-        //                             "limit": "15",
-        //                             "market": "US",
-        //                             "type": "track",
-        //                             "q": expectedTerms]
-        //
-        //        var queryItems = [URLQueryItem]()
-        //        for (key, value) in urlParameters {
-        //            queryItems.append(URLQueryItem(name: key, value: value))
-        //        }
-        //
-        //        //print(queryItems)
-        //
-        //        urlComponents.queryItems = [URLQueryItem(name: "q", value: expectedTerms), URLQueryItem(name: "type", value: "track"), URLQueryItem(name: "market", value: "US"), URLQueryItem(name: "limit", value: "20"), URLQueryItem(name: "offset", value: "0")]
-        //
         
         // Create and configure the `URLRequest`.
         print("in creation spotify")

@@ -11,6 +11,25 @@ import StoreKit
 import UIKit
 import MediaPlayer
 
+
+/*This file is a direct copy from apple's music kit example project, changes made by me are mostly debugs - the only problem with apple auth stuff is the 'developerAuthenticationToken' - there is a specific process to generate this token, given on the apple developer docs website here -
+    https://developer.apple.com/documentation/applemusicapi/getting_keys_and_creating_tokens
+ 
+    and I was doing it wrong and running into some issues with the UserToken (used to work with the specific users library and playlists), which needs a proper developer token.
+    after struggling a lot and wandering around on stack over flow
+    - https://stackoverflow.com/questions/49547390/apple-music-kit-user-token-issue-ios-11-swift-4
+    - I found this post  -
+    https://stackoverflow.com/questions/45099905/applemusickit-sdk-sample-project-usertoken-issue
+   - and used the python script solution given in the link in one of the comments -
+    https://github.com/pelauimagineering/apple-music-token-generator
+ 
+ - this script works great except that the developer token is only valid for a short amount of time:
+  apple documention on the first link up there says the following - "The expiration time (exp) registered claim key, whose value must not be greater than 15777000 (6 months in seconds) from the Current Unix Time on the server."
+    So 6 months is the max time allowed. The original python script has time = 1200 hrs which is roughly 50 days, but even with 50 days I was facing problems, so I reduced it to 480 hours (20 days) in the script. Every 20 days I need to generate a new dev token using that python script and paste it in this file and in AppleMusicManager.swift.
+ 
+    This needs to be revisited and solved, I'm missing something here, at the time I had just been through too much chasing down this issue, so I gave up on it.
+ 
+ */
 class AppleMusicControl: NSObject {
     
     

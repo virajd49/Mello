@@ -23,13 +23,19 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
   
     var super_temp_flag = true
     var poller = now_playing_poller.shared
-    var dismiss_chevron: UIButton?
+    
+//Forgot what I was using this for and nothing seems to be amiss if I comment it out  - ignore for now.
+/*
     var navBarImage: UIImageView?
     var navBarImageView: UIView?
     var navBarImageView_leadConstraint : NSLayoutConstraint?
     var navBarImageView_trailConstraint : NSLayoutConstraint?
     var navBarImageView_topConstraint : NSLayoutConstraint?
     var navBarImageView_botConstraint : NSLayoutConstraint?
+ */
+    
+    
+    var dismiss_chevron: UIButton?
     var tabBarImageView: UIImageView?
     var tabBarImageView_leadConstraint : NSLayoutConstraint?
     var tabBarImageView_trailConstraint : NSLayoutConstraint?
@@ -60,11 +66,14 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     var mainWindow = UIApplication.shared.keyWindow
     var temp_view: UIView?
     var temp_view2: UIView?
+    
+    
+    
     var the_temp: Float?
     var the_new_temp: Float?
     var it_has_been_a_second: Int?
     var current_song_player: String?     //Used by Update Progress to grab the current time from the right player. Updated everywhere a player is played.
-    var miniplayer: Bool?
+    var miniplayer_is_playing: Bool?
     var miniplayer_just_started: Bool?
     var helper = Post_helper()
     var worker = ISRC_worker()
@@ -154,14 +163,22 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: secret_key), object: nil, queue: nil, using: handleMusicPlayerControllerPlaybackStateDidChange_fromSongPlayController)
         //NotificationCenter.default.addObserver(self, selector: #selector(self.firebase_addition), name: Notification.Name(rawValue: "FireBaseloginSuccessfull"), object: nil )
          NotificationCenter.default.addObserver(self, selector: #selector(stopAudioplayerforYoutube(notification:)), name: Notification.Name(rawValue: "Stop Audio Player!"), object: nil )
-//        Adding the currently playing bar on top of the table view
-        //playingView = UIView(frame: CGRect(origin: CGPoint(x:0, y:568), size: CGSize(width: 375, height: 50)))
         NotificationCenter.default.addObserver(self, selector: #selector(stop_newsfeed_player(notification:)), name: Notification.Name(rawValue: "Stop NewsFeed Player!"), object: nil)
+        
+        // Adding the currently playing bar on top of the table view
         playingView = UIView(frame: CGRect(origin: CGPoint(x:0, y: (window?.frame.height)!), size: CGSize(width: 375, height: 50)))
         playingView?.backgroundColor = UIColor.white
         self.navigationController?.view.addSubview(playingView!)
         
-
+        /*  All of the following is for the animation where the small youtube player expands into the big youtube player
+            It is done in the fashion of how the apple player shows up, but in an extrememly hacky way.
+         I followed this guide: https://www.raywenderlich.com/221-recreating-the-apple-music-now-playing-transition to make the transition animation for audio posts, but that involves presenting another controller and I couldnt figure out how to pass the youtube player to a different controller without causing a proper stop and start in the video.
+         */
+        
+        
+        //---------------SETTINGS START HERE ------------------------------//
+        
+        //temp_view2 contains the small youtube player, we manipulate these contraints for the animation
         temp_view2 = UIView(frame: CGRect(origin: CGPoint(x:12, y: 573), size: CGSize(width: 40, height: 40)))
         mainWindow!.addSubview(self.temp_view2!)
         self.temp_view2!.translatesAutoresizingMaskIntoConstraints = false
@@ -174,11 +191,15 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         mainWindow?.addConstraints([topConstraint!, bottomConstraint!, leadingConstraint!, trailingConstraint!])
 
         temp_view2?.backgroundColor = UIColor.blue
+        
+        //temp_view is the black background way at the back
         temp_view = UIView(frame: (UIApplication.shared.keyWindow?.frame)!)
         temp_view?.backgroundColor = UIColor.black
         
         let aspectRatio1 = self.mainWindow!.frame.height / self.mainWindow!.frame.width
         mainWindow!.addSubview(self.temp_view!)
+        
+        //backingImageView is the snapshot of the tableviewcontroller that looks like it is receding into the back like a card - this sits on top of temp_view, we manipulate the following contraints for the animation
         backingImageView = UIImageView(frame: CGRect(origin: CGPoint(x:0, y: 0), size: CGSize(width: 375.0, height: 667.0)))
         backingImageView?.clipsToBounds = true
         mainWindow!.addSubview(self.backingImageView!)
@@ -191,6 +212,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         backingImageView?.isHidden = true
         
         
+        //this is a kayer that sits on top of the backingImageView and dims everything underneath to add to the effect of everything being in the background
         dimmmerLayer = UIView(frame: (UIApplication.shared.keyWindow?.frame)!)
         dimmmerLayer?.backgroundColor = UIColor.black
         dimmmerLayer?.alpha = 0
@@ -198,9 +220,12 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         dimmmerLayer?.isHidden = true
         
         
+        //The conatiner view is the big white card like player view which contains the fully expanded youtube player  - this sits on top of the dimmer view
         containerView = UIView(frame: CGRect(origin: CGPoint(x:0, y: 568), size: CGSize(width: 375.0, height: 647.0)))
         containerView?.backgroundColor = UIColor.white.withAlphaComponent(0.3)
         containerView?.layer.cornerRadius = 0
+        
+        //The conatiner view has all the following buttons and labels
         dismiss_chevron = UIButton(frame: CGRect(origin: CGPoint(x:169.5, y: 44), size: CGSize(width: 36, height: 22)))
         dismiss_chevron?.setImage(UIImage(named: "chevron"), for: .normal)
         dismiss_chevron?.isUserInteractionEnabled = true
@@ -226,6 +251,8 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         containerView!.addSubview(self.duration_label!)
         containerView!.addSubview(self.prog_bar!)
         
+        
+        //Setting up contrainst for everything inside the card player view
         self.containerView?.addConstraintWithFormat(format: "H:|-169.5-[v0]-169.5-|", views: self.dismiss_chevron!)
         self.containerView?.addConstraintWithFormat(format: "H:|-16-[v0]-16-|", views: self.name_label!)
         self.containerView?.addConstraintWithFormat(format: "H:|-16-[v0]-16-|", views: self.artist_label!)
@@ -234,6 +261,8 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         self.containerView?.addConstraintWithFormat(format: "V:|-4-[v0]-355-[v1]-8-[v2]-8-[v3]-20-[v4]-150-|", views: self.dismiss_chevron!, self.name_label!, self.artist_label!, self.duration_label!, self.prog_bar!)
 
         mainWindow!.addSubview(self.containerView!)
+        
+        //we manipulate these constraints to animate the view into it's place
         self.containerView!.translatesAutoresizingMaskIntoConstraints = false
         containerView_leadConstraint = NSLayoutConstraint(item: containerView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: mainWindow, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1, constant: 0)
         containerView_trailConstraint = NSLayoutConstraint(item: containerView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: mainWindow, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1, constant: 0)
@@ -243,9 +272,12 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         containerView?.isHidden = true
         
         
+        //So because the temp_view, backingImageview, dimmer_layer and container_view basically sit on top of everything in the controller - but are hidden until required - when they are shown the tab bar goes away all of a sudden because it's actually below them. So to make it go away in a nicer way, we take a snapshot of the tab bar, place it exactly where the real tabbar is - make it hidden - and when all the above views are shown, we make this snapshot visible and then animate-slide it out of the bottom of the view.
         tabBarImageView = UIImageView(frame: CGRect(origin: CGPoint(x:0, y: 618), size: CGSize(width: 375.0, height: 49))) // 375 x 49
         mainWindow?.addSubview(tabBarImageView!)
         self.tabBarImageView!.translatesAutoresizingMaskIntoConstraints = false
+        
+        //we use these contraints to animate it out of view
         tabBarImageView_leadConstraint = NSLayoutConstraint(item: tabBarImageView, attribute: NSLayoutConstraint.Attribute.leading, relatedBy: NSLayoutConstraint.Relation.equal, toItem: mainWindow, attribute: NSLayoutConstraint.Attribute.leading, multiplier: 1, constant: 0)
         tabBarImageView_trailConstraint = NSLayoutConstraint(item: tabBarImageView, attribute: NSLayoutConstraint.Attribute.trailing, relatedBy: NSLayoutConstraint.Relation.equal, toItem: mainWindow, attribute: NSLayoutConstraint.Attribute.trailing, multiplier: 1, constant: 0)
         tabBarImageView_topConstraint = NSLayoutConstraint(item: tabBarImageView, attribute: NSLayoutConstraint.Attribute.top, relatedBy: NSLayoutConstraint.Relation.equal, toItem: mainWindow, attribute: NSLayoutConstraint.Attribute.top, multiplier: 1, constant: 618)
@@ -254,6 +286,8 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         tabBarImageView?.isHidden = true
         
         
+        //Forgot what I was using this for and nothing seems to be amiss if I comment this out so...we can ignore this for now
+        /*
         navBarImageView = UIView(frame: CGRect(origin: CGPoint(x:0, y: 0), size: CGSize(width: 375.0, height: 64.0))) // 375 x 64
         navBarImage = UIImageView(frame: CGRect(origin: CGPoint(x:0, y: 20), size: CGSize(width: 375.0, height: 44.0))) // 375 x 44
         navBarImageView?.addSubview(navBarImage!)
@@ -269,8 +303,9 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         navBarImageView?.backgroundColor = UIColor.white
         navBarImageView?.isOpaque = false
         navBarImageView?.isHidden = true
+        */
         
-        
+        //We add the temp_view2 at the very end because we need it to be on top of all the views we added so far. The small youtube player sits within this temp_view2
         mainWindow!.addSubview(self.temp_view2!)
         temp_view?.isHidden = true
         
@@ -279,27 +314,27 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         print (backingImageView?.frame.height)
         print (backingImageView?.frame.width)
         
-        playingImage = UIImageView(image: #imageLiteral(resourceName: "clapton"))
-        playingImage?.contentMode = UIView.ContentMode.scaleAspectFill
-        playingImage?.frame = CGRect(x: 12, y: 5, width: 40, height: 40)
-        playingView?.addSubview(playingImage!)
-        //playingImage?.isHidden = true
-        
+        //the small youtube player that shows up in the miniplayer view
+        //Setting it up inside temp_view2
         youtubeplayer2 = YTPlayerView.init(frame: CGRect(x: 12, y: 573, width: 40, height: 40))
-        //playingView?.addSubview(youtubeplayer2!)
         youtubeplayer2.contentMode = UIView.ContentMode.scaleAspectFit
-        //mainWindow!.addSubview(self.youtubeplayer2!)
         mainWindow!.bringSubviewToFront(self.temp_view2!)
-        self.temp_view2?.addSubview(self.youtubeplayer2!)
+        self.temp_view2?.addSubview(self.youtubeplayer2!) //small youtube player sits in temp_view2
         self.temp_view2?.addConstraintWithFormat(format: "H:|-0-[v0]-0-|", views: self.youtubeplayer2)
         self.temp_view2?.addConstraintWithFormat(format: "V:|-0-[v0]-0-|", views: self.youtubeplayer2)
         self.temp_view2!.translatesAutoresizingMaskIntoConstraints = false
         self.temp_view2?.bringSubviewToFront(youtubeplayer2)
         youtubeplayer2.backgroundColor = UIColor.black
         youtubeplayer2?.delegate = self
-        //playingView?.bringSubview(toFront: youtubeplayer2!)
         youtubeplayer2.isHidden = true
         temp_view2?.isHidden = true
+        
+        //---------------------------SETTINGS END HERE---------------------------//
+        
+    
+        //Playing view is the small view(miniplayer) that shows up just above the tab bar when you play a post.
+        
+        //--------------------------SETTINGS BEGIN HERE-------------------------//
         songnameLabel = UILabel(frame: CGRect(origin: CGPoint(x:67, y:5), size: CGSize(width: 203, height:37)))
         songnameLabel?.text = "Song Name"
         songnameLabel?.textAlignment = NSTextAlignment.center
@@ -309,6 +344,12 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         current_song_player = "apple"
         the_temp = 0.0
         the_new_temp = 0.0
+        
+        playingImage = UIImageView(image: #imageLiteral(resourceName: "clapton"))
+        playingImage?.contentMode = UIView.ContentMode.scaleAspectFill
+        playingImage?.frame = CGRect(x: 12, y: 5, width: 40, height: 40)
+        playingView?.addSubview(playingImage!)
+        
         var getbutton = UIButton(frame: CGRect(origin: CGPoint(x: 283, y: 9), size: CGSize(width: 32, height: 32)))
         getbutton.setImage(#imageLiteral(resourceName: "icons8-below-96"), for: .normal)
         getbutton.addTarget(self, action: #selector(showBottomView(sender:)), for: .touchUpInside)
@@ -326,10 +367,16 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         playingView?.addSubview(playBar)
         playingView?.isHidden = true
         
+        //------------------------SETTINGS END HERE---------------------------//
+        
+        
+        
         playerView_source_value = "default"
         duration = 60
-        miniplayer = false
+        miniplayer_is_playing = false
         miniplayer_just_started = false
+        
+        
         
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
         let tapGesture2 = UITapGestureRecognizer(target: self, action: #selector(tapEdit2(recognizer:)))
@@ -337,7 +384,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         let tapGesture4 = UISwipeGestureRecognizer(target: self, action: #selector(tapEdit4(recognizer:)))
         tapGesture4.direction = UISwipeGestureRecognizer.Direction.down
         //temp_view?.addGestureRecognizer(tapGesture4)
-        containerView?.addGestureRecognizer(tapGesture4)
+        containerView?.addGestureRecognizer(tapGesture4) //This gesture closes the expanded youtube player view back to the small youtube player playing in the miniplayer
         tableView.addGestureRecognizer(tapGesture)
         playingView?.addGestureRecognizer(tapGesture2)
         
@@ -388,7 +435,13 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         if ((self.appleplayer.playbackState == .playing) && (self.appleplayer.currentPlaybackTime > 0.01)) {
             self.timer.invalidate()
             print(Float((self.appleplayer.currentPlaybackTime)))
-            self.appleplayer.currentPlaybackTime = 30.0
+            self.appleplayer.currentPlaybackTime = 0.0 //->setting this to anyhting other than 0 causes a lot of error logs of this kind :
+            /*
+            Project2[54907:4396030] [Middleware] FINISH Request: <MPCPlayerRequest: 0x283ee9b00 label=MPMusicPlayerController playerPath=<MPCPlayerPath: route=<MPAVEndpointRoute: 0x2825570c0 name=iPhone uid=LOCAL> bundleID=com.apple.MediaPlayer.RemotePlayerService pid=54918 playerID=MPMusicPlayerApplicationController>> Response: (null) [0.073007s] error: Error Domain=MPRequestErrorDomain Code=1 "(null)" UserInfo={MPRequestUnderlyingErrorsUserInfoKey=(
+                "Error Domain=MPCPlayerRequestErrorDomain Code=2000 \"Failed to get play queue identifers\" UserInfo={NSDebugDescription=Failed to get play queue identifers, NSUnderlyingError=0x281cc4de0 {Error Domain=kMRMediaRemoteFrameworkErrorDomain Code=35 \"Could not find the specified now playing client\" UserInfo={NSLocalizedDescription=Could not find the specified now playing client}}}",
+                "Error Domain=MPCPlayerRequestErrorDomain Code=4000 \"Failed to get supported commands\" UserInfo={NSDebugDescription=Failed to get supported commands, NSUnderlyingError=0x281cc27f0 {Error Domain=kMRMediaRemoteFrameworkErrorDomain Code=35 \"Could not find the specified now playing client\" UserInfo={NSLocalizedDescription=Could not find the specified now playing client}}}"
+                )}
+            */
             print(Float((self.appleplayer.currentPlaybackTime)))
             print("current test")
             self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
@@ -406,7 +459,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 if ((self.appleplayer.currentPlaybackTime > 0.01) && (self.appleplayer.currentPlaybackTime < 30.0) ) {
                     self.super_temp_flag = false
                     print(Float((self.appleplayer.currentPlaybackTime)))
-                    self.appleplayer.currentPlaybackTime = 30.0
+                    self.appleplayer.currentPlaybackTime = 0.0
                     print(Float((self.appleplayer.currentPlaybackTime)))
                     print("current test")
                 }
@@ -426,7 +479,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             if ((self.appleplayer.currentPlaybackTime > 0.01)) {
                 self.super_temp_flag = false
                 print(Float((self.appleplayer.currentPlaybackTime)))
-                self.appleplayer.currentPlaybackTime = 30.0
+                self.appleplayer.currentPlaybackTime = 0.0
                 print(Float((self.appleplayer.currentPlaybackTime)))
                 print("current test")
                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)
@@ -586,7 +639,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 allCells[currently_playing_youtube_cell!]?[1] = false
                 print ("updated global flags")
                 currently_playing_youtube_cell = nil
-                miniplayer = false
+                miniplayer_is_playing = false
                 no_other_video_is_active = true
             }
         }
@@ -632,7 +685,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 allCells[currently_playing_youtube_cell!]?[1] = false
                 print ("updated global flags")
                 currently_playing_youtube_cell = nil
-                miniplayer = false
+                miniplayer_is_playing = false
                 no_other_video_is_active = true
             }
         }
@@ -699,7 +752,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 print("Every second")
                 //print (youtubeplayer?.currentTime())
                 //print (currentPost.starttime)
-                if (youtubeplayer2.playerState() == YTPlayerState.playing && self.miniplayer!) {
+                if (youtubeplayer2.playerState() == YTPlayerState.playing && self.miniplayer_is_playing!) {
                     the_temp = Float((youtubeplayer2?.currentTime())! - currentPost.starttime)
                 } else {
                     the_temp = Float((youtubeplayer?.currentTime())! - currentPost.starttime)
@@ -791,7 +844,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             print ("apple player ksjnkwrnlwinw just started playing - newsfeed - handleMusicPlayerControllerPlaybackStateDidChange")
             self.youtubeplayer?.stopVideo()
             self.youtubeplayer2?.stopVideo()
-            self.miniplayer = false
+            self.miniplayer_is_playing = false
             self.miniplayer_just_started = false
             youtubeplayer2.isHidden = true
             temp_view2?.isHidden = true
@@ -817,7 +870,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         if player_state == "playing" {
             self.youtubeplayer?.stopVideo()
             self.youtubeplayer2?.stopVideo()
-            self.miniplayer = false
+            self.miniplayer_is_playing = false
             self.miniplayer_just_started = false
             youtubeplayer2.isHidden = true
             temp_view2?.isHidden = true
@@ -897,7 +950,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         case YTPlayerState.ended:
             print("Ended - Yes we come here")
             currently_playing_youtube_cell = nil
-            miniplayer = false
+            miniplayer_is_playing = false
             no_other_video_is_active = true
             self.timer?.invalidate()
             self.playBar.progress = 0
@@ -907,9 +960,9 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
         case YTPlayerState.playing:
             print ("we know state changed")
             self.current_song_player = "youtube"
-            print("miniplayer is \(self.miniplayer)")
+            print("miniplayer is \(self.miniplayer_is_playing)")
             executed_once = true
-            if !(self.miniplayer!) { //We'll be here again when the miniplayer starts and post player is paused. Don't need any of this setup.
+            if !(self.miniplayer_is_playing!) { //We'll be here again when the miniplayer starts and post player is paused. Don't need any of this setup.
                 if executed_once == true{ //WHY DID I PUT THIS IN HERE ?
                 //dismiss_player_view()
                 youtubeplayer2.isHidden = true
@@ -977,10 +1030,11 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     }
  */
 
-    
+    //this contracts the large youtube player back into the small miniplayer
     @objc func tapEdit4(recognizer: UITapGestureRecognizer) {
-        
+        print("tapedit 4")
         if (enlarged!) {
+            print ("enlarged!")
             self.youtubeplayer2.isHidden = true
             self.temp_view2?.isHidden = true
             UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1,
@@ -995,7 +1049,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
              }, completion: { (value: Bool) in
                 //self.tabBarImageView?.isHidden = true
             })
-            
+            print("first animate done")
 //            UIView.animate(withDuration: 0.5/4) {
 //                self.containerView?.backgroundColor = UIColor.white.withAlphaComponent(0.3)
 //            }
@@ -1031,9 +1085,11 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 self.tabBarImageView?.isHidden = true
                 self.containerView?.backgroundColor = UIColor.white.withAlphaComponent(0.3)
             })
+            print("second animate done")
             self.youtubeplayer2.isHidden = false
             self.temp_view2?.isHidden = false
         } else {
+            print("enlarged")
             self.window?.bringSubviewToFront(self.temp_view!)
             UIView.animate(withDuration: 0.5, delay: 0, options: [.curveEaseIn], animations: {
                 
@@ -1045,39 +1101,43 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
     }
     
     
+    
+    //this contains the entire animation of how the miniplayer at the bottom expands into the large player
      @objc func tapEdit3(recognizer: UITapGestureRecognizer)  {
+        print("tapedit 3")
         guard let post = currentPost else {
             return
         }
         
-        if (miniplayer!) {
+        if (miniplayer_is_playing!) { //expanding a youtube video
+            print("miniplayer !")
             self.youtubeplayer2.isHidden = true
             temp_view2?.isHidden = true
-            self.backingImageView?.image = tableView.makeSnapshot()
+            self.backingImageView?.image = tableView.makeSnapshot() //we take a snapshot of the current view of the controller
             temp_view?.isHidden = false
             name_label?.text = currentPost.songname
             self.dimmmerLayer?.isHidden = false
             self.backingImageView?.isHidden = false
             self.containerView?.isHidden = false
             if let tabBar = tabBarController?.tabBar {
-                self.tabBarImageView?.image = tabBar.makeSnapshot()
+                self.tabBarImageView?.image = tabBar.makeSnapshot() //we take a snapshot of the current view of the tabbar
             }
             
-            self.tabBarImageView?.isHidden = false
+            self.tabBarImageView?.isHidden = false  //the tabbar image view is placed exactly above the tabbar, so at this point we are seeing tabbarImageView but we can;t tell the difference
             
-            UIView.animate(withDuration: 0.5/2) {
+            UIView.animate(withDuration: 0.5/2) { //We slide the tabbarimage view down and out
                 self.tabBarImageView_topConstraint?.constant = 667
                 self.tabBarImageView_botConstraint?.constant = 49
             }
             
-            UIView.animate(withDuration: 0.5/4) {
+            UIView.animate(withDuration: 0.5/4) { //We bring the container view from transparent to white
                 self.containerView?.backgroundColor = UIColor.white
             }
         
             UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1,
                            options: [.curveEaseOut], animations: {
                 
-                self.configureBackingImageInPosition(presenting: true)
+                self.configureBackingImageInPosition(presenting: true) //this causes the tableview snapshot to look like it is receding into a card in the background
                 self.leadingConstraint?.constant = 30
                 self.trailingConstraint?.constant = -29
                 self.topConstraint?.constant = 78 //(40 + 38)
@@ -1102,7 +1162,8 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             })
             self.youtubeplayer2.isHidden = false
             self.temp_view2?.isHidden = false
-        } else {
+        } else { //expanding an apple/spotify audio post
+            print ("")
             self.expandSong(post: post)
         }
         
@@ -1197,7 +1258,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
             currently_playing_song_cell = nil
         }else if currently_playing_youtube_cell != nil {
             
-            if (self.miniplayer!) {
+            if (self.miniplayer_is_playing!) {
                 self.youtubeplayer2.pauseVideo()
                 //ALL THE STUFF BELOW IS HANDLED IN YTSTATE.isPAUSED - BECAUSE for the POST players WHEN THE YT VIDEO IS PAUSED THERE IS NOT TAPEDIT TO CAPTURE THAT - SO NONE OF THE FLAG SETTING WILL HAPPEN IN THAT CASE IF WE DONT DO IT IN YTSTATE.isPAUSED.
 //                self.timer?.invalidate()
@@ -1271,7 +1332,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                 currently_playing_song_cell = paused_cell
                 //paused_cell = nil
             } else if (playerView_source_value == "youtube"){
-                if (self.miniplayer!) {
+                if (self.miniplayer_is_playing!) {
                     self.youtubeplayer2.playVideo()
                     self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_ytmini), userInfo: nil, repeats: true)
                     RunLoop.main.add(timer, forMode: RunLoop.Mode.common)
@@ -1333,7 +1394,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                                             currentPost = tappedCell.post
                                             self.youtubeplayer?.stopVideo()      //stops the last playing youtube cell
                                             self.youtubeplayer2?.stopVideo()
-                                            self.miniplayer = false
+                                            self.miniplayer_is_playing = false
                                             self.miniplayer_just_started = false
                                             youtubeplayer2.isHidden = true
                                             temp_view2?.isHidden = true
@@ -1402,7 +1463,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                             self.playButton(cell: tappedCell)
                             self.youtubeplayer?.stopVideo()         //stops the last playing youtube cell
                             self.youtubeplayer2?.stopVideo()
-                            self.miniplayer = false
+                            self.miniplayer_is_playing = false
                             self.miniplayer_just_started = false
                             youtubeplayer2.isHidden = true
                             temp_view2?.isHidden = true
@@ -1426,7 +1487,7 @@ class NewsFeedTableViewController: UITableViewController, YTPlayerViewDelegate, 
                         if currently_playing_youtube_cell != nil{ //check if the tableview player is playing a previously tapped video cell
                             self.youtubeplayer?.stopVideo()  //stop it
                             self.youtubeplayer2?.stopVideo()
-                            self.miniplayer = false
+                            self.miniplayer_is_playing = false
                             self.miniplayer_just_started = false
                             //youtubeplayer2.isHidden = true
                             currently_playing_youtube_cell = nil
@@ -1923,8 +1984,8 @@ extension NewsFeedTableViewController{
         print (UIScreen.main.bounds.height)
         print ("right before the block ")
         print("currently_playing_youtube_cell is \(currently_playing_youtube_cell)")
-        print (self.miniplayer)
-        if currently_playing_youtube_cell != nil && self.miniplayer == false {
+        print (self.miniplayer_is_playing)
+        if currently_playing_youtube_cell != nil && self.miniplayer_is_playing == false {
             print("currently_playing_youtube_cell is \(currently_playing_youtube_cell)")
             print("indexpath is \(indexPath[0])")
             let var1: Int = currently_playing_youtube_cell?[0] ?? 0    //the position of the youtube cell
@@ -1937,7 +1998,7 @@ extension NewsFeedTableViewController{
                 print ("1")
                 if ((self.youtubeplayer?.currentTime()) != nil) {
                     print ("2")
-                    self.miniplayer = true                   //this variable indicates that the miniplayer is currently playing
+                    self.miniplayer_is_playing = true                   //this variable indicates that the miniplayer is currently playing
                     self.miniplayer_just_started = true      //used to avoid invalidating timer when post youtube player is paused.
                     youtubeplayer2.isHidden = false
                     temp_view2?.isHidden = false
@@ -2054,7 +2115,7 @@ extension NewsFeedTableViewController{
     
     
     func playerViewDidBecomeReady(_ playerView: YTPlayerView) {
-        if self.miniplayer! {
+        if self.miniplayer_is_playing! {
             self.youtubeplayer2.playVideo()
         } else {
             self.youtubeplayer?.playVideo()

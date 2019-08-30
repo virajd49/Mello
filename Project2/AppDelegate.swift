@@ -133,7 +133,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SPTAudioStreamingDelegate
             }
         }
         
-        
+        //SPOTIFY auth flow - app comes back from spotify after authorizing
+        //from the url parameter we grab all the session details and then post a notification for updateAfterFirstLogin back in SignInViewController
         //old_spotify_sdk
         if (auth.canHandle(auth.redirectURL!)) {
             print ("oit here 9")
@@ -147,6 +148,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SPTAudioStreamingDelegate
             print (auth.tokenRefreshURL)
             print (auth.tokenSwapURL)
             
+            
+            //we get 'session' from url
             auth.handleAuthCallback(withTriggeredAuthURL: url, callback: { (error, session) in
                 // 4- handle error
                 if error != nil {
@@ -163,7 +166,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SPTAudioStreamingDelegate
                     
                     let sessionData = NSKeyedArchiver.archivedData(withRootObject: session!)
                     self.user_defs.set(sessionData, forKey: "SpotifySession")
-                    self.user_defs.set("Spotify", forKey: "UserAccount")
+                    self.user_defs.set("Spotify", forKey: "UserAccount") //<- this value is independent of any auth flow, it is used as a flag throughout the app to simulate if the user uses apple music or spotify - see top of this file for full
                     self.user_defs.set(session?.accessToken, forKey: "spotify_access_token")
                     self.user_defs.set(session?.encryptedRefreshToken, forKey: "spotify_refresh_token")
                     self.user_defs.synchronize()
@@ -174,9 +177,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SPTAudioStreamingDelegate
                     } else {
                         print ("refresh token is nil")
                     }
-                
-                    self.poller.grab_and_store_image()
-                    // 6 - Tell notification center login is successful
+                    
+                    //As soon as we are done authenticating, we want to get the currently playing item from apple/spotify
+                    //I'm not sure if this is blocking anything, but it can probably go on a background thread - Look at now_playing_poller.swift under Model
+                    self.poller.grab_now_playing_item().done {
+                        print("Done checking for now playing")
+                    }
+                    // 6 - Tell notification center login is successful - this will run updateAfterFirstLogin in SigninViewController
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "loginSuccessfull"), object: nil)
                     print ("oit here 7")
                 }
