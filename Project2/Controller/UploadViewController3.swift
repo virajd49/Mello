@@ -17,6 +17,18 @@ import AVFoundation
 import FLAnimatedImage
 import SDWebImage
 
+/*
+ 
+ Two main issues on this page:
+    1. When uploading an apple post the color animation and it's timer does not start when song is playing from the beginning.
+    2. When we go back, the scroller_timer is invalidated in viewwilldisappear. But, the scroll view scrolls for some weird reason which simulates user dragging to select song, and that restarts the timer. So if you go back to UploadViewController2, the apple post may start playing over and over again.
+ 
+ 
+ 
+ 
+ 
+ */
+
 
 class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate, UITextViewDelegate, YTPlayerViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UIGestureRecognizerDelegate, SwiftyGiphyGridLayoutDelegate {
     
@@ -221,6 +233,12 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        //Test for animate color//
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(handleMusicPlayerControllerPlaybackStateDidChange),
+                                               name: .MPMusicPlayerControllerPlaybackStateDidChange,
+                                               object: self.apple_player)
         print ("UploadViewController 3 viewDidLoad")
         let height: CGFloat = 20 //whatever height you want to add to the existing height
         let bounds = self.navigationController!.navigationBar.bounds
@@ -334,6 +352,21 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         setup_selected_media()
         
         
+    }
+    
+    @objc func handleMusicPlayerControllerPlaybackStateDidChange () {
+        if self.apple_player.playbackState == .playing {
+            print ("apple player ksjnkwrnlwinw just started playing - UploadViewController3 - handleMusicPlayerControllerPlaybackStateDidChange")
+            self.animate_color()
+        } else if self.apple_player.playbackState == .interrupted {
+            print ("apple player was interrupted - UploadViewController3 - handleMusicPlayerControllerPlaybackStateDidChange")
+            
+        } else if self.apple_player.playbackState == .paused {
+            print ("apple player was paused - UploadViewController3 - handleMusicPlayerControllerPlaybackStateDidChange")
+        } else if self.apple_player.playbackState == .stopped {
+            print ("apple player was stopped - UploadViewController3 - handleMusicPlayerControllerPlaybackStateDidChange")
+            
+        }
     }
     
     func set_navigation_bar_next_button() {
@@ -466,8 +499,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             self.Now_playing_image.image = self.selected_search_result_post_image
             self.apple_player.setQueue(with: [self.selected_search_result_post.trackid])
             self.apple_player.play()
-            self.apple_player.currentPlaybackTime = 30.0
-            self.animate_color()
+            //self.animate_color()
             //self.audio_scrubber_ot.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
             //self.test_slider.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
             print (self.selected_search_result_post.original_track_length)
@@ -509,6 +541,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                 self.Song_name_label.text = self.selected_search_result_post.songname
                 self.uploading = true
             } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
+                /*
                 if let mediaItem = self.apple_system_player.nowPlayingItem {
                     print ("\(mediaItem.playbackDuration)")
                     self.apple_system_player.pause()
@@ -521,6 +554,23 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                     self.Now_playing_image.image = self.poller.return_image()
                     self.uploading = true
                 }
+                 */
+                
+                self.Now_playing_image.image = self.selected_search_result_post_image
+                self.apple_player.setQueue(with: [self.selected_search_result_post.trackid])
+                self.apple_player.play()
+                //self.animate_color()
+                //self.audio_scrubber_ot.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
+                //self.test_slider.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
+                print (self.selected_search_result_post.original_track_length)
+                print (Float(self.selected_search_result_post.original_track_length) / 1000)
+                self.duration = (self.selected_search_result_post.original_track_length) / 1000
+                self.duration_for_number_of_cells = Int(ceil(Double(self.selected_search_result_post.original_track_length) / 1000))
+                //print(self.audio_scrubber_ot.maximumValue)
+                self.apple_id = self.selected_search_result_post.trackid
+                self.Song_name_label.text = self.selected_search_result_post.songname
+                self.Artist_name_label.text = ""
+                self.uploading = true
             }
         }
             
@@ -543,7 +593,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
     
     
     func grab_video_duration_for_selected_video () {
-        
+        print ("grab_video_duration_for_selected_video")
         let video_search_query = GTLRYouTubeQuery_VideosList.query(withPart: "snippet,contentDetails,statistics")
         print("duration grabbing video id is \(self.selected_search_result_post.videoid ?? "nil")")
         video_search_query.identifier = self.selected_search_result_post.videoid ?? ""
@@ -595,6 +645,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
 
     @IBAction func back_button(_ sender: Any) {
         //toggle_hide_upload_selection(hide: true)
+        print ("back_button")
         self.uploading = false
         
         
@@ -1514,7 +1565,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                                           paused: false,
                                           playing: false,
                                           trackid: self.selected_search_result_post.trackid,
-                                          helper_id: "1282343124",
+                                          helper_id: "",
                                           videoid: "empty",
                                           starttime: 0 ,
                                           endtime: 0,
@@ -1533,6 +1584,8 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                 
             } else if self.upload_flag == "youtube" {
                 print ("youtube")
+                print ("start offset is \(start_offset)")
+                print (Float(start_offset + 30))
                 post_from_cell = Post(albumArtImage:  "",
                                       sourceAppImage:  "Youtube_cropped",
                                       typeImage: "video" ,
@@ -1542,15 +1595,15 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                                       numberoflikes: "0 likes",
                                       caption: self.Caption_text_view.text,
                                       offset: 0.0,
-                                      startoffset: start_offset,
+                                      startoffset: 0.0,
                                       audiolength: 30.0 ,
                                       paused: false,
                                       playing: false,
                                       trackid: "",
-                                      helper_id: "1282343124",
+                                      helper_id: "",
                                       videoid: self.selected_search_result_post.videoid,
-                                      starttime: 0 ,
-                                      endtime: 0,
+                                      starttime: Float(start_offset),
+                                      endtime: Float(start_offset + 30.0),
                                       flag: "video",
                                       lyrictext: "",
                                       songname: self.selected_search_result_post.songname,
@@ -1943,7 +1996,11 @@ extension UploadViewController3: UISearchResultsUpdating  {
     }
     
     @objc func update_color_animate () {
+        print ("update_color_animate")
+        print ("seek position is \((self.collection_view_for_scroll.contentOffset.x + 96.5) / 5)")
+        print ("current playback position is \(self.apple_player.currentPlaybackTime)")
         print ("\(Float(self.color_animate_trailing.constant))")
+        
         if Float(self.color_animate_trailing.constant) <= 112.5 {
             print ("Invalidating scroller_timer 1")
             self.scroller_timer.invalidate()
@@ -2001,15 +2058,15 @@ extension UploadViewController3: UISearchResultsUpdating  {
         print("number of items")
         if self.uploading {
             print ("uploading")
-            if self.is_selecting_audio_clip {
+            if self.is_selecting_audio_clip && collectionView.tag == 1 {
                 if self.duration_for_number_of_cells > 0 {
                     print ("returning < 0 cells from collec view no of items")
                     return self.duration_for_number_of_cells
-                }else {
+                } else {
                     print ("returning 240 cells from collec view no of items")
                     return 240
                 }
-            } else if self.GIF_Search_is_ON {
+            } else if self.GIF_Search_is_ON && collectionView.tag == 2 {
                 print("GIF search number of items \(currentGifs?.count ?? 0)")
                 return currentGifs?.count ?? 0
             }
@@ -2022,8 +2079,14 @@ extension UploadViewController3: UISearchResultsUpdating  {
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         //print ("cellForItemAt")
        
-        print("collection view dequeue ")
-        print (self.is_selecting_audio_clip)
+        
+//        print ("gif search is on  \(self.GIF_Search_is_ON)")
+//        print("collection view dequeue ")
+//        print (" self.is_selecting_audio_clip \(self.is_selecting_audio_clip)")
+//        print ("collectionview tag is \(collectionView.tag)")
+//        print (self.GIFSearch_Bar.isHidden)
+//        print (self.Mycollectionview2.isHidden)
+        
         if self.is_selecting_audio_clip && collectionView.tag == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionview_cell_for_scroll_bar", for: indexPath) as! collectionview_cell_for_scroll_bar
             print (indexPath[1])
@@ -2115,6 +2178,7 @@ extension UploadViewController3: UISearchResultsUpdating  {
                 } else {
                     self.apple_player.currentPlaybackTime = 0.0
                     self.apple_player.play()
+                    self.animate_color()
                 }
                 //self.poller.apple_system_player.currentPlaybackTime = TimeInterval(((self.collection_view_for_scroll.contentOffset.x + 96.5) / 5) * 1000)
                 // self.poller.internal_keep_time = self.poller.apple_system_player.currentPlaybackTime
@@ -2208,6 +2272,8 @@ extension UploadViewController3: UISearchBarDelegate {
             self.Text_or_animation_switch.isHidden = true
             self.SelectedGIF_view.isHidden = true
             self.GIF_Search_is_ON = true
+            self.view.bringSubviewToFront(Mycollectionview2)
+            self.Youtube_player.isHidden = true
             
             if #available(iOS 11, *)
             {
@@ -2331,6 +2397,10 @@ extension UploadViewController3 {
         self.searchController.isActive = false
         self.searchController.searchBar.endEditing(true)
         self.Mycollectionview2.isHidden = true
+        if self.upload_flag == "youtube" {
+            self.Youtube_player.isHidden = false
+        }
+        
         //DO STUFF HERE
         self.GIFSearch_Bar.endEditing(true)
         self.GIFSearch_Bar.isHidden = false

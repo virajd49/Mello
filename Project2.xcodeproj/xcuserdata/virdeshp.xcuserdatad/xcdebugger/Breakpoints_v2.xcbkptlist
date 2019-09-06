@@ -170,11 +170,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/NewsFeedTableViewController.swift"
-            timestampString = "588830822.462249"
+            timestampString = "589164727.432387"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "839"
-            endingLineNumber = "839"
+            startingLineNumber = "934"
+            endingLineNumber = "934"
             landmarkName = "updateProgress()"
             landmarkType = "7">
          </BreakpointContent>
@@ -186,11 +186,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/NewsFeedTableViewController.swift"
-            timestampString = "588830822.462593"
+            timestampString = "589164727.432461"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "840"
-            endingLineNumber = "840"
+            startingLineNumber = "935"
+            endingLineNumber = "935"
             landmarkName = "NewsFeedTableViewController"
             landmarkType = "3">
          </BreakpointContent>

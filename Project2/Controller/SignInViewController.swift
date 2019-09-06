@@ -81,8 +81,6 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         view.addSubview(signInButton)
         signInButton.center.x = self.view.center.x
         signInButton.frame.origin.y = 200
-        
-        
       
     }
     
@@ -175,7 +173,7 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     }
     
     func audioStreamingDidLogin(_ audioStreaming: SPTAudioStreamingController!) {
-        // after a user authenticates a session, the SPTAudioStreamingController is then initialized and this method called
+        // after a user authenticates a session, the SPTAudioStreamingController is then initialized and this method is called
         print("logged in")
         
         //here we make a request to get the current user name from the authenticated session.
@@ -340,7 +338,7 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
                         if error == nil {
                             let sessionData = NSKeyedArchiver.archivedData(withRootObject: session!)
                             self.userDefaults.set(sessionData, forKey: "SpotifySession")
-                            self.userDefaults.set("Spotify", forKey: "UserAccount") //<- this value is independent of any auth flow, it is used as a flag throughout the app to simulate if the user uses apple music or spotify - see top of this file for full explanantion.
+                            self.userDefaults.set("Apple", forKey: "UserAccount") //<- this value is independent of any auth flow, it is used as a flag throughout the app to simulate if the user uses apple music or spotify - see top of this file for full explanantion.
                             self.userDefaults.set(session?.accessToken, forKey: "spotify_access_token")
                             self.userDefaults.set(session?.encryptedRefreshToken, forKey: "spotify_refresh_token")
                             self.userDefaults.synchronize()

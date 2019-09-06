@@ -168,7 +168,7 @@ class now_playing_poller {
     @objc func updateTimer () {
         
         internal_keep_time += 1 //internal time keeping ; this is reset when we switch over to a new song.
-        print("current time is \(self.apple_system_player.currentPlaybackTime) internal time is \(internal_keep_time)")
+        //print("current time is \(self.apple_system_player.currentPlaybackTime) internal time is \(internal_keep_time)")
         if self.apple_system_player.currentPlaybackTime < 2 || (self.apple_system_player.nowPlayingItem?.playbackStoreID != self.current_playback_id) {
             print("current time is \(self.apple_system_player.currentPlaybackTime) internal time is \(internal_keep_time) , guess a new song started ?")
             self.timer.invalidate()

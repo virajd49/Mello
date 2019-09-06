@@ -74,7 +74,7 @@ class AppleMusicManager {
     func fetchDeveloperToken() -> String? {
         
         // MARK: ADAPT: YOU MUST IMPLEMENT THIS METHOD
-        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTY0NTM5ODI0LCJleHAiOjE1NjYyNjc4MjR9.uFqA8yEGny6DkgMuYyHqFb_AZb90mWvBUIHZqRUNcwdze_mLunM79fs_msFl8RiO3JNh_tHuhugcdGzmzrUk6Q"
+        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTY3Mjg2Njg2LCJleHAiOjE1NjkwMTQ2ODZ9.P12QGtHx4drm_7dCzkHdf2hyZrni5YQ7kyd2svsUIYUpENHMa5LDdoO8KuR8sN57426AtT6YgYi7G3vlmLcFIg"
         
 //        "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTUyNTMyMzIwLCJleHAiOjE1NTY4NTIzMjB9.omYV_K9GTUgO8zYjMe7ySp-3p6xOO5WR6JkPeSJPtaePcaKIyGzLHnAlOkj_cOfJxuStUP8U1bh3c2ZWrAU97A"
         return developerAuthenticationToken
@@ -167,7 +167,7 @@ class AppleMusicManager {
     }
     
     
-    /*original function that came with the apple musickit example project. Returns all recently played items by the suwer, problem here is that it only returns them as albums - not individual tracks - I don't know why - so to get all the tracks you have to use performAppleMusicCatalogSearch_album_relation_songs with the ID of the album you get from this function.
+    /*original function that came with the apple musickit example project. Returns all recently played items by the user, problem here is that it only returns them as albums - not individual tracks - I don't know why - so to get all the tracks you have to use performAppleMusicCatalogSearch_album_relation_songs with the ID of the album you get from this function.
  
         https://developer.apple.com/documentation/applemusicapi/get_recently_played_resources
  
@@ -197,8 +197,9 @@ class AppleMusicManager {
                 
                 let dataAsString = String(data: data!, encoding: .utf8)
                 print(dataAsString)
-                //print(urlResponse)
-                //print("response should be above this guy")
+                print(results)
+                print(urlResponse)
+                print("response should be above this guy")
                 
                 let mediaItems = try self.processMediaItems(from: results)
                 

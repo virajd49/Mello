@@ -10,13 +10,13 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/AppleMusicManager.swift"
-            timestampString = "588830822.459285"
+            timestampString = "588985460.485309"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "150"
             endingLineNumber = "150"
-            landmarkName = "AppleMusicManager"
-            landmarkType = "3">
+            landmarkName = "performSpotifyCatalogSearch(with:completion:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -26,12 +26,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/AppleMusicManager.swift"
-            timestampString = "588830822.459476"
+            timestampString = "588985460.485411"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "133"
             endingLineNumber = "133"
-            landmarkName = "performAppleMusicCatalogSearch(with:countryCode:completion:)"
+            landmarkName = "performSpotifyCatalogSearch(with:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -42,12 +42,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/AppleMusicManager.swift"
-            timestampString = "588830822.4595391"
+            timestampString = "588985460.4854881"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "138"
             endingLineNumber = "138"
-            landmarkName = "performAppleMusicCatalogSearch(with:countryCode:completion:)"
+            landmarkName = "performSpotifyCatalogSearch(with:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -58,12 +58,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/AppleMusicManager.swift"
-            timestampString = "588830822.459589"
+            timestampString = "588985460.4855601"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "139"
             endingLineNumber = "139"
-            landmarkName = "performAppleMusicCatalogSearch(with:countryCode:completion:)"
+            landmarkName = "performSpotifyCatalogSearch(with:completion:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -79,8 +79,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "438"
             endingLineNumber = "438"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "new_db_entry(target:reference_struct:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -95,8 +95,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "422"
             endingLineNumber = "422"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "new_db_entry(target:reference_struct:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -111,8 +111,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "501"
             endingLineNumber = "501"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "get_this_song(target_catalog:song_data:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -175,8 +175,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "420"
             endingLineNumber = "420"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "new_db_entry(target:reference_struct:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -191,8 +191,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "463"
             endingLineNumber = "463"
-            landmarkName = "unknown"
-            landmarkType = "0">
+            landmarkName = "get_this_song(target_catalog:song_data:)"
+            landmarkType = "7">
             <Locations>
                <Location
                   shouldBeEnabled = "No"
@@ -233,44 +233,12 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "Project2/Controller/UploadViewController2.swift"
-            timestampString = "587796533.370193"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "951"
-            endingLineNumber = "951"
-            landmarkName = "audio_scrubber_touch_up_inside(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "Project2/Controller/UploadViewController2.swift"
-            timestampString = "587796533.370288"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1012"
-            endingLineNumber = "1012"
-            landmarkName = "UploadViewController2"
-            landmarkType = "3">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
             filePath = "Project2/Controller/NewsFeedTableViewController.swift"
-            timestampString = "588830822.459868"
+            timestampString = "589164727.431796"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "844"
-            endingLineNumber = "844"
+            startingLineNumber = "939"
+            endingLineNumber = "939"
             landmarkName = "handleMusicPlayerControllerPlaybackStateDidChange()"
             landmarkType = "7">
          </BreakpointContent>
@@ -282,11 +250,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/NewsFeedTableViewController.swift"
-            timestampString = "588830822.460456"
+            timestampString = "589164727.431893"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "843"
-            endingLineNumber = "843"
+            startingLineNumber = "938"
+            endingLineNumber = "938"
             landmarkName = "handleMusicPlayerControllerPlaybackStateDidChange()"
             landmarkType = "7">
          </BreakpointContent>
@@ -298,11 +266,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/NewsFeedTableViewController.swift"
-            timestampString = "588830822.460807"
+            timestampString = "589164727.431967"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "845"
-            endingLineNumber = "845"
+            startingLineNumber = "940"
+            endingLineNumber = "940"
             landmarkName = "handleMusicPlayerControllerPlaybackStateDidChange()"
             landmarkType = "7">
          </BreakpointContent>
@@ -314,11 +282,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/NewsFeedTableViewController.swift"
-            timestampString = "588830822.4611371"
+            timestampString = "589164727.432037"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "846"
-            endingLineNumber = "846"
+            startingLineNumber = "941"
+            endingLineNumber = "941"
             landmarkName = "handleMusicPlayerControllerPlaybackStateDidChange()"
             landmarkType = "7">
          </BreakpointContent>
@@ -330,11 +298,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/NewsFeedTableViewController.swift"
-            timestampString = "588830822.461463"
+            timestampString = "589164727.432106"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "847"
-            endingLineNumber = "847"
+            startingLineNumber = "943"
+            endingLineNumber = "943"
             landmarkName = "handleMusicPlayerControllerPlaybackStateDidChange()"
             landmarkType = "7">
          </BreakpointContent>
@@ -346,11 +314,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Project2/Controller/NewsFeedTableViewController.swift"
-            timestampString = "588830822.461786"
+            timestampString = "589164727.432173"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "848"
-            endingLineNumber = "848"
+            startingLineNumber = "944"
+            endingLineNumber = "944"
             landmarkName = "handleMusicPlayerControllerPlaybackStateDidChange()"
             landmarkType = "7">
          </BreakpointContent>

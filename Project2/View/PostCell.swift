@@ -38,8 +38,8 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
     var Spotifyplayer: SPTAudioStreamingController?
     let musicPlayerController = MPMusicPlayerController.applicationMusicPlayer
     var videoID: String!
-    var videostart: Float!
-    var videoend: Float!
+    var videostart: Int!
+    var videoend: Int!
     var typeFlag: String!
     var timer : Timer!
     var duration: Float!
@@ -120,8 +120,8 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
         self.startoffset = post.startoffset
         self.trackidstring = post.trackid as String
         self.videoID = post.videoid
-        self.videostart = post.starttime
-        self.videoend = post.endtime
+        self.videostart = Int(post.starttime)
+        self.videoend = Int(post.endtime)
         self.lyricView.text = post.lyrictext
         self.timer = Timer()
         self.timer?.invalidate()

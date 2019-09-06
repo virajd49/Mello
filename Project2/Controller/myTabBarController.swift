@@ -20,6 +20,8 @@ class myTabBarController: UITabBarController, UITabBarControllerDelegate {
         self.delegate = self
     }
     
+    
+    //I wanted the UploadViewController to pop up from the bottom, so here I detect when the upload tab is selected and present UploadViewController modally.
     func tabBarController(_ tabBarController: UITabBarController, shouldSelect viewController: UIViewController) -> Bool {
         print("hey this worked MAN")
         

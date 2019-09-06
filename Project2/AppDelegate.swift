@@ -166,7 +166,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SPTAudioStreamingDelegate
                     
                     let sessionData = NSKeyedArchiver.archivedData(withRootObject: session!)
                     self.user_defs.set(sessionData, forKey: "SpotifySession")
-                    self.user_defs.set("Spotify", forKey: "UserAccount") //<- this value is independent of any auth flow, it is used as a flag throughout the app to simulate if the user uses apple music or spotify - see top of this file for full
+                    self.user_defs.set("Apple", forKey: "UserAccount") //<- this value is independent of any auth flow, it is used as a flag throughout the app to simulate if the user uses apple music or spotify - see top of this file for full
                     self.user_defs.set(session?.accessToken, forKey: "spotify_access_token")
                     self.user_defs.set(session?.encryptedRefreshToken, forKey: "spotify_refresh_token")
                     self.user_defs.synchronize()
@@ -218,9 +218,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, SPTAudioStreamingDelegate
     func applicationDidBecomeActive(_ application: UIApplication) {
         // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
         print("application became active")
-        self.poller.grab_now_playing_item().done {
-            print("Done checking for now playing")
-        }
+       // self.poller.grab_now_playing_item().done {
+         //   print("Done checking for now playing")
+        //}
     }
 
     func applicationWillTerminate(_ application: UIApplication) {

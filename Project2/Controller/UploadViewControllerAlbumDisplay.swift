@@ -25,7 +25,7 @@ class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, U
     var albumMediaItem: MediaItem!
     var setterQueue = DispatchQueue(label: "UploadViewControllerAlbumDisplay")
     let imageCacheManager = ImageCacheManager()
-    var upload_flag = "default"
+    var upload_flag = "now_playing"
     
     var duration: Int = 0
     var duration_for_number_of_cells: Int = 0
@@ -121,6 +121,12 @@ class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, U
     
     func setup_table() {
         let country_code = userDefaults.string(forKey: "Country_code")
+        
+        self.album_header_view.addSubview(self.album_header_image_view)
+        self.album_header_view.addSubview(self.album_name_label_view)
+        self.album_header_view.addSubview(self.album_artist_name_label_view)
+        self.album_header_view.addSubview(self.album_artist_release_date_label_view)
+        
         self.my_table.tableHeaderView = self.album_header_view
         album_header_image_view.loadImageUsingCacheWithUrlString(imageurlstring: albumMediaItem.artwork.imageURL(size: CGSize(width: 150, height: 150)).absoluteString)
         album_name_label_view.text = albumMediaItem.name
@@ -154,6 +160,8 @@ class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, U
             destinationVC.duration_for_number_of_cells = self.duration_for_number_of_cells
             destinationVC.selected_search_result_post_image = self.selected_search_result_post_image
             definesPresentationContext = false //If you keep it as true then, the search bar in the controller that you push on the navigation stack remains unresponsive.
+            destinationVC.uploading = true
+
             
         }
     
@@ -201,7 +209,7 @@ class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, U
                     original_track_length: upload_cell?.mediaItem.durationInMillis!,
                     GIF_url: "" )
                 
-                self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
+                self.performSegue(withIdentifier: "album_display_to_3", sender: self)
                 
             }
         }

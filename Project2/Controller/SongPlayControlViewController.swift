@@ -54,7 +54,7 @@ class SongPlayControlViewController: UIViewController {
         the_new_temp = 0.0
         current_song_player = self.user_defaults.string(forKey: "UserAccount")?.lowercased()
         if current_song_player == "apple"{
-            print ("current_song_player == spotify")
+            print ("current_song_player == apple")
             if apple_player.playbackState == MPMusicPlaybackState.playing{
                 print ("Timer was initiated")
                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_apple), userInfo: nil, repeats: true)

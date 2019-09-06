@@ -110,8 +110,29 @@ class MediaItem {
         
         let artistName = attributes[JSONKeys.artistName] as? String ?? " "
         
+        
+        /*
         guard let artworkJSON = attributes[JSONKeys.artwork] as? [String: Any], let artwork = try? Artwork(json: artworkJSON) else {
-         throw SerializationError.missing(JSONKeys.artwork)
+            throw SerializationError.missing(JSONKeys.artwork)
+            //artwork = Artwork(json: ["height": 438, "width":440, "url": "https://upload.wikimedia.org/wikipedia/commons/d/df/ITunes_logo.svg"])
+        }
+         */
+        
+        if attributes.keys.contains(JSONKeys.artwork) {
+            print ("contains artwork")
+            guard let artworkJSON = attributes[JSONKeys.artwork] as? [String: Any], let artwork = try? Artwork(json: artworkJSON) else {
+                print("throwing error from here 1")
+                throw SerializationError.missing(JSONKeys.artwork)
+            }
+            self.artwork = artwork
+        } else {
+            print("does not contain artwork")
+            guard let artwork = try? Artwork(json: ["height": 438, "width": 440, "url": "https://upload.wikimedia.org/wikipedia/commons/d/df/ITunes_logo.svg"]) else {
+                print("throwing error from here 2")
+                throw SerializationError.missing(JSONKeys.artwork)
+            }
+            self.artwork = artwork
+            
         }
         
         let duration = attributes[JSONKeys.durationInMillis] as? Int ?? 0
@@ -150,7 +171,7 @@ class MediaItem {
         self.type = type
         self.name = name
         self.artistName = artistName
-        self.artwork = artwork
+        //self.artwork = artwork
         self.isrc = isrc
         self.previews = previews
         self.durationInMillis = duration

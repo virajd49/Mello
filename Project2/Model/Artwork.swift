@@ -37,17 +37,11 @@ class Artwork {
     // MARK: Initialization
     
     init(json: [String: Any]) throws {
-        guard let height = json[JSONKeys.height] as? Int else {
-            throw SerializationError.missing(JSONKeys.height)
-        }
+        let height = json[JSONKeys.height] as? Int  ?? 438
         
-        guard let width = json[JSONKeys.width] as? Int else {
-            throw SerializationError.missing(JSONKeys.width)
-        }
+        let width = json[JSONKeys.width] as? Int ?? 440
         
-        guard let urlTemplateString = json[JSONKeys.url] as? String else {
-            throw SerializationError.missing(JSONKeys.url)
-        }
+        let urlTemplateString = json[JSONKeys.url] as? String ?? "https://upload.wikimedia.org/wikipedia/commons/d/df/ITunes_logo.svg"
         
         self.height = height
         self.width = width

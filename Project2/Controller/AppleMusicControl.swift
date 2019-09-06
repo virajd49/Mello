@@ -255,7 +255,7 @@ class AppleMusicControl: NSObject {
     func fetchDeveloperToken() -> String? {
         
         // MARK: ADAPT: YOU MUST IMPLEMENT THIS METHOD
-        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTY0NTM5ODI0LCJleHAiOjE1NjYyNjc4MjR9.uFqA8yEGny6DkgMuYyHqFb_AZb90mWvBUIHZqRUNcwdze_mLunM79fs_msFl8RiO3JNh_tHuhugcdGzmzrUk6Q"
+        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTY3Mjg2Njg2LCJleHAiOjE1NjkwMTQ2ODZ9.P12QGtHx4drm_7dCzkHdf2hyZrni5YQ7kyd2svsUIYUpENHMa5LDdoO8KuR8sN57426AtT6YgYi7G3vlmLcFIg"
         return developerAuthenticationToken
     }
     
