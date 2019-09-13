@@ -923,7 +923,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = 8P937QU645;
+				DEVELOPMENT_TEAM = 282H2U8VFT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Project2/Frameworks",
@@ -938,7 +938,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "-debug-time-function-bodies -XFrontend";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-Xfrontend -debug-time-function-bodies";
-				PRODUCT_BUNDLE_IDENTIFIER = edu.duke.ash79;
+				PRODUCT_BUNDLE_IDENTIFIER = com.viraj.Project2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Project2-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -953,7 +953,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = NO;
-				DEVELOPMENT_TEAM = 8P937QU645;
+				DEVELOPMENT_TEAM = 282H2U8VFT;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Project2/Frameworks",
@@ -968,7 +968,7 @@
 				);
 				OTHER_SWIFT_FLAGS = "-debug-time-function-bodies -XFrontend";
 				"OTHER_SWIFT_FLAGS[arch=*]" = "-Xfrontend -debug-time-function-bodies";
-				PRODUCT_BUNDLE_IDENTIFIER = edu.duke.ash79;
+				PRODUCT_BUNDLE_IDENTIFIER = com.viraj.Project2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Project2-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
