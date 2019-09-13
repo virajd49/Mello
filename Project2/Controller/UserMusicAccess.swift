@@ -88,11 +88,9 @@ class UserAccess {
                 //print(self.access_token)
                 SPTPlaylistList.playlists(forUser: self.username, withAccessToken: self.access_token, callback: {(error, playlist_list)  in
                     if error == nil {
-                        var list = playlist_list as! SPTListPage
-                        self.get_playlist_nextpage_test(list: list)
+                        var list = playlist_list as! SPTPlaylistList
                         //print ("hey 3")
                         //this while loop goes through all the pages and appends the playlist URIs to all_the_playlists
-                        /*
                         repeat{
                             for i in 0...(list.items.count-1) {
                                 let playlist = list.items[i] as! SPTPartialPlaylist
@@ -134,20 +132,16 @@ class UserAccess {
                             
                             }
                             //print ("hey 4")
-                            if list.hasNextPage {
-                                print ("has next page")
+                            if list.hasNextPage{
                                 list.requestNextPage(withAccessToken: self.access_token, callback: { (error, ListPage)  in
                                     if (error == nil) {
-                                        print ("error == nil ")
                                         list = ListPage as! SPTPlaylistList
-                                        print ("list nect page count is \(list.items.count)")
                                     }else {
                                         print ("error: could not get nextPage")
                                     }
                                 })
                             }
-                        } while list.hasNextPage
- */
+                        }while list.hasNextPage
                         
                         self.userDefaults.set(self.all_playlist_URIs, forKey: "Spotify_playlist_URIs")
                         //print("at the set \(self.all_spotify_playlist_dict)")
@@ -165,79 +159,6 @@ class UserAccess {
         //print("\(self.all_playlist_URIs) at the return")
         //self.userDefaults.set(self.all_playlist_URIs, forKey: "Spotify_playlist_URIs")
        
-    }
-    
-    
-    //Move to web api calls for playlist stuff ? This SPTList stuff is ridiculous
-    func get_playlist_nextpage_test (list : SPTListPage) {
-        print ("get_playlist_nextpage_test")
-        for i in 0...(list.items.count-1) {
-            let playlist = list.items[i] as! SPTPartialPlaylist
-            print(playlist)
-            print("playlist.name is \(playlist.name)")
-            print(playlist.uri)
-            print(playlist.playableUri)
-            //self.all_playlist_URIs.append("\(playlist.uri)")
-            //self.all_playlist_URIs.append("\(playlist.uri!)")
-            if !(self.all_playlist_URIs.keys.contains(playlist.name)){
-                self.all_playlist_URIs[playlist.name] = "\(playlist.uri)"
-            }
-            //self.all_spotify_playlist_dict.append(playlist.name)
-            //print("\(self.all_playlist_URIs) at the append")
-            //print((track as! SPTSavedTrack).uri)
-            SPTPlaylistSnapshot.playlist(withURI: playlist.uri, accessToken: self.access_token, callback: {(error, play_snap)  in
-                if error == nil {
-                    let snapshot = play_snap as! SPTPlaylistSnapshot //get the sanpshot
-                    //print(new_string)
-                    //print (snapshot.firstTrackPage.items)
-                    let snapshot_tracks = snapshot.firstTrackPage.items as! [SPTPlaylistTrack]
-                    print ("snapshot track count \(snapshot_tracks.count)")
-                    var i = 0
-                    for track_play in snapshot_tracks { //for each track in the snapshot list
-                        //let track_play = snapshot_tracks[i]
-                        print(i)
-                        i = i + 1
-                        //print("at the append \(snapshot.name) \(track_play.playableUri)")
-                        if self.all_spotify_playlist_dict.keys.contains(snapshot.name){
-                            print ("snapshot.name is \(snapshot.name) track_play name is \(track_play.name)")
-                            
-                            print (track_play)
-                            //I added the Lo-fi playlist to my library and track_play showed up as null on a song called Jacaranda, don't know why it happened there, but it could happen anywhere else, need to have a solid check for that
-                            if track_play.playableUri != nil {
-                                self.all_spotify_playlist_dict[snapshot.name]?.append("\(track_play.playableUri)")
-                            }
-                        } else {
-                            self.all_spotify_playlist_dict[snapshot.name] = ["\(track_play.playableUri)"]
-                        }
-                    }
-                    //print("at the set \(self.all_spotify_playlist_dict)")
-                    
-                    self.userDefaults.set(self.all_spotify_playlist_dict, forKey: "Spotify_playlist_dict")
-                }else {
-                    print("error in snap checking playlists")
-                    print(error)
-                }
-            })
-            
-        }
-        //print ("hey 4")
-        if list.hasNextPage {
-            print ("has next page")
-            list.requestNextPage(withAccessToken: self.access_token, callback: { (error, ListPage)  in
-                if (error == nil) {
-                    print ("error == nil ")
-                    var new_list = ListPage as! SPTListPage
-                    self.get_playlist_nextpage_test(list: new_list)
-                    print ("list nect page count is \(list.items.count)")
-                }else {
-                    print ("error: could not get nextPage")
-                }
-            })
-        }
-        
-         self.userDefaults.set(self.all_playlist_URIs, forKey: "Spotify_playlist_URIs")
-        
-        return
     }
     
     func get_spotify_all_tracks() {

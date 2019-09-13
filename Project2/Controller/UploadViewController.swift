@@ -14,7 +14,6 @@ import Firebase
 import Foundation
 
 
-/* Just a dummy view controller */
 
 class UploadViewController: UIViewController {
 
@@ -25,7 +24,6 @@ class UploadViewController: UIViewController {
 //    @IBOutlet weak var now_playing_button_outlet: UIButton!
 //    @IBOutlet weak var apple_button_outlet: UIButton!
 //    @IBOutlet weak var spotify_button_outlet: UIButton!
-    
 //    @IBOutlet weak var youtube_button_outlet: UIButton!
 //
 //    @IBOutlet weak var now_playing_image: UIImageView!

@@ -19,29 +19,13 @@ import SDWebImage
 
 /*
  
- On this page, we allow the user to edit the post:
-    -Select the clip of the audio/video
-    -Add a caption
-    -Search and add a GIF
-    -Make it a lyric post and add lyrics
- 
- The main things going on on this page:
- 
- - The clip selector:
-    This is basically a horizontal collection view of cells that look like short thin lines. The scrolling of the collection view is hooked to the forward and backward seeking of the spotify/apple/youtube players. So when the scrolling stops, the player should seek to the position with respect to where the collection view has been scrolled to. The number of cells in the collection view are based off of the duration on the audio/video being selected.
-    The scrolling is also hooked to a small slider bar which gives the user a better view of where in the song the 30 second clip is. This slider bar has a small capsule that indicates the 30 second clip. This capsule (slider) runs forward and backward on the thin line (bar) in a manner thats proportional to the collection view scrolling.
- When the user scrolls to a position and stops - The small rectangle in the center of the scroll view is called selection_view, behind that view, is a second view of identical dimenions called color animate view. The trailing constraint of this view is set in such a way that it's width is 0 and it's squished all the way to it's x positon. When the user stops scrolling, we fire a timer that decrements the trailing contraint  - the end result is taht it looks like the selection_view is being filled with the pink progress bar slowly from left to right.
- 
- 
- - The Gif Search and selection:
-    A lot of this code came from here: https://github.com/52inc/SwiftyGiphy
-    I did not want to present a controller modally on top of the controller here, so what I did was, copy off all the code that I needed from SwiftyGiphyViewController and hooked it into the search conroller in this page. You can find all the files in the pods section
- 
- 
  Two main issues on this page:
     1. When uploading an apple post the color animation and it's timer does not start when song is playing from the beginning.
     2. When we go back, the scroller_timer is invalidated in viewwilldisappear. But, the scroll view scrolls for some weird reason which simulates user dragging to select song, and that restarts the timer. So if you go back to UploadViewController2, the apple post may start playing over and over again.
-
+ 
+ 
+ 
+ 
  
  */
 
@@ -171,8 +155,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
     var tapGesture_test_lyric_view: UITapGestureRecognizer!
     var tapGesture_test_caption_view: UITapGestureRecognizer!
     
-    
-    //This is used to hide/show the audio/video selection mechanism
     func hide_custom_scrolling_aparattus_toggle (set: Bool) {
         if set {
             self.Custom_progress_bar_container.isHidden = true
@@ -209,16 +191,12 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        //I was having some problems maintaining navigation bar height from uploadviewcontroller2 to uploadviewcontroller3
         let height: CGFloat = 50 //whatever height you want to add to the existing height
         let bounds = self.navigationController!.navigationBar.bounds
         self.navigationController?.navigationBar.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.height + height)
         
     }
     
-    
-    //This can be removed
     func toggle_hide_upload_selection (hide: Bool) {
         if hide {
             self.Now_playing_image.isHidden = true
@@ -256,34 +234,37 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //Test for animate color issue//
+        //Test for animate color//
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(handleMusicPlayerControllerPlaybackStateDidChange),
                                                name: .MPMusicPlayerControllerPlaybackStateDidChange,
                                                object: self.apple_player)
         print ("UploadViewController 3 viewDidLoad")
-         //I was having some problems maintaining navigation bar height from uploadviewcontroller2 to uploadviewcontroller3
         let height: CGFloat = 20 //whatever height you want to add to the existing height
         let bounds = self.navigationController!.navigationBar.bounds
+        print ("nav bar height is \(bounds.height)")
         self.navigationController?.navigationBar.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.height + height)
-        
-        
+        print ("nav bar height is \(bounds.height)")
         toggle_hide_upload_selection(hide: false)
-        
         hide_custom_scrolling_aparattus_toggle(set : false)
+        let tapGesture2 = UITapGestureRecognizer(target: self, action: #selector(tapEdit2(recognizer:)))
+        tapGesture2.delegate = self.Now_playing_image as? UIGestureRecognizerDelegate
         
-        //Triggered when the user taps on the lyric view - it lets the user type in lyrics
         tapGesture_test_lyric_view = UITapGestureRecognizer(target: self, action: #selector(tapEdit_test_for_lyric_view(recognizer:)))
         self.Lyric_view.addGestureRecognizer(tapGesture_test_lyric_view)
         tapGesture_test_lyric_view.delegate = self.Lyric_view as! UIGestureRecognizerDelegate
         
-        //Triggered when the user taps on the caption view - it lets the user type in the caption
+        
         tapGesture_test_caption_view = UITapGestureRecognizer(target: self, action: #selector(tapEdit_test_for_caption_view(recognizer:)))
         self.Caption_text_view.addGestureRecognizer(tapGesture_test_caption_view)
         tapGesture_test_caption_view.delegate = self.Caption_text_view as! UIGestureRecognizerDelegate
+        //      self.audio_scrubber_ot?.addGestureRecognizer(longPress)
+        //      longPress.delegate = audio_scrubber_ot as? UIGestureRecognizerDelegate
+        //        longPress.minimumPressDuration = 0.1
+        //        longPress.allowableMovement = 200
        
         
-        //setup for gif searchbar
+        
         GIFSearch_Bar.delegate = self
         GIFSearch_Bar.searchBarStyle = UISearchBar.Style.minimal
         self.GIFSearch_Bar.isHidden = true
@@ -302,7 +283,9 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
         service.apiKey = (userDefaults.value(forKey: "google_api_key") as! String)
         
-
+       
+        
+        hide_custom_scrolling_aparattus_toggle(set : false)
         Select_audio_clip_button.isHidden = true
         
       
@@ -314,7 +297,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
         self.Text_or_animation_switch.setBackgroundImage(UIImage(named: "icons8-type-60"), for: .normal)
         
-        //UI setup
         self.Lyric_view.layer.cornerRadius = 10
         self.Lyric_view.delegate = self
         self.Lyric_view.tintColor = UIColor.lightGray
@@ -329,12 +311,11 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         self.Caption_text_view.delegate = self
         self.Caption_text_view.layer.cornerRadius = 5
         self.Caption_text_view.tintColor = UIColor.black
-        
         setup_custom_scroller()
         
         collection_view_for_scroll.tag = 1
         
-        // MARK: Setup for collection View for GIPHY
+        // MARK: Collection View for GIPHY
         Mycollectionview2.tag = 2
         Mycollectionview2.collectionViewLayout = SwiftyGiphyGridLayout()
         Mycollectionview2.backgroundColor = UIColor.clear
@@ -356,7 +337,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             self.mycollectionViewLayout!.delegate = self
         }
         
-        //Setup for search bar
+        
         searchController.searchResultsUpdater = self as? UISearchResultsUpdating
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search Posts"
@@ -368,8 +349,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         searchController.hidesNavigationBarDuringPresentation = false
         navigationItem.titleView = searchController.searchBar
         set_navigation_bar_next_button()
-        
-        
         setup_selected_media()
         
         
@@ -390,7 +369,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         }
     }
     
-    //The hero upload path ends on UploadViewController3 so when we're on that path we want to display a "Done" button instead of a "Next" button
     func set_navigation_bar_next_button() {
         print ("--------------------------- set_navigation_bar_next_button -----------------------------")
         print (self.path_keeper.get_upload_path())
@@ -401,7 +379,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         }
     }
     
-    //When the view disappears, stop any player that might be playing and reset the clip selector sroll view back
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
@@ -468,13 +446,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         }
     }
     
-    /*  This sets up the slider on the slider bar as per the duration of the audio/video, the longer the song, the shorter the slider.
-     
-        AND
-     
-        It sets up the song/video that was selected and passed to it by the previous viewcontroller
-     
-     */
+    
     func setup_selected_media () {
         print("In setup_selected_media ")
         print ("upload flag is \(self.upload_flag)")
@@ -500,7 +472,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         print ("past the checks 6")
         self.collection_view_for_scroll.reloadData()
         
-        //Setup the song/video based on the post passed to this viewcontroller
         
         if (self.upload_flag == "spotify") {
             print(" setup_selected_media == spotify")
@@ -511,27 +482,31 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                     self.animate_color()
                 }
             })
-            
-            
+            //self.audio_scrubber_ot.maximumValue = Float(tappedCell.spotify_mediaItem.duration_ms!)
+            //self.test_slider.maximumValue = Float(tappedCell.spotify_mediaItem.duration_ms!)
             self.duration = (self.selected_search_result_post.original_track_length) / 1000
             self.duration_for_number_of_cells = Int(ceil(Double(self.selected_search_result_post.original_track_length) / 1000))
             print (self.selected_search_result_post.original_track_length)
             print (Float(self.selected_search_result_post.original_track_length) / 1000)
+            //print(self.audio_scrubber_ot.maximumValue)
             self.spotify_current_uri = self.selected_search_result_post.trackid
             self.Song_name_label.text = self.selected_search_result_post.songname
             self.Artist_name_label.text = ""
+            //self.timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector(self.updateScrubber), userInfo: nil, repeats: true)
             self.uploading = true
         } else if (self.upload_flag == "apple") {
             print ("asetup_selected_media pple")
             self.Now_playing_image.image = self.selected_search_result_post_image
             self.apple_player.setQueue(with: [self.selected_search_result_post.trackid])
             self.apple_player.play()
-            //self.animate_color()  //Apple animate color problem
-           
+            //self.animate_color()
+            //self.audio_scrubber_ot.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
+            //self.test_slider.maximumValue = Float(tappedCell.mediaItem.durationInMillis!)
             print (self.selected_search_result_post.original_track_length)
             print (Float(self.selected_search_result_post.original_track_length) / 1000)
             self.duration = (self.selected_search_result_post.original_track_length) / 1000
             self.duration_for_number_of_cells = Int(ceil(Double(self.selected_search_result_post.original_track_length) / 1000))
+            //print(self.audio_scrubber_ot.maximumValue)
             self.apple_id = self.selected_search_result_post.trackid
             self.Song_name_label.text = self.selected_search_result_post.songname
             self.Artist_name_label.text = ""
@@ -539,13 +514,14 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         } else if self.upload_flag == "youtube" {
             print (" == youtube")
             self.uploading = true
+            self.grab_video_duration_for_selected_video()
             self.Youtube_player.isHidden = false
             self.view.bringSubviewToFront(self.Youtube_player)
             self.Now_playing_image.isHidden = true
             self.Lyric_view.isHidden = true
             self.Youtube_player.load(withVideoId: self.selected_search_result_post.videoid ?? "" , playerVars: ["autoplay": 1, "playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "rel": 0, "iv_load_policy": 3])
-            //self.duration = (self.selected_search_result_post.original_track_length) / 1000
-            //self.duration_for_number_of_cells = Int(ceil(Double(self.selected_search_result_post.original_track_length) / 1000))
+            self.duration = (self.selected_search_result_post.original_track_length) / 1000
+            self.duration_for_number_of_cells = Int(ceil(Double(self.selected_search_result_post.original_track_length) / 1000))
             self.Youtube_player.playVideo()
             self.Song_name_label.text = self.selected_search_result_post.songname
             self.Artist_name_label.text = ""
@@ -565,7 +541,21 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                 self.Song_name_label.text = self.selected_search_result_post.songname
                 self.uploading = true
             } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
-
+                /*
+                if let mediaItem = self.apple_system_player.nowPlayingItem {
+                    print ("\(mediaItem.playbackDuration)")
+                    self.apple_system_player.pause()
+                    self.apple_player.setQueue(with: [self.apple_id!])
+                    self.apple_player.play()
+                    self.apple_player.currentPlaybackTime = 30.0
+                    self.animate_color()
+                    self.Song_name_label.text = mediaItem.title
+                    self.Artist_name_label.text = mediaItem.artist
+                    self.Now_playing_image.image = self.poller.return_image()
+                    self.uploading = true
+                }
+                 */
+                
                 self.Now_playing_image.image = self.selected_search_result_post_image
                 self.apple_player.setQueue(with: [self.selected_search_result_post.trackid])
                 self.apple_player.play()
@@ -583,10 +573,67 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                 self.uploading = true
             }
         }
-
+            
+            
+//        print ("past the checks")
+//        self.collection_view_for_scroll.reloadData()
+//        print ("past the checks 2 - duration for number of cells \(self.duration_for_number_of_cells)")
+//        self.slider_width.constant = (self.Custom_progress_bar_bar.frame.width * self.Selection_view.frame.width) / CGFloat((self.duration_for_number_of_cells * 5) - 3)
+//        print ("slider width is \(self.slider_width.constant)")
+//        print ("past the checks 3")
+//        self.slider_leading_constraint.constant = 0
+//        print ("past the checks 4")
+//        self.color_animate_trailing.constant = 262.5
+//        print ("past the checks 5")
+//        self.collection_view_for_scroll.setContentOffset(CGPoint(x: -97.0, y: 0.0), animated: true)
+//        print ("past the checks 6")
+//        self.collection_view_for_scroll.reloadData()
+        
     }
     
     
+    func grab_video_duration_for_selected_video () {
+        print ("grab_video_duration_for_selected_video")
+        let video_search_query = GTLRYouTubeQuery_VideosList.query(withPart: "snippet,contentDetails,statistics")
+        print("duration grabbing video id is \(self.selected_search_result_post.videoid ?? "nil")")
+        video_search_query.identifier = self.selected_search_result_post.videoid ?? ""
+        service.executeQuery(video_search_query,
+                             delegate: self,
+                             didFinish: #selector(displayResultWithTicket2(ticket:finishedWithObject:error:)))
+    }
+   
+    @objc func displayResultWithTicket2(
+        ticket: GTLRServiceTicket,
+        finishedWithObject response : GTLRYouTube_VideoListResponse,
+        error : NSError?) {
+        print ("in displayResultWithTicket2")
+        if let error = error {
+            print("error search for tapped video details - youtube - displayResultWithTicket2")
+            // Your application should handle these errors appropriately depending on the kind of error.
+
+            print ("\(error.localizedDescription)")
+            return
+            
+        }
+        print (response)
+        if !response.items!.isEmpty  {
+            let video = response.items![0]
+            print ("Got the video  - in displayResultWithTicket2")
+            var video_duration = parse_youtube_track_audio(duration_string: video.contentDetails?.duration ?? "PT0M0S")
+            //self.audio_scrubber_ot.maximumValue = Float(video_duration * 1000)
+            //self.test_slider.maximumValue = Float(video_duration * 1000)
+            self.duration = video_duration
+            self.duration_for_number_of_cells = video_duration
+            self.collection_view_for_scroll.reloadData()
+            self.slider_width.constant = (self.Custom_progress_bar_bar.frame.width * self.Selection_view.frame.width) / CGFloat((self.duration_for_number_of_cells * 5) - 3)
+            print (video_duration)
+            //print(self.audio_scrubber_ot.maximumValue)
+            self.search_result_video = video
+        } else {
+            print ("Request for specific video returned empty")
+        }
+        
+    }
     override var prefersStatusBarHidden: Bool {
         return true
     }
@@ -596,9 +643,8 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         self.dismiss(animated: true, completion: nil)
     }
 
-    
-    //Stop any player that might be playing and reset the clip selector sroll view back
     @IBAction func back_button(_ sender: Any) {
+        //toggle_hide_upload_selection(hide: true)
         print ("back_button")
         self.uploading = false
         
@@ -653,43 +699,48 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         self.reset_custom_scroller()
         print ("Invalidating scroller_timer 5")
         self.scroller_timer.invalidate()
+        //self.timer.invalidate()
+        //self.audio_scrubber_ot.value = 0.0
         print ("scroll enabled \(self.collection_view_for_scroll.isScrollEnabled)")
         print ("touch enabled \(self.collection_view_for_scroll.isUserInteractionEnabled)")
         
     }
     
-    
-    //This means we are done editing the post. So we package it up as a post, end any media playing on the current page, reset flags and the selector scroller and perform the segue
     @objc func next_button (sender: UIBarButtonItem) {
         print ("next_button")
-        
-        //reset flags
         self.uploading = false
         self.is_selecting_audio_clip = true
         self.is_selecting_animation = false
         var upload_post: Post?
         if (self.selected_search_result_post != nil) && self.upload_flag != "now_playing" {
             print ("self.upload_flag != now_playing")
-            
-            //package as a post
             get_post_from_cell().done { upload_post in
                 print ("we got_post_from_cell")
- 
-                self.final_upload_post = upload_post
+                if let presenter = self.presentingViewController as? myTabBarController {
+                    print("we got tabbar as presenter")
+                } else if self.presentingViewController is UploadViewController3 {
+                    print("It's upcont2")
+                } else if self.presentingViewController is UISearchController {
+                    print ("it's searchcontroller")
+                } else if self.presentingViewController is NewsFeedTableViewController {
+                    print ("its newsfeed")
+                } else if  self.presentingViewController is myTabBarController {
+                    print ("it's tabbar")
+                } else if self.presentingViewController is SignInViewController {
+                    print ("it's signIn")
+                } else if self.presentingViewController is UINavigationController {
+                    print ("it's nav")
+                }
                 
-                //end any media that might be playing
+                self.final_upload_post = upload_post
                 if self.end_post_media() {
                     print ("Post media stopped")
                 } else {
                     print("Error stoping new post media")
                 }
-                
-                //reset the scroller
                 self.reset_custom_scroller()
                 print ("Invalidating scroller_timer 6")
                 self.scroller_timer.invalidate()
-                
-                
                 
                 self.performSegue(withIdentifier: "upload_3_to_4", sender: self)
                 
@@ -699,20 +750,14 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             
             if self.userDefaults.string(forKey: "UserAccount") == "Apple" {
                 if !self.poller.apple_mediaItems.isEmpty {
-                    
-                    //package as post
                     self.get_post_from_now_playing().done { upload_post in
                         print ("we got_post_from_cell")
                         self.final_upload_post = upload_post
-                        
-                        //end any playing media
                         if self.end_post_media() {
                             print ("Post media stopped")
                         } else {
                             print("Error stoping new post media")
                         }
-                        
-                        //reset the selector scroller
                         self.reset_custom_scroller()
                         print ("Invalidating scroller_timer 6")
                         self.scroller_timer.invalidate()
@@ -725,19 +770,13 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                 
             } else if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
                 if self.poller.spotify_currently_playing_object.item != nil {
-                    
-                    //package post
                     self.get_post_from_now_playing().done { upload_post in
                         self.final_upload_post = upload_post
-                        
-                        //end media
                         if self.end_post_media() {
                             print ("Post media stopped")
                         } else {
                             print("Error stoping new post media")
                         }
-                        
-                        //reset selector scroller
                         self.reset_custom_scroller()
                         print ("Invalidating scroller_timer 6")
                         self.scroller_timer.invalidate()
@@ -750,8 +789,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
     }
     
-    
-    //Literally same code as next_button, can be put into separate function and called from next and done button both
     @objc func done_button (sender: UIBarButtonItem) {
         print ("next_button")
         self.uploading = false
@@ -762,7 +799,22 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             print ("self.upload_flag != now_playing")
             get_post_from_cell().done { upload_post in
                 print ("we got_post_from_cell")
-   
+                if let presenter = self.presentingViewController as? myTabBarController {
+                    print("we got tabbar as presenter")
+                } else if self.presentingViewController is UploadViewController3 {
+                    print("It's upcont2")
+                } else if self.presentingViewController is UISearchController {
+                    print ("it's searchcontroller")
+                } else if self.presentingViewController is NewsFeedTableViewController {
+                    print ("its newsfeed")
+                } else if  self.presentingViewController is myTabBarController {
+                    print ("it's tabbar")
+                } else if self.presentingViewController is SignInViewController {
+                    print ("it's signIn")
+                } else if self.presentingViewController is UINavigationController {
+                    print ("it's nav")
+                }
+                
                 self.final_upload_post = upload_post
                 if self.end_post_media() {
                     print ("Post media stopped")
@@ -824,30 +876,22 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
     }
     
-    //All we have to do is pass the final packaged post to the next view controller
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print ("prepare for segue")
             let destinationVC = segue.destination as! UploadViewController4
+            destinationVC.flow = self.flow
             if let check_post = self.final_upload_post {
                 destinationVC.selected_search_result_post = self.final_upload_post
                 
             }
      }
     
-    /* When we click on the express button, we want to make all the express inputs visible to the user, the express view contains:
-        - The gif search bar
-        - The animation/text button
-        - The caption text box
-        - The selected gif display image view
-     */
     
     @IBAction func express_button_action(_ sender: Any) {
         
-            //flags
             self.is_selecting_animation = true
             self.is_selecting_audio_clip = false
-        
-            //hide the express button and show the select audio clip button
             self.Express_button.isHidden = true
             self.Select_audio_clip_button.isHidden = false
             
@@ -866,7 +910,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
    
     }
     
-    //The button which lets you toggle between showing Album Art or lyrics
+    
     @IBAction func album_art_or_lyric_switch_action(_ sender: Any) {
         print ("album_art_or_lyric_switch_action")
         if self.Now_playing_image.isHidden &&  !self.Lyric_view.isHidden {
@@ -884,14 +928,13 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
     }
     
-    
-    //The text or animation(GIF) toggle button
     @IBAction func text_or_animation_switch_action(_ sender: Any) {
         print("text_or_animation_switch_action")
         if self.GIF_Search_is_ON {
             self.GIFSearch_Bar.endEditing(true)
             self.express_view_to_search_bar_super_container.constant = 370
             self.GIF_SearchBar_top_to_express_view.constant = 4
+            //self.Text_or_animation_switch_top_to_express_view.constant = 13
             self.GIF_Search_is_ON = false
             self.Text_or_animation_switch.setBackgroundImage(UIImage(named: "icons8-type-60"), for: .normal)
             
@@ -912,7 +955,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
     }
     
-    //Hide/show the select audio clip button
     @IBAction func select_audio_clip_show_hide(_ sender: Any) {
         
         
@@ -946,7 +988,23 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                 textView.textColor = UIColor.black
             }
         }
-      
+        //        self.pane_view_for_keyboard_dismiss.isHidden = false
+        //
+        //        if !self.caption_text_view.isHidden {
+        //            UIView.animate(withDuration: 1, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+        //                 self.caption_view_bottom_constraint_to_express_view.constant = 273
+        //            }, completion: nil)
+        //            self.express_view.backgroundColor = UIColor.clear
+        //            self.search_bar_subview.layer.backgroundColor = UIColor.black.withAlphaComponent(0.7).cgColor
+        //            self.back_button.layer.backgroundColor = UIColor.clear.cgColor
+        //            self.upload_done.layer.backgroundColor = UIColor.clear.cgColor
+        //
+        //        } else if !self.lyric_view.isHidden {
+        //            self.search_bar_subview.layer.backgroundColor = UIColor.black.withAlphaComponent(0.7).cgColor
+        //            self.back_button.layer.backgroundColor = UIColor.clear.cgColor
+        //            self.upload_done.layer.backgroundColor = UIColor.clear.cgColor
+        //
+        //        }
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
@@ -974,14 +1032,52 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
     }
     
-    //This is triggered when the user scrolls the audio selector collection view to a point
+    @IBAction func audio_scrubber(_ sender: Any) {
+        print ("audio_scrubber")
+        
+        if (self.upload_flag == "spotify") {
+            //            if ((self.spotifyplayer?.playbackState.isPlaying)!) {
+            //                self.spotifyplayer?.seek(to: TimeInterval(self.audio_scrubber_ot.value), callback: nil)
+            //            } else {
+            //                self.spotifyplayer?.playSpotifyURI(spotify_current_uri, startingWith: 0, startingWithPosition: TimeInterval(self.audio_scrubber_ot.value), callback: { (error) in
+            //                    if (error == nil) {
+            //                        print("playing!")
+            //                    }
+            //
+            //                })
+            //            }
+        } else if (self.upload_flag == "apple") {
+            print("in scrubber")
+            //            if (self.apple_player.playbackState == MPMusicPlaybackState.playing) {
+            //                self.apple_player.currentPlaybackTime = TimeInterval((self.audio_scrubber_ot.value))
+            //            }
+        }
+        //self.test_slider.setValue(self.audio_scrubber_ot.value, animated: true)
+        
+    }
+    
+    
+    @IBAction func audio_scrubber_touch_down(_ sender: Any) {
+        
+        //                if ((spotifyplayer?.playbackState.isPlaying)!) {
+        //                    self.spotifyplayer?.setIsPlaying(false, callback: { (error) in
+        //                        if (error == nil) {
+        //                            print("paused")
+        //                            //self.timer?.invalidate()
+        //                            //self.offsetvalue = (self.Spotifyplayer!.playbackState.position)
+        //                        }
+        //                        else {
+        //                            print ("error in pausing!")
+        //                        }
+        //                    })
+        //                }
+    }
+    
+    
     @IBAction func audio_scrubber_touch_up_inside(_ sender: Any) {
         
-        //We figure out the time that the audio player has to seek to based on the collection view postion.
         let seek_to_time = ((self.collection_view_for_scroll.contentOffset.x + 96.5) / 5) * 1000
         
-        
-        //Figure out what player is supposed ot be playing and seek to that time
         print ("audio_scrubber_touch_up_inside")
         if (self.upload_flag == "spotify") {
             if ((self.spotifyplayer.playbackState.isPlaying)) {
@@ -1044,7 +1140,137 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
     }
     
-    //Stop the player that is currently playing
+    
+    
+    @IBAction func upload_done(_ sender: Any) {
+        
+        self.uploading = false
+        self.is_selecting_audio_clip = true
+        self.is_selecting_animation = false
+        var upload_post: Post?
+        if (self.selected_search_result_post != nil) && self.upload_flag != "now_playing" {
+            get_post_from_cell().done { upload_post in
+                print ("we got_post_from_cell")
+                if let presenter = self.presentingViewController as? myTabBarController {
+                    print("we got tabbar as presenter")
+                    
+                    //                    print (presenter.viewControllers!.count)
+                    //                    if presenter.viewControllers?[0] is MessageViewController{
+                    //                        print("It's upcont2")
+                    //                    } else if presenter.viewControllers?[0] is NewsFeedTableViewController {
+                    //                        print ("it's searchcontroller")
+                    //                    } else if presenter.viewControllers?[0] is FriendUpdateViewController {
+                    //                        print ("its newsfeed")
+                    //                    } else if  presenter.viewControllers?[0] is UploadViewController {
+                    //                        print ("it's tabbar")
+                    //                    } else if presenter.viewControllers?[0] is UINavigationController {
+                    //                        print ("it's nav")
+                    //                    }
+                    
+                    //Presenter is TabBarController - it's 0th controller is NavBarController
+                    //NavBar's child controller is Newsfeed Controller
+                    if let newsfeed = presenter.viewControllers?[0].children[0] as? NewsFeedTableViewController {
+                        print ("we got newsfeed")
+                        print ("\(newsfeed.posts?.count)")
+                        let new_post_number = newsfeed.posts?.count
+                        self.add_new_post_to_firebase(new_post: upload_post, new_post_number: new_post_number!)
+                        newsfeed.fetchPosts()
+                    }
+                }
+                
+              
+                
+                
+                
+                if self.presentingViewController is UploadViewController3 {
+                    print("It's upcont2")
+                } else if self.presentingViewController is UISearchController {
+                    print ("it's searchcontroller")
+                } else if self.presentingViewController is NewsFeedTableViewController {
+                    print ("its newsfeed")
+                } else if  self.presentingViewController is myTabBarController {
+                    print ("it's tabbar")
+                } else if self.presentingViewController is SignInViewController {
+                    print ("it's signIn")
+                } else if self.presentingViewController is UINavigationController {
+                    print ("it's nav")
+                }
+                
+                if self.end_post_media() {
+                    print ("Post media stopped")
+                } else {
+                    print("Error stoping new post media")
+                }
+                
+                self.dismiss(animated: true, completion: nil)
+            }
+        } else if self.upload_flag == "now_playing" {
+            
+            if self.userDefaults.string(forKey: "UserAccount") == "Apple" {
+                if !self.poller.apple_mediaItems.isEmpty {
+                    self.get_post_from_now_playing().done { upload_post in
+                        print ("we got_post_from_cell")
+                        if let presenter = self.presentingViewController as? myTabBarController {
+                            print("we got tabbar as presenter")
+                            
+                            //Presenter is TabBarController - it's 0th controller is NavBarController
+                            //NavBar's child controller is Newsfeed Controller
+                            if let newsfeed = presenter.viewControllers?[0].children[0] as? NewsFeedTableViewController {
+                                print ("we got newsfeed")
+                                print ("\(newsfeed.posts?.count)")
+                                let new_post_number = newsfeed.posts?.count
+                                self.add_new_post_to_firebase(new_post: upload_post, new_post_number: new_post_number!)
+                                newsfeed.fetchPosts()
+                            }
+                        }
+                        
+                        
+                        if self.end_post_media() {
+                            print ("Post media stopped")
+                        } else {
+                            print("Error stoping new post media")
+                        }
+                        self.dismiss(animated: true, completion: nil)
+                        
+                    }
+                }
+            } else if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
+                if self.poller.spotify_currently_playing_object.item != nil {
+                    self.get_post_from_now_playing().done { upload_post in
+                        print ("we got_post_from_cell")
+                        if let presenter = self.presentingViewController as? myTabBarController {
+                            print("we got tabbar as presenter")
+                            
+                            //Presenter is TabBarController - it's 0th controller is NavBarController
+                            //NavBar's child controller is Newsfeed Controller
+                            if let newsfeed = presenter.viewControllers?[0].children[0] as? NewsFeedTableViewController {
+                                print ("we got newsfeed")
+                                let new_post_number = newsfeed.posts?.count
+                                self.add_new_post_to_firebase(new_post: upload_post, new_post_number: new_post_number!)
+                                newsfeed.fetchPosts()
+                            }
+                        }
+                        
+                        
+                        if self.end_post_media() {
+                            print ("Post media stopped")
+                        } else {
+                            print("Error stoping new post media")
+                        }
+                        self.dismiss(animated: true, completion: nil)
+                        
+                    }
+                }
+                
+            }
+        }
+        
+        
+        self.reset_custom_scroller()
+        print ("Invalidating scroller_timer 6")
+        self.scroller_timer.invalidate()
+    }
+    
     func end_post_media () -> Bool {
         
         var return_value = false
@@ -1111,8 +1337,66 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
     }
     
    
- 
-   //For when the user wants to type in lyrics
+    @objc func tapEdit2(recognizer: UITapGestureRecognizer)  {
+        print ("tapEdit2 called ")
+        
+        //the miniplayer should fade out and the final upload page should show up
+        //we get the media item data from the now playing poller
+        
+        //get the song id from the current_playing_context and play the song from the start in our own player - this should stop the system player
+        
+        if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
+            self.spotifyplayer.playSpotifyURI(self.temp_spotify_media_context_uri!, startingWith: 0, startingWithPosition: 0.0, callback: { (error) in
+                if (error == nil) {
+                    print("playing!")
+                    self.animate_color()
+                }
+            })
+            //self.audio_scrubber_ot.maximumValue = Float(self.temp_spotify_media_context_duration!)
+            //self.test_slider.maximumValue = Float(self.temp_spotify_media_context_duration!)
+            print (self.temp_spotify_media_context_duration)
+            print (Float(self.temp_spotify_media_context_duration!) / 1000)
+            //print(self.audio_scrubber_ot.maximumValue)
+            self.spotify_current_uri = self.temp_spotify_media_context_uri
+            self.duration = (self.temp_spotify_media_context_duration!) / 1000
+            self.duration_for_number_of_cells = Int(ceil(Double(self.temp_spotify_media_context_duration!) / 1000))
+            self.Song_name_label.text = self.poller.spotify_currently_playing_object.item?.name
+            self.Artist_name_label.text = self.poller.spotify_currently_playing_object.item?.artists?[0].name
+            self.uploading = true
+        } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
+            
+            print ("now playing tap edit - account Apple")
+            if let mediaItem = self.apple_system_player.nowPlayingItem {
+                print ("\(mediaItem.playbackDuration)")
+                self.apple_system_player.pause()
+                self.apple_player.setQueue(with: [mediaItem.playbackStoreID ])
+                self.apple_player.play()
+                self.apple_player.currentPlaybackTime = 0.0
+                self.animate_color()
+                print (mediaItem.playbackDuration)
+                print (mediaItem.playbackStoreID)
+                //self.audio_scrubber_ot.maximumValue = Float(mediaItem.playbackDuration)
+                //self.test_slider.maximumValue = Float(mediaItem.playbackDuration)
+                self.apple_id = mediaItem.playbackStoreID
+                self.duration = Int(mediaItem.playbackDuration)
+                self.duration_for_number_of_cells = Int(ceil(mediaItem.playbackDuration))
+                self.Song_name_label.text = mediaItem.title
+                self.Artist_name_label.text = mediaItem.artist
+                self.uploading = true
+            }
+        }
+        
+        self.collection_view_for_scroll.reloadData()
+        print (self.collection_view_for_scroll.contentSize.width)
+        print (self.Custom_progress_bar_bar.frame.width)
+        print (self.Selection_view.frame.width)
+        self.slider_width.constant = (self.Custom_progress_bar_bar.frame.width * self.Selection_view.frame.width) / CGFloat((self.duration_for_number_of_cells * 5) - 3)
+        self.slider_leading_constraint.constant = 0
+        self.color_animate_trailing.constant = 262.5
+        self.collection_view_for_scroll.setContentOffset(CGPoint(x: -97.0, y: 0.0), animated: true)
+        
+    }
+   
     @objc func tapEdit_test_for_lyric_view(recognizer: UITapGestureRecognizer) {
         
         print ("tap gesture lyric")
@@ -1130,7 +1414,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
     }
     
-    //for when the user wants to type a caption
     @objc func tapEdit_test_for_caption_view(recognizer: UITapGestureRecognizer) {
         
         
@@ -1152,8 +1435,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
     }
     
-    
-    //Package up the post with all the edit data: clip time, caption, lyric post or not - if yes, what lyrics, GIF, etc
     func get_post_from_cell () -> Promise<Post> {
         return Promise { seal in
             print("we got to get_post_from_cell")
@@ -1341,8 +1622,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         
     }
     
-    
-    //Same as above, but did things a little differently for the now playing item
     func get_post_from_now_playing () -> Promise<Post> {
         return Promise { seal in
             
@@ -1455,10 +1734,47 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         }
     }
     
-    //This can be called in various scenarios, and we handle them separately
+    
+    func parse_youtube_track_audio (duration_string: String) -> Int {
+        
+        //    PT15M51S
+        var changed_string = duration_string
+        var final_value = Int()
+        print (" duration string is \(duration_string) ")
+        
+        changed_string = changed_string.replacingOccurrences(of: "S", with: "")
+        changed_string = changed_string.replacingOccurrences(of: "PT", with: "")
+        
+        if changed_string.contains("H") {
+            
+            var substrings = changed_string.split(separator: "H")
+            var substrings_2 = substrings[1].split(separator: "M")
+            
+            var seconds = (Int(substrings_2[1]) ?? 0)
+            var minute_breakdown = ( (Int(substrings_2[0]) ?? 0) * 60 )
+            var hour_breakdown = ((Int(substrings[0]) ?? 0) * 3600 )
+            final_value =  hour_breakdown + minute_breakdown + seconds
+        } else if changed_string.contains("M") {
+            
+            var substrings = changed_string.split(separator: "M")
+            var seconds = (Int(substrings[1]) ?? 0)
+            var minute_breakdown = ( (Int(substrings[0]) ?? 0) * 60 )
+            final_value = (((Int(substrings[0]) ?? 0) * 60) + (Int(substrings[1]) ?? 0))
+            
+        } else {
+            
+            final_value = Int(changed_string) ?? 0
+        }
+        
+        return final_value
+        
+        
+    }
+    
+   
+    
     @objc func dismiss_keyboard () {
         
-        //Capton view is still within express view, so we must be editing lyric view here
         if (self.uploading && (self.caption_view_bottom_constraint_to_express_view.constant == 4)) {
             self.Lyric_view.endEditing(true)
             self.pane_view_for_keyboard_dismiss.isHidden = true
@@ -1468,8 +1784,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             self.tapGesture_test_lyric_view.isEnabled = true
             self.tapGesture_test_caption_view.isEnabled = true
             
-            
-            //Caption view is raised up above express view so we are editing caption view here
         } else if (self.uploading && (self.caption_view_bottom_constraint_to_express_view.constant == 273)) {
             self.Caption_text_view.endEditing(true)
             self.pane_view_for_keyboard_dismiss.isHidden = true
@@ -1481,8 +1795,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             //self.search_bar_subview.layer.backgroundColor = UIColor.white.cgColor
             self.tapGesture_test_caption_view.isEnabled = true
             self.tapGesture_test_lyric_view.isEnabled = true
-            
-            //not sure why we need this here
         } else if upload_flag == "youtube" {
             self.searchController.searchBar.endEditing(true)
             self.pane_view_for_keyboard_dismiss.isHidden = true
@@ -1502,8 +1814,7 @@ extension UploadViewController3: UISearchResultsUpdating  {
     // MARK: - UISearchResultsUpdating Delegate
     func updateSearchResults(for searchController: UISearchController) {
         print ("updateSearchResults")
-        
-        //Search is only used for GIFs on this page
+        // TODO
         guard let searchString = searchController.searchBar.text else {
             return
         }
@@ -1521,25 +1832,18 @@ extension UploadViewController3: UISearchResultsUpdating  {
         
     }
     
-    /* This is triggered everytime the collection view scroll view scrolls. There are two collection views on this page:
-        -One for the audio selector mechanism : In this case, when the user is crolling the selector scroll, we want to stop the color animation and animate the slider on the slider bar to show where we are in the duration of the song and also update the time label.
-        -The other is the collection view for the GIF search results, which is just regular collection view scroll
-
-     */
+    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
             print("scrollViewDidScroll")
             if self.is_selecting_audio_clip {
                 print ("scrollViewDidScroll")
                 print ("Invalidating scroller_timer 7")
-                //invalidate the timer that's running the color animation
                 self.scroller_timer.invalidate()
-                //bring back the color to the start position
                 self.color_animate_trailing.constant = 262.5
                 print (" scroll view content offset x \(scrollView.contentOffset.x)")
                 print ("collection view content size width \(self.collection_view_for_scroll.contentSize.width)")
                 print ("progress bar width \(self.Custom_progress_bar_bar.frame.width)")
                 
-                //update the position of the slider
                 if (self.collection_view_for_scroll.contentSize.width != 0) {
                     self.slider_leading_constraint.constant = ((scrollView.contentOffset.x + 96.5) * (self.Custom_progress_bar_bar.frame.width)) / (self.collection_view_for_scroll.contentSize.width)
                 }
@@ -1548,14 +1852,10 @@ extension UploadViewController3: UISearchResultsUpdating  {
                 var retranslate_value = round (((slider_constraint) * Float(self.duration_for_number_of_cells)) / 267)
                 var minutes = Int (retranslate_value / 60)
                 var seconds =  (Int(retranslate_value) - (minutes * 60))
-                
-                //figure out the time from the slider postion - can't grab live value from player because audio/video is not actually seeking with the scroll at this point.
                 self.Time_label.text = "\(minutes):\(seconds)"
                 print (" seconds \(retranslate_value) ")
                 print (" seconds offset value will be \((scrollView.contentOffset.x + 96.5) / 5)")
             } else if self.GIF_Search_is_ON {
-                
-                //This code is as per SwiftyGiphyViewController
                 //GIF Search
                 guard self.allowResultPaging else {
                     print ("we returning from allow result paging")
@@ -1639,7 +1939,7 @@ extension UploadViewController3: UISearchResultsUpdating  {
         
     }
     
-    //Visual setup for the audio/video selector
+    
     func setup_custom_scroller() {
         self.collection_view_for_scroll.delegate = self
         self.collection_view_for_scroll.dataSource = self
@@ -1680,8 +1980,6 @@ extension UploadViewController3: UISearchResultsUpdating  {
         self.Time_label.text = "0:00"
     }
     
-    
-    //The function that fires the timer. This is called the first time the post plays and then every time the player seeks to a new position
     func animate_color () {
         print ("animate color")
         print ("1")
@@ -1697,22 +1995,18 @@ extension UploadViewController3: UISearchResultsUpdating  {
         //
     }
     
-    //The animation that drives the progress left to right
     @objc func update_color_animate () {
         print ("update_color_animate")
         print ("seek position is \((self.collection_view_for_scroll.contentOffset.x + 96.5) / 5)")
         print ("current playback position is \(self.apple_player.currentPlaybackTime)")
         print ("\(Float(self.color_animate_trailing.constant))")
         
-        
-        //We've filled the selection view, so restart the animation and replay the 30 second clip
         if Float(self.color_animate_trailing.constant) <= 112.5 {
             print ("Invalidating scroller_timer 1")
             self.scroller_timer.invalidate()
             self.color_animate_trailing.constant = 262.5
             self.audio_seek_to()
         } else {
-            //decrement the trailing constraint
             UIView.animate(withDuration: 1, delay: 0, options: .curveLinear, animations: {
                 //print ("2")
                 //print ("3")
@@ -1723,8 +2017,6 @@ extension UploadViewController3: UISearchResultsUpdating  {
             
         }
     }
-    
-    
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
         print ("did end decelerating")
         
@@ -1785,7 +2077,15 @@ extension UploadViewController3: UISearchResultsUpdating  {
     
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-
+        //print ("cellForItemAt")
+       
+        
+//        print ("gif search is on  \(self.GIF_Search_is_ON)")
+//        print("collection view dequeue ")
+//        print (" self.is_selecting_audio_clip \(self.is_selecting_audio_clip)")
+//        print ("collectionview tag is \(collectionView.tag)")
+//        print (self.GIFSearch_Bar.isHidden)
+//        print (self.Mycollectionview2.isHidden)
         
         if self.is_selecting_audio_clip && collectionView.tag == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionview_cell_for_scroll_bar", for: indexPath) as! collectionview_cell_for_scroll_bar
@@ -1827,7 +2127,6 @@ extension UploadViewController3: UISearchResultsUpdating  {
             
         }
     }
-    
     
     func audio_seek_to () {
         
@@ -1954,13 +2253,6 @@ extension UploadViewController3: UISearchBarDelegate {
     
     func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
         print ("searchBarTextDidBeginEditing")
-        
-        /*The gif search bar that sits in the express view is a dummy search bar, so when the user taps on it:
-            - We hide the dummy
-            - We make the main search bar in the nav bar visible
-            - We increase the size of the express view to fill up the entire view controller - so the GIF collection view can fill up with all the search results
-         This is not very well designed and needs major overhaul
-         */
         if searchBar.tag == 1 {
             print("searchBar.tag == 1")
             self.searchController.searchBar.isHidden = false
@@ -2005,8 +2297,6 @@ extension UploadViewController3: UISearchBarDelegate {
             Mycollectionview2.isHidden = false
             //self.text_or_animation_switch.setBackgroundImage(UIImage(named: "icons8-cancel-50"), for: .normal)
         } else {
-            
-            //I don't think this condition is reached anymore, can probably remove this
             print("searchBar.tag != 1")
             if (!self.GIF_Search_is_ON) {
                 self.pane_view_for_keyboard_dismiss.isHidden = false
@@ -2090,8 +2380,6 @@ extension UploadViewController3 {
         
     }
     
-    
-    //When the user selects one of the gis from the search results, dismiss the collection view, hide the main search bar, reduce the express view back to it's normal size, put the selected GIF in the selected GIF image view
     public func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: false)
         
@@ -2136,8 +2424,6 @@ extension UploadViewController3 {
         self.SelectedGIF_view.isHidden = false
     }
     
-    
-    //SwiftyGiphyViewController code with some changes from me cause I ran into some errors at the time
     func fetchNextSearchPage()
     {
         print ("isSearchPageLoadInProgress is \(isSearchPageLoadInProgress)")

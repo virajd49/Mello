@@ -9,16 +9,6 @@
 import Foundation
 
 
-/*
- 
- 
- If we are on the now_playing page and the user is a Apple user and the user selected one of the recently played items, we need to come here. Apple does this weird thing where all the recently played items are albums - it doesn't give us individual tracks. So we need to go to this controller where we list out the whole album, the user selects the album and then we move on to UploadViewController3
- 
- All we do here is, display Album details and all the included tracks in the table. User selects one of them, we pass that to the next view controller and move the user on to there.
-
- */
-
-
 class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, UITableViewDataSource {
    
     
@@ -129,8 +119,6 @@ class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, U
         return cell
     }
     
-    
-    //So we set up the table header view to contain album art and album details. Then we search for the songs in that album and load them in the table
     func setup_table() {
         let country_code = userDefaults.string(forKey: "Country_code")
         
@@ -159,7 +147,7 @@ class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, U
     }
     
     
-    //pass the selected track structure to the next controller
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print ("prepare for segue")
             let destinationVC = segue.destination as! UploadViewController3
@@ -177,7 +165,7 @@ class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, U
             
         }
     
-    //triggered when the user selects one of the tracks from the album, we package the track in a 'post' structure and then move to the next viewcontroller
+    
     @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
         if recognizer.state == UIGestureRecognizer.State.ended {
             let tapLocation = recognizer.location(in: self.my_table)

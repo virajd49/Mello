@@ -11,25 +11,16 @@ import PromiseKit
 import Firebase
 
 
-/*
- 
- This controller is used to give the user options of where he/she wants to add the post:
- 
-    -Newsfeed
-    -OMM
-    -Hero
- 
- And also:
- 
-    -Add location
-    -Tag a friend
- 
- There's nothing too complicated or messy going on in this one.
- 
- */
-
 class UploadViewController4: UIViewController {
     
+  
+    var flow = "default_upload"
+    /*
+     default_upload_flow
+     hero_upload_flow
+     omm_upload_flow
+     */
+
     @IBOutlet weak var add_to_news_feed: UIButton!
     @IBOutlet weak var add_to_OMM: UIButton!
     @IBOutlet weak var add_location: UIButton!
@@ -72,35 +63,26 @@ class UploadViewController4: UIViewController {
         let bounds = self.navigationController!.navigationBar.bounds
         print ("nav bar height is \(bounds.height)")
         self.navigationController?.navigationBar.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.height + height)
-        
-        
-        
         searchController.searchBar.isHidden = true
         navigationItem.titleView = searchController.searchBar //the SearchBar here is redundant - only used so that the Navigation Bar stays at the correct height.
         print ("nav bar height is \(bounds.height)")
-        
-        
         self.hero_list_view.isHidden = true
-        
          self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItem.Style.plain, target: self, action: #selector(done_button))
-        
         list_hero_names()
     }
     
     @IBAction func pin_to_profile_action(_ sender: Any) {
-        
     }
     
-    //we check the box and set the news_feed selected flag to true
+    
     @IBAction func add_to_newsfeed_action(_ sender: UIButton) {
+        
         
         sender.setBackgroundImage(UIImage.init(named: "icons8-checked-checkbox-50"), for: .normal)
         add_to_newsfeed_selected = true
         
     }
     
-    
-    //If the user wants to add the post to a particular hero, we display all the heroes they have, so they can select one
     @IBAction func hero_drop_down(_ sender: Any) {
         
         if hero_list_showing {
@@ -120,7 +102,6 @@ class UploadViewController4: UIViewController {
         }
     }
     
-    //we check the box and set the OOM_selected selected flag to true
     @IBAction func add_to_OMM_action(_ sender: UIButton) {
         
         sender.setBackgroundImage(UIImage.init(named: "icons8-checked-checkbox-50"), for: .normal)
@@ -129,14 +110,14 @@ class UploadViewController4: UIViewController {
     }
     
     @IBAction func tag_friends_action(_ sender: Any) {
-        //to be implemented
+        
     }
     
     @IBAction func add_location_option(_ sender: Any) {
-        //to be implemented
+        
     }
     
-    //we check the box and set the add_to_hero_selected flag to true and set the selected_hero_name
+    
     @IBAction func hero_check_box(_ sender: UIButton) {
         
         sender.setBackgroundImage(UIImage.init(named: "icons8-checked-checkbox-50"), for: .normal)
@@ -145,8 +126,6 @@ class UploadViewController4: UIViewController {
 
     }
     
-    
-    //Add it to local newsfeed and add it to the database newsfeed posts list
     func upload_to_newsfeed () {
         if let check_post = self.selected_search_result_post {
         if let presenter = self.presentingViewController as? myTabBarController {
@@ -164,22 +143,19 @@ class UploadViewController4: UIViewController {
     }
     
     func upload_to_heroes () {
-        //to be implemented
+        
     }
     
     func upload_to_OMM () {
-        self.add_new_post_to_firebase(new_post: self.selected_search_result_post, new_post_number: 0, destination_type: "oom")
+       
     }
     
     func upload_to_profile () {
-        //to be implemented
+        
     }
     
     @objc func done_button (sender: UIBarButtonItem) {
         print("done_button")
-        
-        //Was trying to figure out some stuff about the controller stack here, retaining it in case needed in future
-        /*
         if let presenter = self.presentingViewController as? myTabBarController {
             print ("presenter is myTabBarController")
         } else if let presenter = self.presentingViewController as? PostViewController {
@@ -231,35 +207,29 @@ class UploadViewController4: UIViewController {
                 print ("childViewControllers[0]  is myTabBarController")
             }
         }
- */
         
-        //if add to newsfeed flag is set - upload it to newsfeed
         if add_to_newsfeed_selected {
             self.upload_to_newsfeed()
         }
         
-        
-        //if add to profile flag is set - upload it to profile
         if pin_to_profile_selected {
-            //function to be implemented
+            
         }
         
-        //if add to hero flag is set - add to hero
+    
         if add_to_hero_selected {
-            //function to be implemented
+            
         }
         
-        
-        //if add to omm flag is set - add to omm
         if OMM_selected {
-            self.upload_to_OMM()
+            
+            self.add_new_post_to_firebase(new_post: self.selected_search_result_post, new_post_number: 0, destination_type: "oom")
+            
+            
         }
         
-        //then dismiss yourself
         self.dismiss(animated: true, completion: nil)
     }
-    
-    
     
     func add_new_post_to_firebase (new_post: Post, new_post_number: Int, destination_type: String) {
         
@@ -294,8 +264,6 @@ class UploadViewController4: UIViewController {
         
         let final_post = ["Post\(new_post_number)" : post_dict]
         
-        
-        //add the post to the right database depending on what the destination type is.
         switch destination_type {
             case "newsfeed":
                 ref.child("user_db").child("post_db").updateChildValues(final_post) { (err, ref) in
@@ -340,7 +308,7 @@ class UploadViewController4: UIViewController {
         
     }
     
-    //We grab the list of heroes that user has in their profile, for if the user wants to add the post to any one of the heroes.
+    
     func list_hero_names () {
         
         let ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
@@ -360,7 +328,7 @@ class UploadViewController4: UIViewController {
     }
     
     
-    //add the post to the selected hero in the database
+    
     static func add_new_post_to_hero_firebase (hero: Hero, new_post: Post) {
         
         var hero_dict = [String: Any]()

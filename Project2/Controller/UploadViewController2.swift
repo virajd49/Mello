@@ -64,17 +64,6 @@ class upload_path_keeper {
 }
 
 
-
-/*
- 
- This is the first view that we see when we hit the upload button.
-    - The first thing we see is all the recently played stuff the user has  (from apple/spotify) and if there is something that is currently playing in spotify/apple music we will see that too - this is the now playing view.
-        - For apple, recently played tracks are only given as albums, so we have an extra view UploadViewControllerAlbumDisplay before we go to UploadViewController3
-    - We then have individual searches for apple, spotify and youtube.
-    - This view controller handles the searching, displaying search contents and passing the selected song to the next view controller, which is UploadViewController3
- 
- */
-
 class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewDataSource, CALayerDelegate, UIScrollViewDelegate, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate, UITextViewDelegate, YTPlayerViewDelegate, UIGestureRecognizerDelegate {
     
     
@@ -124,7 +113,10 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     //the dismiss chevron at the bottom of the view
     @IBOutlet weak var dismiss_chevron_button: UIButton!
-  
+   
+
+   
+    
     var apple_system_player = MPMusicPlayerController.systemMusicPlayer
     var yt_id: String?
     var scroller_timer = Timer()
@@ -156,8 +148,6 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     var album_artist_release_date_label_view = UILabel.init(frame: CGRect(x: 165, y: 85, width: 200, height: 30))
     var selected_album_media_item: MediaItem!
     
-    
-    //This array holds all the youtube search results for a given search
     var video_search_results = [GTLRYouTube_SearchResult]() {
         didSet {
             DispatchQueue.main.async {
@@ -166,12 +156,9 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
     }
-    
-    
     private let service = GTLRYouTubeService()
     
     
-    //This array holds all the apple search results for a given search AND recently played items
     var mediaItems = [[MediaItem]]() {
         didSet {
             DispatchQueue.main.async {
@@ -182,7 +169,6 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-    //This array holds all the spotify search results for a given search
     var spotify_mediaItems = [[SpotifyMediaObject.item]]() {
         didSet {
             DispatchQueue.main.async {
@@ -192,8 +178,6 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-    
-    //This array holds all the spotify recently played items
     var spotify_recently_played_mediaItems = [[SpotifyRecentlyPlayedMediaObject.item]] () {
         didSet {
             print ("spotify_recently_played_mediaItems didSet")
@@ -218,8 +202,6 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     let imageCacheManager = ImageCacheManager()
     let appleMusicManager = AppleMusicManager()
     var setterQueue = DispatchQueue(label: "UploadViewController2")
-    
-    //This flag is used to idently what upload source we are using now_playing/apple/spotify/youtube
     var upload_flag = "default"
     let gradient = CAGradientLayer()
     var post_help = Post_helper()             //This is required because sometimes in spotify if the song is part of a compilation - made by a user
@@ -234,25 +216,20 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.my_table?.delegate = self
         self.my_table?.dataSource = self
         
-        
-        //This view is added just to make sure that the last selectable cell stays above the stack view when the table is scrolled all the way up.
         let bottomView = UIView(frame: CGRect(x: 0, y: 0, width: self.view.frame.width, height: 110))
         self.my_table?.tableFooterView = bottomView
-        
         self.navigationItem.setHidesBackButton(true, animated:true);
 
-        //Tap to select one of the search result cells
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
         self.my_table?.addGestureRecognizer(tapGesture)
         tapGesture.delegate = my_table as? UIGestureRecognizerDelegate
-        
-        //Tap to select the currently playing song
         let tapGesture2 = UITapGestureRecognizer(target: self, action: #selector(tapEdit2(recognizer:)))
         self.now_playing_mini_image.addGestureRecognizer(tapGesture2)
         tapGesture2.delegate = self.now_playing_mini_image as? UIGestureRecognizerDelegate
 
         
-        //Setup the button stack so that Now playing button is currently selected
+        //Setup the button stack so that Now playing is currently selected
         stack_leading.constant = 167.5
         stack_trailing.constant = -72.5
         button_array = [self.now_playing_button_outlet, self.apple_button_outlet, self.spotify_button_outlet, self.youtube_button_outlet]
@@ -283,8 +260,8 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.pane_view_for_keyboard_dismiss.addGestureRecognizer(keyboard_dismiss_tap)
         self.pane_view_for_keyboard_dismiss.isHidden = true
         
-        //We need this for the youtube search query calls
         service.apiKey = (userDefaults.value(forKey: "google_api_key") as! String)
+        
         
         //Setup url view
         self.url_paste_container_view.layer.cornerRadius = 5
@@ -330,28 +307,36 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         
     }
     
-    
-    //This function gets song data for the currently playing song from the poller singleton and sets it up in the currently paying image view.
     func grab_and_load_now_playing() {
         if self.poller.something_is_playing {
             print("poller is playing something")
             if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
+                
                 self.now_playing_mini_image.image = poller.return_image()
+                
                 if let mediaItem = self.apple_system_player.nowPlayingItem {
                     print ("\(mediaItem.playbackDuration)")
+                    //self.audio_scrubber_ot.maximumValue = Float(mediaItem.playbackDuration)
+                    //self.test_slider.maximumValue = Float(mediaItem.playbackDuration)
                     self.now_playing_mini_image.isHidden = false
                     self.now_playing_mini_image_container.isHidden = false
                     self.apple_is_currently_playing = true
                 }
             } else if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
+                
                 self.poller.grab_now_playing_item().done {
+                    
                     self.now_playing_mini_image.image = self.poller.return_image()
                 }
+                
                 self.temp_spotify_media_context_uri = self.poller.spotify_currently_playing_object.item?.uri
                 self.temp_spotify_media_context_duration = self.poller.spotify_currently_playing_object.item?.duration_ms
                 self.now_playing_mini_image.isHidden = false
                 self.now_playing_mini_image_container.isHidden = false
                 self.spotify_is_currently_playing = true
+                let id = self.poller.spotify_currently_playing_object.item?.id
+                
+                
             }
         } else {
             self.now_playing_mini_image.isHidden = true
@@ -367,11 +352,11 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     
-    //Everytime the view appears, we need to grab the currently playing song and load it on the currently playing image
     override func viewWillAppear(_ animated: Bool) {
-        self.poller.grab_now_playing_item() //The poller singletion gets the currently playing song from apple/spotify
+        self.poller.grab_now_playing_item()
         self.grab_and_load_now_playing()
     }
+    
     
     override var prefersStatusBarHidden: Bool {
         return true
@@ -382,7 +367,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     
-    //When user taps on the now playing button - hide search bar, show the current song mini image, clear table and reload it with recently played stuff
+    //When user taps on the now playing button, hide search bar, clear table and reload it with recently played stuff
     @IBAction func now_playing_button(_ sender: Any) {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1,
                        options: [.curveEaseIn], animations: {
@@ -399,7 +384,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.update_recently_played()
     }
     
-    //When user taps on the apple button - setup search button, hide now playing image, etc.
+    //When user taps on the apple button, setup search button, hide now playing image, etc.
     @IBAction func apple_upload_button(_ sender: Any) {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1,
                        options: [.curveEaseIn], animations: {
@@ -420,7 +405,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         
     }
     
-    //When user taps on the spotify button - setup search button, hide now playing image, etc.
+    //When user taps on the spotify button, setup search button, hide now playing image, etc.
     @IBAction func spotify_button(_ sender: Any) {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1,
                        options: [.curveEaseIn], animations: {
@@ -440,7 +425,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.now_playing_mini_image_container.isHidden = true
     }
     
-    //When user taps on the spotify button - setup search button, hide now playing image, show url past container,  etc.
+    //When user taps on the spotify button, setup search button, hide now playing image, show url past container,  etc.
     @IBAction func youtube_button(_ sender: Any) {
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1,
                        options: [.curveEaseIn], animations: {
@@ -483,8 +468,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         
 
     }
-
-    //This function is executed when the user taps on the GO button for youtube search via link copy. We need to grab the video id from the url string and then get the youtube video object from YoutubeSearchQuery. When the query is completed, we call displayResultWithTicket2 - where the result is packed up in a Post format and then sent to UploadViewController3
+    
     @IBAction func url_go_button_action(_ sender: Any) {
         print ("clicked url_go_button ")
     
@@ -511,13 +495,13 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                         videoid_from_url = second_split
                     }
                 } else {
-                    print ("url_go_button_action - new kind of youtube url format !!!")
+                    print ("url_go_button_action - new kind of youtube url format")
                 }
                 
 
                 
-                let video_search_query = GTLRYouTubeQuery_VideosList.query(withPart: "snippet,contentDetails,statistics")
-                video_search_query.identifier = videoid_from_url
+                    let video_search_query = GTLRYouTubeQuery_VideosList.query(withPart: "snippet,contentDetails,statistics")
+                    video_search_query.identifier = videoid_from_url
                 
                 DispatchQueue.global(qos: .userInitiated).async
                 {
@@ -526,15 +510,14 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                          delegate: self,
                                          didFinish: #selector(self.displayResultWithTicket2(ticket:finishedWithObject:error:)))
                 }
-                self.yt_id = videoid_from_url
-                print ("URL retrieved videoID is : \(videoid_from_url)")
+                    self.yt_id = videoid_from_url
+                    print ("URL retrieved videoID is : \(videoid_from_url)")
                 
-                
-                //Clean up before we leave UploadViewController2
                 self.url_paste_view.endEditing(true)
                 self.pane_view_for_keyboard_dismiss.isHidden = true
+                //self.view.sendSubview(toBack: self.pane_view_for_keyboard_dismiss)
                 self.url_paste_container_view.isHidden = true
-                self.view.sendSubviewToBack(self.url_paste_container_view)
+            self.view.sendSubviewToBack(self.url_paste_container_view)
                 self.searchController.searchBar.isHidden = true
                 self.my_table?.isHidden = true
                 self.searchController.view.endEditing(true)
@@ -545,9 +528,8 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
    
-    
-    //When one of the spotify/apple/youtube buttons are selected, we want the other buttons to become faint, this function handles that.
     func change_alpha (center_button: Int) {
+        
         for i in 0...3 {
             if i == center_button {
                 self.button_array![i].alpha = 1
@@ -558,7 +540,6 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         
     }
  
-    //Based on whether something is playing we show or hide the now playing image view.
     func show_or_hide_miniplayer() {
         
         if self.spotify_is_currently_playing || self.apple_is_currently_playing {
@@ -570,7 +551,22 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         }
         
     }
-
+    
+    
+    func selector_stack_show_or_hide (hide: Bool) {
+        if hide {
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+               self.selector_stack_bottom_constraint.constant = -50
+                self.dismiss_chevron_bottom_constraint.constant = -78
+            }, completion: nil)
+        } else {
+            UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: .curveEaseOut, animations: {
+                self.selector_stack_bottom_constraint.constant = 42
+                self.dismiss_chevron_bottom_constraint.constant = 14
+            }, completion: nil)
+        }
+    }
+    
     // MARK: - Private instance methods
     
     func searchBarIsEmpty() -> Bool {
@@ -578,8 +574,6 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         return searchController.searchBar.text?.isEmpty ?? true
     }
     
-    
-    //we return the number of search results we get from the apple/spotify/youtube search functions.
     func numberOfSections(in tableView: UITableView) -> Int {
         print ("numberOfSections \(self.search_result_count)")
         print ("mediaItems.count is \(self.mediaItems.count)")
@@ -635,8 +629,6 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-    
-    
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if self.upload_flag != "youtube" {
             if section == 0 {
@@ -677,11 +669,11 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                 let isIndexValid1 = mediaItems.indices.contains(indexPath.section)
                 let isIndexValid2 = mediaItems[indexPath.section].indices.contains(indexPath.row)
                 if (isIndexValid1 && isIndexValid2) {
-                    
+            
                     cell.mediaItem = mediaItem
                 
+                
                     // Image loading.
-                    
                     imageURL = mediaItem.artwork.imageURL(size: CGSize(width: 400, height: 400))
                     if let image = imageCacheManager.cachedImage(url: imageURL!) {
                         // Cached: set immediately.
@@ -912,9 +904,6 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         
     }
 
-    
-    
-    //Select a search result
     @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
         if recognizer.state == UIGestureRecognizer.State.ended {
             let tapLocation = recognizer.location(in: self.my_table)
@@ -922,7 +911,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                 
                 self.clean_cached_cell()
                 
-                //If we are on the now_playing page and the user is a Apple user and the user selected one of the recently played items, we need to go to UploadViewControllerAlbumDisplay. Apple does this weird thing where all the recently played items are albums - it doesn't give us individual tracks. So we need to to this controller where we list out the whole album, the user selects the album and then we move on to UploadViewController3
+                
                 if self.upload_flag == "now_playing" && self.userDefaults.string(forKey: "UserAccount") == "Apple" {
                     if let tappedCell = self.my_table?.cellForRow(at: tapIndexPath) as? SearchResultCell {
                         print(tappedCell.mediaItem.type)
@@ -932,6 +921,21 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                         }
                     }
                 } else {
+                
+                   if self.upload_flag != "youtube" {
+                       if let tappedCell = self.my_table?.cellForRow(at: tapIndexPath) as? SearchResultCell  {
+
+                            if (self.upload_flag == "spotify") {
+ 
+                            } else if (self.upload_flag == "apple") {
+ 
+                            }
+                        }
+                    } else  {
+                        if let tappedCell = self.my_table?.cellForRow(at: tapIndexPath) as? SearchResultCell_youtube  {
+                        }
+                    }
+
                     self.cache_selected_cell(at: tapIndexPath)
                     
                     self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
@@ -950,14 +954,6 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.my_table?.scrollToRow(at: [0,0], at: UITableView.ScrollPosition.top, animated: true)
     }
     
-    
-    
-    /*This function is called when the user taps on one of the search result cells. It then packs all the song data into internal structures that are passed to the next view controller.
-        For apple and spotify posts - we pass - selected_search_result_post_image, selected_search_result_song_db_struct and selected_search_result_post
-        For Youtube we pass - selected_search_result_post
- 
- 
-    */
     func cache_selected_cell(at indexPath: IndexPath) {
         
         if let upload_cell = self.my_table?.cellForRow(at: indexPath) as? SearchResultCell, self.upload_flag != "youtube" {
@@ -1001,6 +997,9 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                           original_track_length: upload_cell.spotify_mediaItem!.duration_ms!,
                                           GIF_url: "" )
                     
+                   
+                
+                
             case "apple":
                 print (" case apple ")
                 self.selected_search_result_post_image = upload_cell.media_image.image
@@ -1179,10 +1178,11 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         
     }
     
-    //this is triggered when the user taps on the now playing image. So when the user wants to upload the currently playing song. We package the song data into the internal structures and then send it to the next viewcontroller.
      @objc func tapEdit2(recognizer: UITapGestureRecognizer)  {
         print ("tapEdit2 called ")
         
+        //the miniplayer should fade out and the final upload page should show up
+        //we get the media item data from the now playing poller
         
         self.now_playing_mini_image.isHidden = true
         self.now_playing_mini_image_container.isHidden = true
@@ -1207,22 +1207,22 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                                 caption: "",
                                                 offset: 0.0,
                                                 startoffset: 0.0, //<- Apple does not allow starting from a particular point. No workaround so far :( We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
-                                                audiolength: 30.0 ,
-                                                paused: false,
-                                                playing: false,
-                                                trackid: self.poller.spotify_currently_playing_object.item?.uri,
-                                                helper_id: "",
-                                                videoid: "empty",
-                                                starttime: 0 ,
-                                                endtime: 0,
-                                                flag: "audio",
-                                                lyrictext: "",
-                                                songname: self.poller.spotify_currently_playing_object.item?.name,
-                                                sourceapp: self.upload_flag,
-                                                preview_url: (self.poller.spotify_currently_playing_object.item?.preview_url) ?? "nil",
-                                                albumArtUrl: self.poller.spotify_currently_playing_object.item?.album?.images![0].url,
-                                                original_track_length: (self.temp_spotify_media_context_duration!),
-                                                GIF_url: "" )
+            audiolength: 30.0 ,
+            paused: false,
+            playing: false,
+            trackid: self.poller.spotify_currently_playing_object.item?.uri,
+            helper_id: "",
+            videoid: "empty",
+            starttime: 0 ,
+            endtime: 0,
+            flag: "audio",
+            lyrictext: "",
+            songname: self.poller.spotify_currently_playing_object.item?.name,
+            sourceapp: self.upload_flag,
+            preview_url: (self.poller.spotify_currently_playing_object.item?.preview_url) ?? "nil",
+            albumArtUrl: self.poller.spotify_currently_playing_object.item?.album?.images![0].url,
+            original_track_length: (self.temp_spotify_media_context_duration!),
+            GIF_url: "" )
         
             self.duration = (self.temp_spotify_media_context_duration!) / 1000
             self.duration_for_number_of_cells = Int(ceil(Double(self.temp_spotify_media_context_duration!) / 1000))
@@ -1248,22 +1248,22 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                                     caption: "",
                                                     offset: 0.0,
                                                     startoffset: 0.0, //<- Apple does not allow starting from a particular point. No workaround so far :( We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
-                                                    audiolength: 30.0 ,
-                                                    paused: false,
-                                                    playing: false,
-                                                    trackid: self.poller.apple_mediaItems[0][0].identifier,
-                                                    helper_id: "",
-                                                    videoid: "empty",
-                                                    starttime: 0 ,
-                                                    endtime: 0,
-                                                    flag: "audio",
-                                                    lyrictext: "",
-                                                    songname: self.poller.apple_mediaItems[0][0].name,
-                                                    sourceapp: self.upload_flag,
-                                                    preview_url: (self.poller.apple_mediaItems[0][0].url) ?? "nil",
-                                                    albumArtUrl: self.poller.apple_mediaItems[0][0].artwork.imageURL(size: CGSize(width: 375, height: 375)).absoluteString,
-                                                    original_track_length: (self.poller.apple_mediaItems[0][0].durationInMillis!),
-                                                    GIF_url: "" )
+                audiolength: 30.0 ,
+                paused: false,
+                playing: false,
+                trackid: self.poller.apple_mediaItems[0][0].identifier,
+                helper_id: "",
+                videoid: "empty",
+                starttime: 0 ,
+                endtime: 0,
+                flag: "audio",
+                lyrictext: "",
+                songname: self.poller.apple_mediaItems[0][0].name,
+                sourceapp: self.upload_flag,
+                preview_url: (self.poller.apple_mediaItems[0][0].url) ?? "nil",
+                albumArtUrl: self.poller.apple_mediaItems[0][0].artwork.imageURL(size: CGSize(width: 375, height: 375)).absoluteString,
+                original_track_length: (self.poller.apple_mediaItems[0][0].durationInMillis!),
+                GIF_url: "" )
             
             self.duration = (self.poller.apple_mediaItems[0][0].durationInMillis!) / 1000
             self.duration_for_number_of_cells = Int(ceil(Double(self.poller.apple_mediaItems[0][0].durationInMillis!) / 1000))
@@ -1277,7 +1277,8 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
             self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
     }
     
-    //This is a search by video id query. Called when the user copies the video URL and taps GO.
+    
+    
     @objc func displayResultWithTicket2(
         ticket: GTLRServiceTicket,
         finishedWithObject response : GTLRYouTube_VideoListResponse,
@@ -1304,51 +1305,21 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
           
             print (video_duration)
             self.search_result_video = video
-            
-            self.selected_search_result_post = Post(albumArtImage:  "",
-                                                    sourceAppImage:  "Youtube_cropped",
-                                                    typeImage: "video" ,
-                                                    profileImage:  "FullSizeRender 10-2" ,
-                                                    username: "Viraj",
-                                                    timeAgo: "Just now",
-                                                    numberoflikes: "0 likes",
-                                                    caption: "",
-                                                    offset: 0.0,
-                                                    startoffset: 0.0,
-                                                    audiolength: 30.0 ,
-                                                    paused: false,
-                                                    playing: false,
-                                                    trackid: "",
-                                                    helper_id: "",
-                                                    videoid: video.identifier,
-                                                    starttime: 0 ,
-                                                    endtime: 0,
-                                                    flag: "video",
-                                                    lyrictext: "",
-                                                    songname: video.snippet?.title,
-                                                    sourceapp: self.upload_flag,
-                                                    preview_url: "",
-                                                    albumArtUrl: video.snippet?.thumbnails?.high?.url,
-                                                    original_track_length: parse_youtube_track_audio(duration_string: video.contentDetails?.duration ?? "PT0M0S"),
-                                                    GIF_url: "")
-            
-             self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
-            
-            
         } else {
             print ("Request for specific video returned empty")
         }
         
-        
-        
     }
     
-  //Pass the packaged selected song/youtube video to the next controller
+  
+
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         print ("prepare for segue")
         if segue.identifier == "upload_2_to_3" {
             let destinationVC = segue.destination as! UploadViewController3
             destinationVC.flow = self.flow
+            
             destinationVC.selected_search_result_post = self.selected_search_result_post
             destinationVC.selected_search_result_song_db_struct = self.selected_search_result_song_db_struct
             destinationVC.upload_flag = self.upload_flag
@@ -1357,15 +1328,40 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
             destinationVC.selected_search_result_post_image = self.selected_search_result_post_image
             destinationVC.uploading = true
             definesPresentationContext = false
+            if self.upload_flag != "now_playing" {
+   
+                definesPresentationContext = false //If you keep it as true then, the search bar in the controller that you push on the navigation stack remains unresponsive.
+
+            } else {
+                 destinationVC.upload_flag = self.upload_flag
+                
+                if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
+                  
+  
+                    destinationVC.uploading = true
+                    
+                } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
+                    
+                    if let mediaItem = self.apple_system_player.nowPlayingItem {
+                      
+  
+                        destinationVC.uploading = true
+                    }
+                }
+                
+                
+            }
+            
         } else if segue.identifier == "2_to_album_display" {
-            let destinationVC = segue.destination as! UploadViewControllerAlbumDisplay
+             let destinationVC = segue.destination as! UploadViewControllerAlbumDisplay
+            
             destinationVC.flow = self.flow
             destinationVC.albumMediaItem = self.selected_album_media_item
         }
+        
     }
     
     
-    //The youtube video duration in the search query result is given in this format PT15M51S. This funtion parses that out into seconds.
     func parse_youtube_track_audio (duration_string: String) -> Int {
         
         //    PT15M51S
@@ -1682,17 +1678,15 @@ extension UploadViewController2: UISearchBarDelegate {
     
     func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
      
-                //empty all tables
                 setterQueue.sync {
                     self.mediaItems = []
                     self.spotify_mediaItems = []
                     self.video_search_results = []
                 }
-        
-                //dismiss the keyboard dismiss panel
+                
                 self.pane_view_for_keyboard_dismiss.isHidden = true
+                //self.view.sendSubview(toBack: self.pane_view_for_keyboard_dismiss)
                 if self.upload_flag == "youtube" {
-                    //bring back the url paste view
                     self.url_paste_container_view.isHidden = false
                     self.view.bringSubviewToFront(self.url_paste_container_view)
                 }
@@ -1807,8 +1801,6 @@ extension UploadViewController2: UISearchBarDelegate {
         
     }
     
-    
-    //this function gives us a list of video search results for the search string entered.
     @objc func displayResultWithTicket4(
         ticket: GTLRServiceTicket,
         finishedWithObject response : GTLRYouTube_SearchListResponse,
