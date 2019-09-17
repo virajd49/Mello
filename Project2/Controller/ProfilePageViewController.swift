@@ -11,7 +11,7 @@ import UIKit
 import MediaPlayer
 
 
-//This global youtube player is used for the benefit of OOM. This youtube player is instantiated and loaded when the Profile page loads, and when the OOM page is displayed we hand this off to the OOM VC's youtube player.
+//This global_yt_player is used for the benefit of OOM. This youtube player is instantiated and loaded when the Profile page loads, and when the OOM page is displayed we hand this off to the OOM VC's youtube player.
     // global_yt_player_init - this is called when ProfilePageViewController appears
     // youtube_player_setup_from_global_player - this is called when we prepare for segue from Profile page to OOM - this hands off the player.
     //the player is then played from 4 different places -
@@ -35,6 +35,26 @@ func global_yt_player_init (with oom_post: Post) {
     print ("global youtube_player_setup done")
  
 }
+
+
+/*
+ 
+ The user's profile page:
+ 
+    -Collection view grid of all posted/pinned posts. If you tap on a post - it goes to ShowUpdateController to display the post
+    -Button for Heroes view - tap on it and we go to HeroesViewController
+    -Button for OMM section - tap on it and we go to PostViewController
+ 
+ 
+ Other than that we also assist the OMM viewcontroller by grabbing the omm post from the database when this page loads, so if it is a youtube video
+ we load it early using the global yt player
+ 
+ Nothing too messy going on here.
+ 
+ 
+ 
+ 
+ */
 
 class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate , UIScrollViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
    
@@ -76,7 +96,9 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
         grab_oom.grab_oom().done { oom in
             print("grabbed oom post \n")
             self.oom_post = oom
-            global_yt_player_init(with: self.oom_post)
+            if self.oom_post.flag == "video" {
+                global_yt_player_init(with: self.oom_post)
+            }
         }
     }
     
@@ -139,33 +161,7 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
     
     @objc func present_oom_view (recognizer: UITapGestureRecognizer) {
         print("preset_test_view")
-//        if self.test_view.isHidden {
-//            self.test_view.backgroundColor = UIColor.clear
-//            self.oom_album_art_container.alpha = 0
-//            self.oom_album_art.alpha = 0
-//            self.backButton.alpha = 0
-//            self.oom_album_art_container.isHidden = false
-//            self.oom_album_art.isHidden = false
-//            self.backButton.isHidden = false
-//            self.test_view.isHidden = false
-//            self.main_profile_image.isHidden = true
-//        }
-//        
-//        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseIn], animations: {
-//            self.test_view.backgroundColor = UIColor.white
-//            self.oom_album_art_container.alpha = 1
-//            self.oom_album_art.alpha = 1
-//            self.backButton.alpha = 1
-//            self.profile_image_top_constraint.constant = 500
-//            self.view.layoutIfNeeded()
-//        })
-        
-//        if let postVC = self.storyboard?.instantiateViewController(withIdentifier: "postviewcontroller") {
-//            let navController = UINavigationController(rootViewController: postVC)
-//            navController.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
-//            self.present(navController, animated: true, completion: nil)
-//        }
-        
+
         performSegue(withIdentifier: "to_oom", sender: self)
     
     }
@@ -176,7 +172,9 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
             let postVC = destinationVC.children[0] as! PostViewController
             postVC.OOM_post = self.oom_post
             postVC.setup_media()
-            postVC.youtube_player_setup_from_global_player()
+            if self.oom_post.flag == "video" {
+                postVC.youtube_player_setup_from_global_player()
+            }
         } else if segue.identifier == "to_hero" {
             
         } else if segue.identifier == "profile_to_show_update" {
@@ -238,33 +236,6 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
     
     @objc func present_heroes_view (recognizer: UITapGestureRecognizer) {
         print("preset_test_view")
-//        if self.test_view.isHidden {
-//            self.test_view.backgroundColor = UIColor.clear
-//            self.heroes_1.isHidden = false
-//            self.heroes_2.isHidden = false
-//            self.heroes_3.isHidden = false
-//            self.heroes_4.isHidden = false
-//            self.heroes_5.isHidden = false
-//            self.test_view.isHidden = false
-//            self.backButton.isHidden = false
-//            self.main_profile_image.isHidden = true
-//        }
-//        
-//        UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseIn], animations: {
-//            self.test_view.backgroundColor = UIColor.white
-//            self.profile_image_top_constraint.constant = 147
-//            self.heroes_1.alpha = 1
-//            self.heroes_2.alpha = 1
-//            self.heroes_3.alpha = 1
-//            self.heroes_4.alpha = 1
-//            self.heroes_5.alpha = 1
-//            self.backButton.alpha = 1
-//            self.separation_bar_view.alpha = 1
-//            self.testimonial_view.alpha = 1
-//            self.separation_bar_view.isHidden = false
-//            self.testimonial_view.isHidden = false
-//            self.view.layoutIfNeeded()
-//        })
         
         if let heroesVC = self.storyboard?.instantiateViewController(withIdentifier: "heroesviewcontroller") {
             self.navigationController?.navigationItem.backBarButtonItem = UIBarButtonItem(title: " BACK", style: .plain, target: nil, action: nil)
@@ -302,13 +273,7 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
         
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1, options: [.curveEaseIn], animations: {
             self.test_view.backgroundColor = UIColor.clear
-            
-            
-            
-            
-          
-            
-            
+
             self.view.layoutIfNeeded()
             
         }, completion : {

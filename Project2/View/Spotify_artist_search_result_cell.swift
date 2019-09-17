@@ -11,6 +11,8 @@ import Foundation
 import UIKit
 import GoogleAPIClientForREST
 
+//Artist search results - Heroes page view controller
+
 class Spotify_artist_search_result_cell: UITableViewCell {
     
     static let identifier = "spotifyartistsearchresultcell"

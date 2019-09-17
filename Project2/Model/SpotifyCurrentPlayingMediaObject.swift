@@ -8,6 +8,13 @@
 
 import Foundation
 
+/*
+ 
+ JSON decodable for the Currently playing object response from spotify
+ 
+ https://developer.spotify.com/documentation/web-api/reference/player/get-information-about-the-users-current-playback/
+ 
+ */
 
 class SpotifyCurrentPlayingMediaObject: Decodable {
     

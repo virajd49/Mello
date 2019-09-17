@@ -8,6 +8,13 @@
 
 import Foundation
 
+/*
+ 
+ JSON decodable for the a track search response from spotify
+ 
+ https://developer.spotify.com/documentation/web-api/reference/search/search/
+ 
+ */
 
 class SpotifyMediaObject: Decodable {
     

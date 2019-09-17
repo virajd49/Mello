@@ -8,6 +8,11 @@
 
 import UIKit
 
+/*
+ 
+ Used as a filter bar for the Search/FriendUpdateViewController view.
+ 
+ */
 
 class MenuBar: UIView, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     

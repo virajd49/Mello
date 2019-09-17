@@ -8,6 +8,11 @@
 
 import Foundation
 
+/*
+ 
+  JSON keys struct file for apple mediat items - taken pretty much straigh off from the apple music sample project
+ 
+ */
 
 class MediaItem {
     

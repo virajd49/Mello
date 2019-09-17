@@ -10,6 +10,13 @@ import UIKit
 import MediaPlayer
 
 
+/*
+ 
+    Load song data into song detail views, figure out what player to use, and play the song
+
+ 
+ */
+
 let secret_key = "NewsFeed_SongPlay"
 
 class SongPlayControlViewController: UIViewController {
@@ -70,10 +77,7 @@ class SongPlayControlViewController: UIViewController {
         } else {
                 //self.play_bar.progress = playbar_progress
             }
-//        NotificationCenter.default.addObserver(self,
-//                                               selector: #selector(handleMusicPlayerControllerPlaybackStateDidChange),
-//                                               name: .MPMusicPlayerControllerPlaybackStateDidChange,
-//                                               object: self.apple_player)
+
         
     }
     
@@ -81,21 +85,7 @@ class SongPlayControlViewController: UIViewController {
         super.viewDidDisappear(animated)
         self.timer.invalidate()
     }
-    
 
-    
-//    @objc func handleMusicPlayerControllerPlaybackStateDidChange (notification: NSNotification) {
-//        if self.apple_player.playbackState == .playing {
-//            NotificationCenter.default.post(name: NSNotification.Name(rawValue: secret_key), object: nil, userInfo: ["State" : "playing"])
-//        } else if self.apple_player.playbackState == .interrupted {
-//            NotificationCenter.default.post(name: NSNotification.Name(rawValue: secret_key), object: nil, userInfo: ["State" : "interrupted"])
-//        } else if self.apple_player.playbackState == .paused {
-//            print("Real notif")
-//            NotificationCenter.default.post(name: NSNotification.Name(rawValue: secret_key), object: nil, userInfo: ["State" : "paused"])
-//        } else if self.apple_player.playbackState == .stopped {
-//            NotificationCenter.default.post(name: NSNotification.Name(rawValue: secret_key), object: nil, userInfo: ["State" : "stopped"])
-//        }
-//    }
     
     @objc func updateProgress() {
         // increase progress value
@@ -199,14 +189,3 @@ extension SongPlayControlViewController {
     }
 }
 
-/* MARK: - Song Extension
-extension Song {
-    
-    var presentationTime: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "mm:ss"
-        let date = Date(timeIntervalSince1970: duration)
-        return formatter.string(from: date)
-    }
-}
-*/

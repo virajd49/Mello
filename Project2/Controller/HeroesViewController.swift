@@ -17,6 +17,31 @@ import AVFoundation
 import FLAnimatedImage
 import SDWebImage
 
+/*
+ 
+ This is the Heroes page that is accessible from the user's profile page. We display all the users top artists here:
+ 
+    -Artist photo
+    -Text testimonial
+    -A list of content - audio, video, lyric, etc.
+ 
+ At any point of time we are displaying all artist photos and a single artists testimonial and content list. When the user taps on an artist the testimonial and the content list sections change to display the selected artists testimonial and content.
+ 
+ Long pressing on an artist will allow the user to edit/add an artist - and all the components for that artist:
+ 
+    -We allow the user to search fro any artist from a search bar that's in this viewcontroller.
+    -We allow them to enter the text testimonial from this viewcontroller.
+    -To add a new content to the content list we take them through Uploadviewcontroller 2 and 3 and then back here.
+ 
+ 
+ Long pressing on the testimonial will let them edit the testimonial for a particular artist:
+ 
+ Long pressing on the content section will allow them to edit/add to the content section only.
+ 
+ This one is a little cleaner coded than the others.
+ 
+ 
+ */
 
 class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate, SearchResultsProtocolDelegate  {
     
@@ -63,11 +88,14 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var editing_hero = false
     var editing_testimonial_only = false
     var editing_content_only = false
-    //temp variables for edit mode
+    
+    //temp variables for edit mode - when the user is editing a hero or any section of a hero - we switch to edit mode and move the data into temporary variables - so as long as we are in edit mode - we use the data in the temp variables - once we are done editing - we swicth edit mode to off and then use data from the regular heroes array. We do this because what if the user switches to edit mode - makes a bunch of changes and then cancels all of them. We don't want to lose the original data. See UI_for_edit_mode()
     var temp_testimonial_text: String!
     var temp_artist_name: String!
     var temp_artist_image_url: String!
     var temp_content_array = [Post]()
+    
+    
     var selected_content_cell: Int!
     var app_mus_mgr = AppleMusicManager()
     
@@ -170,8 +198,18 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         self.cancel_editing.isHidden = true
         self.delete_post.isHidden = true
         self.hero_add_content_button.isHidden = true
+        
+        
+        /*
+ 
+         The testimonial view is the tableview header - this is where we set that up.
+ 
+        */
+        
         var view1: UIView = UIView.init(frame: CGRect(x: 0, y: 0, width: 375, height: 103));
         testimonial.textContainerInset = UIEdgeInsets.init(top: 0, left: 5, bottom: 0, right: 5)
+        
+        //this is just a grey separator line to separate the testimonial view from the content list.
         var separator_view = UIView(frame: CGRect(x: 15, y: 100, width: 345, height: 1))
         separator_view.backgroundColor = UIColor.lightGray
         view1.addSubview(testimonial);
@@ -205,6 +243,8 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         self.Hero_content_table.delegate = self
         self.Hero_content_table.dataSource = self
         
+        /* Testimonial view setup done */
+        
         var profile_pic_view = UIImageView.init(frame: CGRect(x: 0, y: 0, width: 45, height: 45))
         profile_pic_view.image = UIImage(named: "StringFullSizeRender 10-3")
         profile_pic_view.clipsToBounds = true
@@ -216,11 +256,6 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         self.navigationItem.titleView = heroes_label_view
         
         
-//        self.heroes_1.alpha = 1
-//        self.heroes_2.alpha = 1
-//        self.heroes_3.alpha = 1
-//        self.heroes_4.alpha = 1
-//        self.heroes_5.alpha = 1
         
         UIView.animate(withDuration: 0.5, animations: {
             print("animating")
@@ -233,23 +268,6 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
             self.view.layoutIfNeeded()
         })
         
-      
-//        let tapGesture6 = UISwipeGestureRecognizer(target: self, action: #selector(tapEdit6(recognizer:)))
-//        empty_table_image_view.addGestureRecognizer(tapGesture6)
-//        if self.heroes.isEmpty {
-//            empty_table_image_view.image = UIImage(named: "icons8-add-album-100")
-//            empty_table_image_view.isUserInteractionEnabled = false
-//            empty_table_image_view.alpha = 0.4
-//            empty_table_message_view.backgroundColor = UIColor.white
-//            empty_table_message_view.isUserInteractionEnabled = true
-//            empty_table_message_view.addSubview(empty_table_image_view)
-//            self.Hero_content_table.backgroundView = empty_table_message_view
-//            self.Hero_content_table.backgroundView?.isUserInteractionEnabled = true
-//        } else {
-//
-//            setup_hero_UI(hero_number: 1)
-//        }
-
 
         if !self.heroes.isEmpty {
             setup_hero_UI(hero_number: 1)
@@ -374,8 +392,7 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBAction func delete_post_action(_ sender: Any) {
         print("delete_post_action - post value = Post\(self.selected_content_cell + 1)")
         self.heroes[self.selected_hero_number - 1].contentList!.removeValue(forKey: "Post\(self.selected_content_cell + 1)")
-        self.temp_content_array.remove(at: self.selected_content_cell
-        )
+        self.temp_content_array.remove(at: self.selected_content_cell)
         self.Hero_content_table.reloadData()
         print("---------content_list----------")
         print(self.heroes[self.selected_hero_number - 1].contentList!)
@@ -383,7 +400,7 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
     }
     
-    
+    //Turn off user interaction for all hero images other than the selected one.
     func touch_for_other_heroes_toggle(on: Bool) {
         
         if self.selected_hero_number != 1 {
@@ -474,7 +491,7 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
      
     }
     
-    
+    //testing - go to a user's profile from a tag.
     @IBAction func got_to_profile_button(_ sender: Any) {
         
 
@@ -494,18 +511,8 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
         self.navigationController?.popViewController(animated: true)
     }
-    
-    
-    //tap function for each hero  - this will reload the table view with the respective hero content
-    
-    //fetch all the hero data and store it in a struct
-    
-    //tap function for each table view cell
-    
-    // spotify, apple and youtube players to play all the content
-    
-    //figure out a way to display media when playing content.
-    
+
+     //fetch all the hero data and store it in a struct
     func fetch_heroes () {
         print("fetch_heroes")
         Hero.fetchHeroes().done { heroes in
@@ -519,6 +526,9 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         self.setup_hero_UI(hero_number: 1)
         print("outer reload")
     }
+    
+    
+    //tap function for each hero  - this will reload the table view with the respective hero content
     
     @objc func tapEdit1(recognizer: UITapGestureRecognizer)  {
         print("tapEdit1")
@@ -891,6 +901,7 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
+    //Loads artist photos into all the hero image views, and loads the content table and testimonial with the first hero data.
     func setup_hero_UI (hero_number: Int) {
         
         if !heroes.isEmpty {
@@ -1037,6 +1048,8 @@ class HeroesViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
     }
     
+    
+    //tap function for each table view cell
     @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
         print ("tapedit here 1")
         if recognizer.state == UIGestureRecognizer.State.ended {

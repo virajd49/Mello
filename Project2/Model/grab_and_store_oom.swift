@@ -13,7 +13,11 @@ import Foundation
 import MediaPlayer
 import PromiseKit
 
-//For now used by ProfileVC to grab and store oom for quick initialization of PostVC (oom view)
+/* Singleton: For now used by ProfileVC to grab and store oom for quick initialization of PostVC (oom view)
+ 
+  User almost always has to come to a profile page to go to the oom post page. So we use this singleton to grab the oom post from the database a little early - when the profile loads - so it's ready to load when the oom neesds to be displayed
+ 
+ */
 class grab_and_store_oom {
     
     static let shared = grab_and_store_oom()

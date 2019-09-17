@@ -10,38 +10,47 @@ import UIKit
 import Firebase
 import PromiseKit
 
-
+/*
+ 
+ This is the structure for a Post, this is as of now, the most widely used and passed around structure in the project. It's used in entirety for the newsfeed. It's also used on the Hero and Profile view controllers for the content that is displayed there.
+ 
+ 
+ */
 
 struct Post {
     
-    let userDefaults = UserDefaults.standard
-    var albumArtImage : String?
-    var sourceAppImage : String?
-    var typeImage : String?
-    var profileImage: String?
-    var username: String?
-    var timeAgo: String?
+    let userDefaults = UserDefaults.standard //not part of the post, this is used for the functions in this file
+    
+    
+    var albumArtImage : String?   //song albumart/video thumbnail
+    var sourceAppImage : String?  //apple/spotify/youtube icon
+    var typeImage : String?         //audio/video/lyric
+    var profileImage: String?       //user's profile image
+    var username: String?           //username
+    var timeAgo: String?            //when was the post posted
     var numberoflikes: String?
     var caption: String?
-    var offset: TimeInterval!
-    var startoffset: TimeInterval!
+    var offset: TimeInterval!    //to keep track of where a post was paused
+    var startoffset: TimeInterval!  //The time at which an audio post should start
     var audiolength: Float
     var paused: Bool!
     var playing: Bool!
     var trackid: String!
     var helper_id: String!
     var videoid: String!
-    var starttime: Float!
-    var endtime: Float!
+    var starttime: Float!           //The time at which a video post should start
+    var endtime: Float!             //The time at which a video post should end - You can give a end time for youtube player, you cannot give an end time for apple or spotify players - so we don't use this for audio posts
     var flag: String!  //can be audio, video or lyric
     var lyrictext: String!
     var songname: String!
-    var sourceapp: String!
-    var preview_url: String!
-    var albumArtUrl: String!
-    var original_track_length: Int!
-    var GIF_url: String!
+    var sourceapp: String!          //apple/spotify/youtube
+    var preview_url: String!        //30 second preview url given provided by spotify and apple for free subscription members
+    var albumArtUrl: String!        //URL for the album art/video thumbnail
+    var original_track_length: Int!     //Full lenght of the track
+    var GIF_url: String!                //Gif url for any GIF that the user might attach to the post
     
+    
+    //Called everytime the newsfeed loads, this function grabs a list of posts from the database.
     static func fetchPosts() -> Promise<[Post]> {
         return Promise { seal in
         var posts = [Post]()
@@ -50,16 +59,22 @@ struct Post {
         
         var ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
         ref.child("user_db").child("post_db").observeSingleEvent(of: .value, with: { snapshot in
+            
+            //the snapshot here is a dictionary of all the posts
         print (snapshot.childrenCount)
         let dummy_post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
         posts = Array<Post>(repeating: dummy_post, count: Int(snapshot.childrenCount))
 
         for child in snapshot.children {
+            //a child is a post and key pair
+            //We grab a post - stuff it into our Post data structure - add it to the posts array and then return the array once we are through with all the posts
             let snap = child as! DataSnapshot
             print (snap.key)
             let index = snap.key 
             let absolute_index = index.replacingOccurrences(of: "Post", with: "")
             let temp_dict = snap.value as! [String : Any]
+            
+            //for debug purposes
 //                print(temp_dict)
 //                print (temp_dict["albumArtImage"] as! String)
 //                print (temp_dict["sourceAppImage"] as! String)
@@ -91,6 +106,9 @@ struct Post {
             seal.fulfill(posts)
         })
 
+            
+            
+                //Hardcoded posts -
         var post1 = Post(albumArtImage: "clapton" , sourceAppImage: "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "20 mins ago"  , numberoflikes: "20 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0, audiolength: 30, paused: false, playing: false, trackid: "14268593", helper_id: "spotify:track:6zC0mpGYwbNTpk9SKwh08f", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Wonderful Tonight", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/efe0ee0512fbaf28307158f871427ec6aec7181c", original_track_length: 219333, GIF_url: "")
         
         var post2 = Post(albumArtImage:"doesitfeellike" , sourceAppImage: "Spotify_cropped", typeImage:"icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "2 hours ago"  , numberoflikes: "28 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "spotify:track:3ZakaL0QEt5eeD3N7HbaN1", helper_id: "1311238254", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Does it feel like falling", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/13e4b7ca24993f21e80611fbacc7fcc5cdb7c00a", original_track_length: 234918, GIF_url: "")
@@ -122,6 +140,7 @@ struct Post {
         
         var post10 = Post(albumArtImage:  "Screen Shot 2017-10-24 at 7.30.42 PM" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "1 day ago"  , numberoflikes: "17 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 40, paused: false, playing: false, trackid: "1224353520", helper_id: "spotify:track:5KsLlcmWDoHUoJFzRw14wD", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Rosie", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/dfa9264c5427a0dfcfdf99a6592d608b42420e84", original_track_length: 242747, GIF_url: "")
 
+            //This section is only to be used when using the hardcoded posts, and when doing so you have to comment out everything from var ref = .. to seal.fulfill at the beginning of the function.
 //        posts.append(post1)
 //        posts.append(post2)
 //        posts.append(post3)
@@ -201,11 +220,14 @@ struct Post {
         }
     }
     
+    
+    //function to add a new post to the database
     static func add_new_post_to_firebase (new_post: Post, new_post_number: Int) {
         
-        var post_dict = [String: Any]()
+        var post_dict = [String: Any]() //define a dict
         let ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
         
+        //add the post values to the dict
         post_dict.updateValue(new_post.albumArtImage, forKey: "albumArtImage")
         post_dict.updateValue(new_post.audiolength, forKey: "audiolength")
         post_dict.updateValue(new_post.caption, forKey: "caption")
@@ -233,6 +255,7 @@ struct Post {
         post_dict.updateValue(new_post.original_track_length, forKey: "original_track_length")
         post_dict.updateValue(new_post.GIF_url, forKey: "GIF_url")
         
+        //final data is a dict of "Post#" : Post
         let final_post = ["Post\(new_post_number)" : post_dict]
         ref.child("user_db").child("post_db").updateChildValues(final_post) { (err, ref) in
             if err != nil {
@@ -244,7 +267,7 @@ struct Post {
         }
     }
     
-    
+    //Everything below this point is same as above but for all the posts on the ProfilePage
     
     
     static func fetch_profile_posts() -> Promise<[Post]> {

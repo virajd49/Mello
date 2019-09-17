@@ -55,54 +55,28 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
     var post: Post!{
         didSet {
             self.updateUI()
-            //self.Spotifyplayer = SPTAudioStreamingController.sharedInstance()
             if self.typeFlag != "video" {
             self.playerView.isHidden = true
-            
                 if self.typeFlag == "audio" {
                     self.albumArtImage.bringSubviewToFront(albumArtImage)
                     self.albumArtImage.isHidden = false
                     self.lyricView.isHidden = true
-                    /*
-                    if self.source == "apple" {
-                        self.musicPlayerController.setQueue(with: [self.trackidstring])
-                    }
-                    */
                 }else {
-                    //self.albumArtButton.bringSubview(toFront: albumArtButton)
-                    //self.albumArtButton.backgroundColor = UIColor.clear
                     self.lyricView.bringSubviewToFront(lyricView)
                     self.lyricView.isHidden = false
                     self.albumArtImage.isHidden = true
                 }
             }else{
-            //self.albumArtImage.bringSubview(toFront: albumArtImage)
-            self.albumArtImage.isHidden = false
-            self.playerView.isHidden = true
-            //self.playerView.bringSubview(toFront: playerView)
-             //self.playerView.load(withVideoId: self.videoID , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "start": self.videostart, "end": self.videoend, "rel": 0])
-            //WE CHANGED THIS - MOVED THE LOADING TO WHEN THE USER TAPS ON THE VIDEO CELL - TO PREVENT SCROLLING LAG CAUSED BY ALL THE YOUTUBE CELLS TRYING TO LOAD THE VIDEOS WHEN THEY ARE DEQUEUED - TRADEOFF - LOOKS SHITTY AND TAKES FOREVER TO LOAD BEFORE IT PLAYS - NEED TO FIND A WAY TO SHIFT THIS LOADING TO A BACKGROUND THREAD - RAN INTO A WEIRD ERROR WHEN I TRIED BEFORE
-           
+                self.albumArtImage.isHidden = false
+                self.playerView.isHidden = true
+                //self.playerView.bringSubview(toFront: playerView)
+                //self.playerView.load(withVideoId: self.videoID , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 1, "controls": 1, "start": self.videostart, "end": self.videoend, "rel": 0])
+                //WE CHANGED THIS - MOVED THE LOADING TO WHEN THE USER TAPS ON THE VIDEO CELL - TO PREVENT SCROLLING LAG CAUSED BY ALL THE YOUTUBE CELLS TRYING TO LOAD THE VIDEOS WHEN THEY ARE DEQUEUED - TRADEOFF - LOOKS SHITTY AND TAKES FOREVER TO LOAD BEFORE IT PLAYS - NEED TO FIND A WAY TO SHIFT THIS LOADING TO A BACKGROUND THREAD - RAN INTO A WEIRD ERROR WHEN I TRIED BEFORE
             }
         }
     }
     func updateUI(){
         
-        
-//        if let albumArtURL = URL(string: post.albumArtUrl) {
-//            URLSession.shared.dataTask(with: albumArtURL, completionHandler: { (data, response, error) in
-//
-//                if error != nil {
-//                    print(error)
-//                    return
-//                }
-//
-//                DispatchQueue.main.async {
-//                    self.albumArtImage.image  = UIImage(data: data!)
-//                }
-//
-//            }).resume()
-//        }
         self.albumArtUrl = post.albumArtUrl
         self.albumArtImage.loadImageUsingCacheWithUrlString(imageurlstring: self.albumArtUrl)
         //self.albumArt.image = post.albumArtImage
@@ -147,40 +121,15 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
         }
     }
     
-
+    //if the user clicks on the get button bring up the BottomView
     @IBAction func getButton(_ sender: Any) {
         print(self.trackidstring!)
         print("clicked")
         getView.bringupview(id: self.trackidstring! as String)
     }
-    
- //
-   // @IBAction func clickOnImage(_ sender: Any) {
-     //   if self.playingflag == false {
-       //     playButton(self)
-        //}else{
-          //  pauseButton(self)
-        //}
-        //
-    //}
-    /*
-    @objc func updateProgress() {
-        // increase progress value
-        self.progressBar.progress += 0.00005/(self.duration)
-        //self.progressBar.setProgress(0.01, animated: true)
-        //self.progressBar.animate(duration: 10)
-
-        // invalidate timer if progress reach to 1
-                if self.progressBar.progress >= 1 {
-            // invalidate timer
-                    print ("invalidate timer happened")
-            self.timer?.invalidate()
-            pauseButton(self)
-            self.progressBar.progress = 0.0
-           }
-        }
-  */
  
+    
+    //These controls have been moved to the newsfeed controller instead of being embedded in each individual cell
  func playButton(_ sender: Any) {
     if self.playingflag == false {
             if self.pausedflag == true {

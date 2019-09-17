@@ -20,6 +20,17 @@ import FLAnimatedImage
 import SDWebImage
 
 
+/*
+ 
+ This controller is only used by HeroesViewController - it has a lot of the search controller stuff from UploadViewController 2, which is not used by HeroesViewController right now. The only thing HeroesViewController uses it for is Artist search. So only the artist search part of this page is relevant for now. The other parts are retained for possible future use.
+ 
+ 
+ 
+ 
+ 
+ 
+ */
+
 protocol SearchResultsProtocolDelegate: UIViewController {
     
     func get_type_of_search() -> String

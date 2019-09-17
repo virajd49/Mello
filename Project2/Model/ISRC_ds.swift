@@ -7,7 +7,16 @@
 //
 
 
-//This class is used for fitting song metadata into teh fomrat required for our ISRC db.
+    /* This class is used for fitting song metadata into the format required for our ISRC db.
+ 
+        The ISRC database is used to store spotify and apple song data with a single ID - the ISRC id. So everytime a user adds a song on the app as any kind of post - we get the song metadata from the source streaming service - then we go search for that same song in the other streaming service catalogue. Once we find a match we store both sets of metatdata under the single unique ISRC that every song recording has (and is included in the song metadata given by spotify and apple APIs ).so
+ 
+ 
+ This whole thing is done so that we can include both spotify and apple song ids in a post, so any service user can play the post. We store these in a database so we don't to go song hunting and matching in the catalogue if the pair already exists in the ISRC database.
+ 
+ 
+ 
+    */
 import UIKit
 
 //not being used
@@ -34,6 +43,8 @@ struct apple_data_struct {
     var release_date: String?
 }
 
+
+//This is the metadata that we store for spotify and apple
 struct song_db_struct {
     
     var playable_id: String?
@@ -76,6 +87,7 @@ class ISRC_ds {
         
     }
     
+    //A full set, we found the song in both catalogues
     func create_isrc_ds() -> isrc_data_set {
         
         let isrc_ds = [ isrc_number : ["apple_set" : self.create_apple_set(), "spotify_set" : self.create_spotify_set()]]
@@ -83,6 +95,8 @@ class ISRC_ds {
         return isrc_ds
     }
     
+    
+    //We found the song in the apple catalogue only
     func create_isrc_ds_apple_only() -> isrc_data_set {
         
         let isrc_ds = [ isrc_number : ["apple_set" : self.create_apple_set()]]
@@ -90,6 +104,8 @@ class ISRC_ds {
         return isrc_ds
     }
     
+    
+    //We found the song in the spotify catalogue only
     func create_isrc_ds_spotify_only() -> isrc_data_set {
         
         let isrc_ds = [ isrc_number : ["spotify_set" : self.create_spotify_set()]]

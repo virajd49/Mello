@@ -11,6 +11,16 @@ import UIKit
 import MediaPlayer
 import PostgresClientKit
 
+
+/*
+    This is still at stage zero. Been using this guy as a testing ground for a lot of things all the app. So everything below is useless.
+ 
+ 
+ 
+ 
+ 
+ */
+
 class MessageViewController: UIViewController, YTPlayerViewDelegate {
     
     @IBOutlet weak var test_album_art_image: UIImageView!

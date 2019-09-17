@@ -8,7 +8,9 @@
 
 import Foundation
 
+/* Very similar to the Post file, except that everything here is hardcoded and not hooked to the DB at all. This is used by FriendUpdateViewController.
 
+ */
 
 struct Update {
     

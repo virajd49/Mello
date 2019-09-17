@@ -8,6 +8,13 @@
 
 import Foundation
 
+/*
+ 
+ JSON decodable for the artist search response from spotify
+ 
+https://developer.spotify.com/documentation/web-api/reference/search/search/
+ */
+
 class SpotifyArtistMediaObject: Decodable {
     
     struct artists : Decodable {

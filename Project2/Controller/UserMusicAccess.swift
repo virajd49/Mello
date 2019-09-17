@@ -11,6 +11,8 @@ import StoreKit
 import UIKit
 import MediaPlayer
 import PromiseKit
+
+
 //This class is used to pull resources from the Users own library - Not the entire catalogue
 
 
@@ -433,7 +435,7 @@ class UserAccess {
                 }
             })
             
-        }else{
+        } else {
             let playlist_name = self.userDefaults.object(forKey: "Spotify_playlist_URIs") as! [String: String] //pulling from userdefaults
             var playlist_dict = self.userDefaults.object(forKey: "Spotify_playlist_dict") as! [String: [String]] //pulling from userdefaults
             let playlist_URI = playlist_name[mediacollection] as! String

@@ -8,6 +8,14 @@
 
 import Foundation
 
+/*
+ 
+ JSON decodable for the recently played items response from spotify
+ 
+https://developer.spotify.com/documentation/web-api/reference/player/get-recently-played/
+ */
+
+
 class SpotifyRecentlyPlayedMediaObject: Decodable {
     
     struct items : Decodable {

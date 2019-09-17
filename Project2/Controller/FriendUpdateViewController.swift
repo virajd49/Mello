@@ -9,21 +9,20 @@
 import UIKit
 import MediaPlayer
 
-
-struct Candy{
-    
-    var category : String
-    var name: String
-}
+/*
+ 
+    This is the Search/Friend updates view controller. Only the FriendUpdates part of it has been implemented to some extent.
+ 
+    The friend updates load in the table view and the user can tap on any one of them to view them full screen. The updates are hardcoded right now. The full screen view is displyed by segueing to ShowUpdateController
+ 
+ */
 
 
 class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
    
     @IBOutlet weak var tableView: UITableView!
-    
     var letsSeeUpdate = ShowUpdateController()
-    var filteredCandies = [Candy]()
     let userDefaults = UserDefaults.standard
     var updates: [Update]?
     let searchController = UISearchController(searchResultsController: nil)
@@ -51,7 +50,9 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
     override func viewDidLoad() {
         super.viewDidLoad()
         
-         
+         /*
+            This search bar does nothing right now, ignore all the search controller part
+        */
         //let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self as? UISearchResultsUpdating
         searchController.obscuresBackgroundDuringPresentation = true
@@ -64,16 +65,13 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
         //navigationItem.titleView?.backgroundColor = UIColor.init(red: (247.0/255.0), green: (247.0/255.0), blue: (247.0/255.0), alpha: 1.0)
         definesPresentationContext = true
         searchController.hidesNavigationBarDuringPresentation = false
-        
-
-        
-
+    
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapEdit(recognizer:)))
         
         self.tableView.addGestureRecognizer(tapGesture)
         tapGesture.delegate = self as? UIGestureRecognizerDelegate
         
-        self.fetchUpdates()
+        self.fetchUpdates() //pull all the firend updates and load them into the table
         self.tableView.delegate = self
         self.tableView.dataSource = self
         
@@ -94,7 +92,7 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
     }
     
    
-        private func setupMenuBar(){
+    private func setupMenuBar() {
         
         view.addSubview(menuBar)
         view.addConstraintWithFormat(format: "H:|[v0]|", views: menuBar)
@@ -117,6 +115,8 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
         
     }
     
+    
+    //When user taps on an update - grab all the update details from the cell on temp variables so we can pass them on in prepareforsegue
     @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
         if recognizer.state == UIGestureRecognizer.State.ended {
             let tapLocation = recognizer.location(in: self.tableView)
@@ -144,7 +144,7 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
         }
     }
     
-    
+    //pass all the update/post details on to ShowUpdateController and setup app/spotify players
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "ShowUpdateSegue" {
             if let destination = segue.destination as? ShowUpdateController {
@@ -170,8 +170,6 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
                 }else {
                     destination.apple_music_player.setQueue(with: [destination.song_ID])
                 }
-                
-                //destination.youtubeplayer?.load(withVideoId: "U_xI_vKkkmg" , playerVars: ["playsinline": 1, "showinfo": 0, "modestbranding" : 1, "controls": 1, "start": 26, "end": 84, "rel": 0])
             }
         }
     }
@@ -195,52 +193,19 @@ class FriendUpdateViewController: UIViewController, UITableViewDataSource, UITab
     }
     
      func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    
-    print("yes 3")
-        
+        print("yes 3")
         let cell = tableView.dequeueReusableCell(withIdentifier: Storyboard.FriendUpdateCell, for: indexPath) as! FriendUpdateCell
-        
         cell.update = self.updates?[indexPath.section]
-        
         cell.selectionStyle = .none
         return cell
     }
-    
-    
-   
-    /*
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("did select row at")
-        performSegue(withIdentifier: "ShowUpdateSegue", sender: self)
-    }
-    */
-    
-    
 
-    
     func searchBarIsEmpty() -> Bool {
         // Returns true if the text is empty or nil
         return searchController.searchBar.text?.isEmpty ?? true
     }
     
-    /*
-    func filterContentForSearchText(_ searchText: String, scope: String = "All") {
-        filteredCandies = candies.filter({( candy : Candy) -> Bool in
-            return candy.name.lowercased().contains(searchText.lowercased())
-        })
-        
-        //tableView.reloadData()
-    }
- */
+   
     
 }
 
-/*
-extension FriendUpdateViewController: UISearchResultsUpdating {
-    // MARK: - UISearchResultsUpdating Delegate
-    func updateSearchResults(for searchController: UISearchController) {
-        filterContentForSearchText(searchController.searchBar.text!)
-
-    }
-}
-*/

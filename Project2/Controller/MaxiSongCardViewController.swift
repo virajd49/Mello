@@ -34,7 +34,15 @@ protocol MaxiPlayerSourceProtocol: class {
 }
 
 
-
+/*
+ 
+ 
+ I think pretty much exactly the same as :
+ https://www.raywenderlich.com/221-recreating-the-apple-music-now-playing-transition
+ 
+ 
+ 
+ */
 
 class MaxiSongCardViewController: UIViewController {
     

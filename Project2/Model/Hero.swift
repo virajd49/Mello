@@ -11,13 +11,22 @@ import PromiseKit
 import Firebase
 
 
+/*
+ 
+ Hero struct - with fucntions to fetch, upload and the hardcode workaround.
+ We also have functions to add a new hero to the db, add a new testimonial to a particular Hero in the db, add a new post to the content list of a Hero in the db and push a full content list to a Hero in the db.
+ 
+ The file format like Post struct.
+
+ */
+
 
 struct Hero {
     
-    var artistName: String?
-    var imageURL: String?
-    var testimonialText: String?
-    var contentList: [String:Post]?
+    var artistName: String?    //Artist name
+    var imageURL: String?       //Artist photo
+    var testimonialText: String?    //Testimonial added by user
+    var contentList: [String:Post]?     //Dictionary of Posts
 
    static func fetchHeroes() -> Promise<[Hero]> {
         return Promise { seal in
@@ -237,7 +246,7 @@ struct Hero {
         
         for j in 0..<new_hero.contentList!.count {
             
-            var post_dict = [String: Any]()
+            var post_dict = [String: Any]()  //a single post
             
             post_dict.updateValue(new_hero.contentList?["Post\(j+1)"]?.albumArtImage, forKey: "albumArtImage")
             post_dict.updateValue(new_hero.contentList?["Post\(j+1)"]?.audiolength, forKey: "audiolength")

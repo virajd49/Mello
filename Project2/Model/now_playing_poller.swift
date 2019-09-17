@@ -17,9 +17,12 @@ class now_playing_poller {
     let apple_system_player = MPMusicPlayerController.systemMusicPlayer
     var timer = Timer()
     var trackDuration = TimeInterval()
-    var internal_keep_time = TimeInterval() //if there is ever a timing issue and we miss the time period from 0.0 - 2.0 seconds to catch the new song
-    //we use this internal time keep - this is incremented ever second - so theoretically if the current playback time of the system player is less than this time - it means that it has switched over to a new song - thats the only way that it can be less than the internal time keep value.
-            //--CAN'T USE IT -- ONLY ACCURATE UPTO 100th of a second -- we still update it for some future use maybe -- BUT DONT CHECK IT
+    
+    /*if there is ever a timing issue and we miss the time period from 0.0 - 2.0 seconds to catch the new song
+    we use this internal time keep - this is incremented ever second - so theoretically if the current playback time of the system player is less than this time - it means that it has switched over to a new song - thats the only way that it can be less than the internal time keep value.
+    --CAN'T USE IT -- ONLY ACCURATE UPTO 100th of a second -- we still update it for some future use maybe -- BUT DONT CHECK IT
+     */
+    var internal_keep_time = TimeInterval()
     let appleMusicManager = AppleMusicManager()
     let userDefaults = UserDefaults.standard
     var apple_mediaItems: [[MediaItem]]!
@@ -28,6 +31,8 @@ class now_playing_poller {
     var the_image = UIImage()
     var current_playback_id = String()
     var something_is_playing: Bool = false
+    
+    
     private init () {
         
         print ("!!!!!!!!!!!!!!!!!!! now_playing_poller private init called !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")

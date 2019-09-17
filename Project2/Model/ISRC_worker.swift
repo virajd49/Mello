@@ -7,23 +7,25 @@
 //
 
 
-//This class contains the song searching functions for apple and spotify. It also contains the parsing mechanisms for matching the song metadata when looking for a
-//song in each catalog. It also contains the functions that convert the song metadata into the right formats and adds it to the Firebase Database.
+/*This class contains the song searching functions for apple and spotify. It also contains the parsing mechanisms for matching the song metadata when looking for a
+  song in each catalog. It also contains the functions that convert the song metadata into the right formats and adds it to the Firebase Database.
+ 
+ The top function in this file is get_this_song() - start from there, it will be easier to understand.
 
 
-//THE SEARCHER NEEDS UPGRADES!!! SPECIFICALLY:
-//                      How many items do we ask for as search results? Right now only asking for 20 and going through the first 20 entries. If we dont find the m                          match in those 20 entries we reject the Promise i.e dont return a match.
-//THE PARSER NEEDS UPGRADES!!!!!!!!!!!!! SPECIFIC CASES:
-//              Wonderful Tonight - 20th Century Masters - The Millenium Collection does not match to the exact same song & album on spotify
-//                                                                                  because the phrases in the album name a in a different order.
-//              Don't Stop Me Now - The Platinum Collection - Greatest Hits I II & III does not match to the exact same album on spotify because the
-//                                                                                  album name only contains "The Platinum Collection"
-//              That's the Way - The complete BBC sessions - does not match because Spotify has the name as 'That's the Way - 1/4/71 Paris Theatre; 2016 Remaster' and Apple has the name as 'That's the Way (1/4/71 Paris Theatre)' - Possible solution - also include an album name match search - and then go through all the songs and see if we have an isrc match.
-//                Antisocial Ed Sheeran & Travis Scott
+ THE SEARCHER NEEDS UPGRADES!!! SPECIFICALLY:
+                      How many items do we ask for as search results? Right now only asking for 20 and going through the first 20 entries. If we dont find the match in those 20 entries we reject the Promise i.e dont return a match.
+ THE PARSER NEEDS UPGRADES!!!!!!!!!!!!! SPECIFIC CASES:
+              Wonderful Tonight - 20th Century Masters - The Millenium Collection does not match to the exact same song & album on spotify
+    because the phrases in the album name a in a different order.
+              Don't Stop Me Now - The Platinum Collection - Greatest Hits I II & III does not match to the exact same album on spotify because the album name only contains "The Platinum Collection"
+              That's the Way - The complete BBC sessions - does not match because Spotify has the name as 'That's the Way - 1/4/71 Paris Theatre; 2016 Remaster' and Apple has the name as 'That's the Way (1/4/71 Paris Theatre)' - Possible solution - also include an album name match search - and then go through all the songs and see if we have an isrc match.
+                Antisocial Ed Sheeran & Travis Scott
 
-//THE ISRC DATABASE NEEDS AN UPGRADE!!!!!!!:
-//                 Apple songs have different song id's in different regions: So what to do? Make a separate db for every region? Or change the apple metadata
-//                                                                              format to include all the song id's for a single song entry ?
+ THE ISRC DATABASE NEEDS AN UPGRADE!!!!!!!:
+    Apple songs have different song id's in different regions: So what to do? Make a separate db for every region? Or change the apple metadata format to include all the song id's for a single song entry ?
+ 
+ */
 import Foundation
 import UIKit
 import MediaPlayer
@@ -51,6 +53,7 @@ class ISRC_worker {
     }
     
     
+    //Find all the songs that match the given song name from the spotify catalogue
     func perform_search_for_spotify_new (name: String) ->Promise<Void> {
         return Promise { seal in
         appleMusicManager.performSpotifyCatalogSearchNew(with: name).done { searchItems in
@@ -62,6 +65,8 @@ class ISRC_worker {
      }
     }
     
+    
+    //Find all the songs that match the given song name from the apple catalogue
     func perform_search_for_apple (name: String) -> Promise<Void> {
         return Promise { seal in
             let country_code = userDefaults.string(forKey: "Country_code")
@@ -77,6 +82,7 @@ class ISRC_worker {
         }
     }
     
+    //We have apple metadata for a song and we need to find the same song in spotify
     func spotify_search_and_parse (appi_struct: song_db_struct) -> Promise<Void>{
         return Promise { seal in
         //get apple struct
@@ -84,6 +90,8 @@ class ISRC_worker {
         //return a spotify struct
     
         var variable = song_db_struct()
+            
+            //Song search by name in spotify - this will put the results in self.spotify_mediaItems
             perform_search_for_spotify_new(name: appi_struct.song_name ?? "nil").done { Void in
                                                         var count : Int!
                                                         if self.spotify_mediaItems.isEmpty {
@@ -94,8 +102,12 @@ class ISRC_worker {
                                                         print ("Spotify media items count \(count)")
                                                         var i : Int!
                                                         i = count + 1
+                
+                //If we have results, go through them and find the best match
                 if !self.spotify_mediaItems.isEmpty {
                                                         print(appi_struct.isrc_number)
+                    
+                                                        //Removing the word Remastered ##/##/### or just Remastered from the song name to help with better matching
                                                         var matcher_song_name =  String()
                                                         var custom_strip_text: String = self.remastered_matches(for: "Remastered \\d\\d\\d\\d", in: appi_struct.song_name! ?? "") ?? ""
                                                         if custom_strip_text == "nil" {
@@ -150,6 +162,8 @@ class ISRC_worker {
                                                                 print (matcher_song_name)
                                                                 print (matchee_album_name)
                                                                 print (matchee_song_name)
+                                                                
+                                                                //EXACT MATCH
                                                                 if self.spotify_mediaItems[l].external_ids?.isrc == appi_struct.isrc_number &&
                                                                     self.spotify_mediaItems[l].artists?[0].name == appi_struct.artist_name &&
                                                                     matchee_album_name == matcher_album_name &&
@@ -162,6 +176,7 @@ class ISRC_worker {
                                                                 }
                                                             }
                                                         }
+                    
                                                         if i == count + 1 {  //by album and song name only
                                                             print ("by album and song name only")
                                                             for l in 0..<count {
@@ -185,6 +200,8 @@ class ISRC_worker {
                                                                     matchee_song_name = self.remove_custom_remastered(full_name: self.spotify_mediaItems[l].name! ?? "", custom_text: custom_strip_text) ?? ""
                                                                 }
                                                                 var matchee_album_name: String = self.remove_remastered(full_name: self.spotify_mediaItems[l].album?.name! ?? "") ?? ""
+                                                                
+                                                                //ARTIST NAME, ALBUM NAME, SONG NAME
                                                                 if self.spotify_mediaItems[l].artists?[0].name == appi_struct.artist_name &&
                                                                     matchee_album_name == matcher_album_name &&
                                                                     matchee_song_name == matcher_song_name /*&&
@@ -196,6 +213,8 @@ class ISRC_worker {
                                                                 }
                                                             }
                                                         }
+                    
+                                                        //ISRC MATCH ONLY
                                                         if i == count + 1 { //by isrc only
                                                             print ("by isrc only")
                                                             for l in 0..<count {
@@ -239,13 +258,13 @@ class ISRC_worker {
                                                             //self.apple_search_and_parse(spoti_struct: variable)
                                                         }
     
-//        })
             }
-            //seal.fulfill(())
         }
     
     }
     
+    
+    //We have spotify metadata for a song and we need to find the same song in apple
     func apple_search_and_parse (spoti_struct: song_db_struct) -> Promise<Void> {
         return Promise { seal in
         //get spotify struct
@@ -254,6 +273,7 @@ class ISRC_worker {
             
         var variable = song_db_struct()
         let country_code = userDefaults.string(forKey: "Country_code")
+            //Song search by name in apple - this will put the results in self.apple_mediaItems
             perform_search_for_apple (name: spoti_struct.song_name ?? "nil").done { Void in
                 
                                                         var count : Int!
@@ -295,18 +315,20 @@ class ISRC_worker {
                                                                     print (self.apple_mediaItems[l].previews[0])
                                                                     print (self.apple_mediaItems.count)
                                                                     print ("-----------------------------------")
-                                                                    /*Not including date matching for now because of cases like "All you need is love album: Magic Mystery tour" Apple has the wrong release date?? please check notes: it's a loose paper*/
-//                                                                if spoti_struct.release_date?.count != self?.apple_mediaItems[0][l].releaseDate?.count {
-//                                                                    if self?.apple_mediaItems[0][l].releaseDate?.count as Int! > spoti_struct.release_date?.count                                 as Int!{
-//                                                                            for n in 0...3 {
-//                                                                                self?.apple_mediaItems[0][l].releaseDate?.dropLast()
-//                                                                            }
-//                                                                    } else {
-//                                                                        for n in 0...3 {
-//                                                                            spoti_struct.release_date?.dropLast()
-//                                                                        }
-//                                                                    }
-//                                                                }
+                                                                    /*Not including date matching for now because of cases like "All you need is love album: Magic Mystery tour" Apple has the wrong release date?? please check notes: it's a loose paper
+                                                                if spoti_struct.release_date?.count != self?.apple_mediaItems[0][l].releaseDate?.count {
+                                                                    if self?.apple_mediaItems[0][l].releaseDate?.count as Int! > spoti_struct.release_date?.count                                 as Int!{
+                                                                            for n in 0...3 {
+                                                                                self?.apple_mediaItems[0][l].releaseDate?.dropLast()
+                                                                            }
+                                                                    } else {
+                                                                        for n in 0...3 {
+                                                                            spoti_struct.release_date?.dropLast()
+                                                                        }
+                                                                    }
+                                                                }
+                                                                    
+                                                                    */
                                                                     var matchee_song_name =  String()
                                                                     var custom_strip_text: String = self.remastered_matches(for: "Remastered \\d\\d\\d\\d", in: self.apple_mediaItems[l].name! ?? "") ?? ""
                                                                     if custom_strip_text == "nil" {
@@ -316,6 +338,8 @@ class ISRC_worker {
                                                                     }
                                                                     var matchee_album_name: String = self.remove_remastered(full_name: self.apple_mediaItems[l].albumName! ?? "") ?? ""
                                                                     
+                                                                    
+                                                                    //EXACT MATCH
                                                                     if self.apple_mediaItems[l].isrc == spoti_struct.isrc_number &&
                                                                         self.apple_mediaItems[l].artistName == spoti_struct.artist_name &&
                                                                         matchee_album_name == matcher_album_name &&
@@ -331,18 +355,19 @@ class ISRC_worker {
                                                             if i == count + 1 {  //by album and song name only
                                                                 print ("by album and song name only")
                                                                 for l in 0..<count {
-//                                                                if spoti_struct.release_date?.count != self?.apple_mediaItems[0][l].releaseDate?.count {
-//                                                                    if self?.apple_mediaItems[l].releaseDate?.count as Int! > spoti_struct.release_date?.count as Int!{
-//                                                                             for n in 0...3 {
-//                                                                                self?.apple_mediaItems[l].releaseDate?.dropLast()
-//                                                                               }
-//                                                                     } else {
-//                                                                        for n in 0...3 {
-//                                                                           spoti_struct.release_date?.dropLast()
-//                                                                        }
-//                                                                    }
-//
-//                                                                }
+/*                                                         if spoti_struct.release_date?.count != self?.apple_mediaItems[0][l].releaseDate?.count {
+                                                                    if self?.apple_mediaItems[l].releaseDate?.count as Int! > spoti_struct.release_date?.count as Int!{
+                                                                             for n in 0...3 {
+                                                                                self?.apple_mediaItems[l].releaseDate?.dropLast()
+                                                                               }
+                                                                     } else {
+                                                                        for n in 0...3 {
+                                                                           spoti_struct.release_date?.dropLast()
+                                                                        }
+                                                                    }
+
+                                                                }
+ */
                                                                     var matchee_song_name =  String()
                                                                     var custom_strip_text: String = self.remastered_matches(for: "Remastered \\d\\d\\d\\d", in: self.apple_mediaItems[l].name! ?? "") ?? ""
                                                                     if custom_strip_text == "nil" {
@@ -351,6 +376,8 @@ class ISRC_worker {
                                                                         matchee_song_name = self.remove_custom_remastered(full_name: self.apple_mediaItems[l].name! ?? "", custom_text: custom_strip_text) ?? ""
                                                                     }
                                                                     var matchee_album_name: String = self.remove_remastered(full_name: self.apple_mediaItems[l].albumName! ?? "") ?? ""
+                                                                    
+                                                                    //ARTIST, ALBUM AND SONGNAME MATCH
                                                                     if self.apple_mediaItems[l].artistName == spoti_struct.artist_name &&
                                                                         matchee_album_name == matcher_album_name &&
                                                                         matchee_song_name == matcher_song_name /*&&
@@ -392,25 +419,20 @@ class ISRC_worker {
                                                                 self.this_catalogue_doesnt_have_the_song_right_now = "apple"
                                                                 seal.fulfill(())
                                                             } else {
-                                                            
-                                                            
-                                                            variable.album_name = self.apple_mediaItems[i].albumName
-                                                            variable.song_name = self.apple_mediaItems[i].name
-                                                            variable.playable_id = self.apple_mediaItems[i].identifier
-                                                            variable.artist_name = self.apple_mediaItems[i].artistName
-                                                            variable.isrc_number = self.apple_mediaItems[i].isrc
-                                                            print(self.apple_mediaItems[i].previews[0]["url"])
-                                                            variable.preview_url =  self.apple_mediaItems[i].previews[0]["url"]
-                                                            self.apple_struct = variable
-                                                            seal.fulfill(())
+                                                                variable.album_name = self.apple_mediaItems[i].albumName
+                                                                variable.song_name = self.apple_mediaItems[i].name
+                                                                variable.playable_id = self.apple_mediaItems[i].identifier
+                                                                variable.artist_name = self.apple_mediaItems[i].artistName
+                                                                variable.isrc_number = self.apple_mediaItems[i].isrc
+                                                                print(self.apple_mediaItems[i].previews[0]["url"])
+                                                                variable.preview_url =  self.apple_mediaItems[i].previews[0]["url"]
+                                                                self.apple_struct = variable
+                                                                seal.fulfill(())
                                                             }
-//        })
             }
-            //seal.fulfill(())
         }
     }
 
-    
     func new_db_entry (target: String, reference_struct: song_db_struct)  -> Promise<Void> {
         print ("new_db_entry")
         return Promise { seal in
@@ -418,7 +440,7 @@ class ISRC_worker {
         
         //if passed in struct is apple call spotify search
         
-        //makwe the entry in the database and return the newly found song struct
+        //make the entry in the database and return the newly found song struct
         self.target_struct = song_db_struct()
         
         if target == "apple" {
@@ -437,10 +459,7 @@ class ISRC_worker {
             }
         }
         
-        //print (self.apple_struct)
-        //print (self.spotify_struct)
-        
-      //seal.fulfill(())
+      
         }
     }
     
@@ -470,10 +489,11 @@ class ISRC_worker {
         let ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
         ref.child("isrc_db").child(song_data.isrc_number ?? "nil").observeSingleEvent(of: .value) { (snapshot) in
             if snapshot.exists(){
-                print ("Yes we got here baba")
+                print ("Yes we got here")
                 print (snapshot)
                 //We want to see if this isrc entry contains both catalogue sets - if a certain set is missing (target_catalogue) this was because at the time that this entry was made, we could not find the song in that catalogue - so we treat it as a new entry - search through that catalogue again to see if the song has now been added  - if yes - when we add the entry again, it will contain the missing set
                 let temp_diction = snapshot.value as! [String : [String : String]]
+                //the dict should have 2 entries - spotify and apple, if it has less than 2 that means that one of them is missing (or both)
                 if temp_diction.count < 2 {
                     if temp_diction.keys.contains("apple_set"){
                         print("get_this_song: spotify_set is Missing")
@@ -487,9 +507,11 @@ class ISRC_worker {
                         seal.fulfill(found_song.playable_id ?? "nil")
                     }
                 }
+                
+                //if there are 2 entries, that means we have the required song in our db, so grab it and return
                 ref.child("isrc_db").child(song_data.isrc_number ?? "nil").child("\(target_catalog)_set").observeSingleEvent(of: .value) { (snapshot2) in
                     if snapshot2.exists() {
-                        print ("mofo is there!! hehe ")
+                        print ("song is there ")
                         //found_song = snapshot2.value as! song_db_struct
                         let temp_dict = snapshot2.value as! [String : String]
                         found_song.playable_id = temp_dict["playable_id"]
@@ -499,9 +521,10 @@ class ISRC_worker {
                         print("ERROR: get_this_song: \(target_catalog)_set in isrc_db is empty")
                     }
                  }
-                }else {
-                print("mofo aint there")
-                self.new_db_entry(target: target_catalog, reference_struct: song_data).done { Void in
+                } else {
+                //We don't have an entry for this song/ISRC - so do a fresh search in the target catalogue.
+                    print("song aint there")
+                    self.new_db_entry(target: target_catalog, reference_struct: song_data).done { Void in
                     found_song = self.target_struct
                     seal.fulfill(found_song.playable_id ?? "nil")
                 }

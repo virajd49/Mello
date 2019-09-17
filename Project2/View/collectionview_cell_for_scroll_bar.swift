@@ -8,7 +8,7 @@
 
 import Foundation
 
-
+//the cells in the song clip selection scroll bar in UploadViewController3
 class collectionview_cell_for_scroll_bar: UICollectionViewCell {
     
     

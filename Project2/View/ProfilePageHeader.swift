@@ -8,6 +8,11 @@
 
 import Foundation
 
+/*
+ 
+ ProfilePageViewController is a collection view and the top part of the page is the collection view header, that is defined here.
+ 
+ */
 
 
 class ProfilePageHeader: UICollectionReusableView {

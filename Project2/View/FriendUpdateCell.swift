@@ -9,6 +9,9 @@
 import Foundation
 import UIKit
 
+
+//FriendUpdatesViewController
+
 class FriendUpdateCell: UITableViewCell{
     
     

@@ -8,6 +8,14 @@
 
 import UIKit
 
+
+/*
+ 
+ I think this is a cachemanager I found off of stackoverflow or somewhere, I'm not sure. It's used all over the app where ever we load images.
+ 
+ 
+ 
+ */
 class ImageCacheManager {
     
     // MARK: Types

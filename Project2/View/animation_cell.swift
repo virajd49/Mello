@@ -9,7 +9,10 @@
 import Foundation
 import UIKit
 
-
+/*
+ Rubbish, needs to be removed.
+ 
+ */
 class animation_cell: UICollectionViewCell {
     
     

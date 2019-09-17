@@ -10,7 +10,12 @@ import Foundation
 import PromiseKit
 import Firebase
 
-
+/*
+    oom post struct  - based off Post struct
+ 
+ 
+ 
+ */
 
 struct oom_post {
     

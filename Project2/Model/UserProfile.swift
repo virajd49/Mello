@@ -5,10 +5,17 @@
 //  Created by virdeshp on 6/8/19.
 //  Copyright © 2019 Viraj. All rights reserved.
 //
-
+/*
 import Foundation
 import PromiseKit
 import Firebase
+
+/*
+ 
+ Was making a single class for the profile page, but I don't think I completed it and this file is not used at all right now
+ 
+ 
+ */
 
 
 class UserProfile {
@@ -88,3 +95,4 @@ class UserProfile {
    
 }
 
+*/

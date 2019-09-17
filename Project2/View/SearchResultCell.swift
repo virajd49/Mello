@@ -10,6 +10,10 @@ import Foundation
 import UIKit
 import GoogleAPIClientForREST
 
+
+
+//uploadviewcontroller2 and searchresults controller
+
 class SearchResultCell: UITableViewCell {
     
     static let identifier = "searchresultcell"

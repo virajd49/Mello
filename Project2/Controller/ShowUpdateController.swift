@@ -11,10 +11,21 @@ import UIKit
 import QuartzCore
 import MediaPlayer
 
+
+/*
+ 
+    This is the full screen view that shows up when the user clicks on a update from the FriendUpdateViewController.
+ Figure out what kind of post it is - audio/video/lyric - diplay the right views accordingly
+ Figure out what player is supposed to be playing and play it and fire the timer.
+ 
+ 
+ 
+ 
+ 
+ */
 class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate, YTPlayerViewDelegate {
     
     
-    //this should have the spotify apple and youtube players
     var song_ID: String!
     var player: String?
     var albumArt_string: String?
@@ -75,6 +86,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
             self.lyric_view.text = self.lyric_text
             self.view.backgroundColor = UIColor.black
         }
+        
         //albumArt.image = UIImage(named: albumArt_string!)
         /*
         self.test_view = UIView(frame: CGRect(origin: CGPoint(x:37, y:94), size: CGSize(width: 300, height: 300)))
@@ -152,24 +164,12 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     }
     
     
-    
     func play_update() {
         print("play_update")
         print(player)
         switch (player) {
         
         case "Spotify":
-            /*self.Spotifyplayer?.setIsPlaying(true, callback: { (error) in
-                if (error == nil) {
-                    print("Playing!")
-                    //self.timer?.invalidate()
-                    //self.offsetvalue = (self.Spotifyplayer!.playbackState.position)
-                }
-                else {
-             
-             print ("error in playing!")
-                }
-            })*/
             self.Spotifyplayer.playSpotifyURI(self.song_ID, startingWith: 0, startingWithPosition: 10.0, callback: { (error) in
             if (error == nil) {
                 print("playing!")
@@ -179,9 +179,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
             
         })
             break
-            
         case "Apple":
-            //self.apple_music_player.setQueue(with: [self.song_ID])
             self.apple_music_player.play()
             break
         case "Youtube":

@@ -8,6 +8,14 @@
 
 import Foundation
 
+
+
+/*
+ 
+ JSON keys struct file for apple artist media item - taken pretty much straigh off from the apple music sample project
+ 
+ */
+
 class ArtistMediaItem {
     
     // MARK: Types

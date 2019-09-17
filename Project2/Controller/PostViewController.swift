@@ -12,7 +12,7 @@ import QuartzCore
 import PromiseKit
 
 
-//The global youtube player is used for the benefit of OOM. The global youtube player is instantiated and loaded when the Profile page loads, and when the OOM page is displayed we hand this off to the OOM VC's youtube player.
+//A global youtube player is used for the benefit of OOM. The global youtube player is instantiated and loaded when the Profile page loads, and when the OOM page is displayed we hand this off to the OOM VC's youtube player.
 // global_yt_player_init - this is called when ProfilePageViewController appears
 // youtube_player_setup_from_global_player - this is called when we prepare for segue from Profile page to OOM - this hands off the player.
 //the player is then played from 4 different places -
@@ -20,6 +20,15 @@ import PromiseKit
 //                                                    - youtube_player_setup_from_global_player - this is only triggered when we segue
 //                                                    - player did become ready - this is only triggered if player is loaded/reloaded
 
+
+/*
+ 
+    -Figure oout what player to use and play the omm post
+    -Progress bar stuff that is exactly what we have on the newsfeed
+    -And if we want to add a new post to the omm, we have a button to edit/add that takes us through Uploadview controller 2 3 and 4 and then back here.
+ 
+ 
+ */
 
 class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate, YTPlayerViewDelegate{
     
@@ -165,7 +174,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
         //print("playing from youtube_player_setup_from_global_player")
     }
     
-    
+    //dismiss self and stop all players and the progress bar
     @objc func backAction () {
         self.dismiss(animated: true, completion: nil)
         self.appleplayer.stop()
@@ -184,12 +193,10 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
         if self.timer.isValid {
             self.timer.invalidate()
         }
-        
         self.prog_bar?.progress = 0
-        
     }
     
-    
+    //This is same as play_button from NewsFeedViewController.
     func play_media() {
         print("play_media")
             if OOM_post.sourceapp == "spotify" {
@@ -261,9 +268,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
                                 print("Spotify is playing! 2")
                                 self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress_spotify), userInfo: nil, repeats: true)
                                 RunLoop.main.add(self.timer, forMode: RunLoop.Mode.common)
-                                //print(self.Spotifyplayer?.metadata.currentTrack?.name)
-                                //print(self.Spotifyplayer?.metadata.currentTrack?.albumName)
-                                //print(self.Spotifyplayer?.metadata.nextTrack?.name)
+                               
                             } else {
                                 print ("error this one!")
                             }
@@ -294,20 +299,14 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
     
     
         func download_preview (url : URL) {
-            
             var download_task = URLSessionDownloadTask()
-            
             download_task = URLSession.shared.downloadTask(with: url, completionHandler: {(downloadedURL, response, error) in
-                
                 self.initiate_av(url: downloadedURL!)
             })
-            
             download_task.resume()
         }
     
         func initiate_av (url : URL) {
-            
-            
             do {
                 av_player = try AVAudioPlayer(contentsOf: url)
                 av_player.prepareToPlay()
@@ -320,16 +319,14 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
         }
     
         func play_av () {
-            
             av_player.play()
         }
     
         func pause_av () {
-            
             av_player.pause()
         }
     
-    
+//Progress bar stuff -------------------------------------------------------
     
     @objc func updateProgress_apple() {
         self.it_has_been_a_second = self.it_has_been_a_second! + 1
