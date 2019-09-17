@@ -5,8 +5,10 @@
 
 ## User settings
 xcuserdata/
-.DS_Store
+*.DS_Store
 project.xcworkspace/
+Pods/Pods.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+Project2.xcodeproj/project.pbxproj
 
 
 ## Build generated
