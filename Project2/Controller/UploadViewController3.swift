@@ -96,7 +96,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
     var is_selecting_animation: Bool = false
     var is_selecting_audio_clip: Bool = false
     var GIF_Search_is_ON: Bool = false
-    var poller = now_playing_poller.shared
+    //var poller = now_playing_poller.shared
     var spotifyplayer =  SPTAudioStreamingController.sharedInstance()
     var apple_player = MPMusicPlayerController.applicationMusicPlayer
     var apple_system_player = MPMusicPlayerController.systemMusicPlayer
@@ -698,53 +698,53 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         } else if self.upload_flag == "now_playing" {
             
             if self.userDefaults.string(forKey: "UserAccount") == "Apple" {
-                if !self.poller.apple_mediaItems.isEmpty {
-                    
-                    //package as post
-                    self.get_post_from_now_playing().done { upload_post in
-                        print ("we got_post_from_cell")
-                        self.final_upload_post = upload_post
-                        
-                        //end any playing media
-                        if self.end_post_media() {
-                            print ("Post media stopped")
-                        } else {
-                            print("Error stoping new post media")
-                        }
-                        
-                        //reset the selector scroller
-                        self.reset_custom_scroller()
-                        print ("Invalidating scroller_timer 6")
-                        self.scroller_timer.invalidate()
-                        
-                        self.performSegue(withIdentifier: "upload_3_to_4", sender: self)
-                        }
-
-                    
-                    }
+//                if !self.poller.apple_mediaItems.isEmpty {
+//
+//                    //package as post
+//                    self.get_post_from_now_playing().done { upload_post in
+//                        print ("we got_post_from_cell")
+//                        self.final_upload_post = upload_post
+//
+//                        //end any playing media
+//                        if self.end_post_media() {
+//                            print ("Post media stopped")
+//                        } else {
+//                            print("Error stoping new post media")
+//                        }
+//
+//                        //reset the selector scroller
+//                        self.reset_custom_scroller()
+//                        print ("Invalidating scroller_timer 6")
+//                        self.scroller_timer.invalidate()
+//
+//                        self.performSegue(withIdentifier: "upload_3_to_4", sender: self)
+//                        }
+//
+//
+//                    }
                 
             } else if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
-                if self.poller.spotify_currently_playing_object.item != nil {
-                    
-                    //package post
-                    self.get_post_from_now_playing().done { upload_post in
-                        self.final_upload_post = upload_post
-                        
-                        //end media
-                        if self.end_post_media() {
-                            print ("Post media stopped")
-                        } else {
-                            print("Error stoping new post media")
-                        }
-                        
-                        //reset selector scroller
-                        self.reset_custom_scroller()
-                        print ("Invalidating scroller_timer 6")
-                        self.scroller_timer.invalidate()
-                        
-                        self.performSegue(withIdentifier: "upload_3_to_4", sender: self)
-                    }
-                }
+//                if self.poller.spotify_currently_playing_object.item != nil {
+//
+//                    //package post
+//                    self.get_post_from_now_playing().done { upload_post in
+//                        self.final_upload_post = upload_post
+//
+//                        //end media
+//                        if self.end_post_media() {
+//                            print ("Post media stopped")
+//                        } else {
+//                            print("Error stoping new post media")
+//                        }
+//
+//                        //reset selector scroller
+//                        self.reset_custom_scroller()
+//                        print ("Invalidating scroller_timer 6")
+//                        self.scroller_timer.invalidate()
+//
+//                        self.performSegue(withIdentifier: "upload_3_to_4", sender: self)
+//                    }
+//                }
             }
         }
         
@@ -782,43 +782,43 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         } else if self.upload_flag == "now_playing" {
             
             if self.userDefaults.string(forKey: "UserAccount") == "Apple" {
-                if !self.poller.apple_mediaItems.isEmpty {
-                    self.get_post_from_now_playing().done { upload_post in
-                        print ("we got_post_from_cell")
-                        self.final_upload_post = upload_post
-                        if self.end_post_media() {
-                            print ("Post media stopped")
-                        } else {
-                            print("Error stoping new post media")
-                        }
-                        self.reset_custom_scroller()
-                        print ("Invalidating scroller_timer 6")
-                        self.scroller_timer.invalidate()
-                        
-                        self.path_keeper.pass_a_post(post: self.final_upload_post!)
-                       self.dismiss(animated: true, completion: nil)
-                    }
-                    
-                    
-                }
+//                if !self.poller.apple_mediaItems.isEmpty {
+//                    self.get_post_from_now_playing().done { upload_post in
+//                        print ("we got_post_from_cell")
+//                        self.final_upload_post = upload_post
+//                        if self.end_post_media() {
+//                            print ("Post media stopped")
+//                        } else {
+//                            print("Error stoping new post media")
+//                        }
+//                        self.reset_custom_scroller()
+//                        print ("Invalidating scroller_timer 6")
+//                        self.scroller_timer.invalidate()
+//
+//                        self.path_keeper.pass_a_post(post: self.final_upload_post!)
+//                       self.dismiss(animated: true, completion: nil)
+//                    }
+//
+//
+//                }
                 
             } else if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
-                if self.poller.spotify_currently_playing_object.item != nil {
-                    self.get_post_from_now_playing().done { upload_post in
-                        self.final_upload_post = upload_post
-                        if self.end_post_media() {
-                            print ("Post media stopped")
-                        } else {
-                            print("Error stoping new post media")
-                        }
-                        self.reset_custom_scroller()
-                        print ("Invalidating scroller_timer 6")
-                        self.scroller_timer.invalidate()
-                        
-                        self.path_keeper.pass_a_post(post: self.final_upload_post!)
-                        self.dismiss(animated: true, completion: nil)
-                    }
-                }
+//                if self.poller.spotify_currently_playing_object.item != nil {
+//                    self.get_post_from_now_playing().done { upload_post in
+//                        self.final_upload_post = upload_post
+//                        if self.end_post_media() {
+//                            print ("Post media stopped")
+//                        } else {
+//                            print("Error stoping new post media")
+//                        }
+//                        self.reset_custom_scroller()
+//                        print ("Invalidating scroller_timer 6")
+//                        self.scroller_timer.invalidate()
+//
+//                        self.path_keeper.pass_a_post(post: self.final_upload_post!)
+//                        self.dismiss(animated: true, completion: nil)
+//                    }
+//                }
             }
         }
         
@@ -1016,8 +1016,8 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                     if (self.apple_player.playbackState == MPMusicPlaybackState.playing) {
                         self.apple_player.currentPlaybackTime = TimeInterval(seek_to_time)
                     }
-                    self.poller.apple_system_player.currentPlaybackTime = TimeInterval(seek_to_time)
-                    self.poller.internal_keep_time = self.poller.apple_system_player.currentPlaybackTime
+                    //self.poller.apple_system_player.currentPlaybackTime = TimeInterval(seek_to_time)
+                    //self.poller.internal_keep_time = self.poller.apple_system_player.currentPlaybackTime
                 }
             } else if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
                 //print (TimeInterval(self.audio_scrubber_ot.value / 1000))
@@ -1343,117 +1343,117 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
     
     
     //Same as above, but did things a little differently for the now playing item
-    func get_post_from_now_playing () -> Promise<Post> {
-        return Promise { seal in
-            
-            let start_offset =  Double(((self.collection_view_for_scroll.contentOffset.x + 96.5) / 5))
-            var worker = ISRC_worker()
-            var post_from_now_playing: Post?
-            
-            if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
-                var apple_struct = song_db_struct()
-                
-                apple_struct.album_name = self.poller.apple_mediaItems[0][0].albumName
-                apple_struct.artist_name = self.poller.apple_mediaItems[0][0].artistName
-                apple_struct.isrc_number = self.poller.apple_mediaItems[0][0].isrc
-                apple_struct.playable_id = self.poller.apple_mediaItems[0][0].identifier
-                apple_struct.preview_url = self.poller.apple_mediaItems[0][0].previews[0]["url"] ?? ""
-                apple_struct.release_date = self.poller.apple_mediaItems[0][0].releaseDate
-                apple_struct.song_name = self.poller.apple_mediaItems[0][0].name
-                
-                worker.get_this_song(target_catalog: "spotify", song_data: apple_struct).done {p1_found_id in
-                    print ("Heya wtf bruh")
-                    print (p1_found_id)
-                    print ("Heya wtf bruh")
-                    post_from_now_playing = Post(albumArtImage:  "",
-                                                 sourceAppImage:  "apple_logo",
-                                                 typeImage: "icons8-musical-notes-50" ,
-                                                 profileImage:  "FullSizeRender 10-2" ,
-                                                 username: "Viraj",
-                                                 timeAgo: "Just now",
-                                                 numberoflikes: "0 likes",
-                                                 caption: self.Caption_text_view.text,
-                                                 offset: 0.0,
-                                                 startoffset: start_offset,    //<-Apple does not allow starting from a different point of time - No workaround so far :(. We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
-                        audiolength: 30.0, //<- This has to be grabbed from user - provide physical slider - for now - width of the selection view = 30 times 1 second unit in the collection view  - which is 5 units = so width is 150
-                        paused: false,
-                        playing: false,
-                        trackid: self.poller.apple_mediaItems[0][0].identifier,
-                        helper_id: p1_found_id,
-                        videoid: "empty",
-                        starttime: 0 ,
-                        endtime: 0,
-                        flag: ((self.lyrics) ? "lyric" : "audio"),
-                        lyrictext: self.Lyric_view.text,
-                        songname: self.poller.apple_mediaItems[0][0].name,
-                        sourceapp: self.userDefaults.string(forKey: "UserAccount")!.lowercased(),
-                        preview_url: self.poller.apple_mediaItems[0][0].previews[0]["url"] ?? "",
-                        albumArtUrl: self.poller.apple_mediaItems[0][0].artwork.imageURL(size: CGSize(width: 375, height: 375)).absoluteString,
-                        original_track_length: self.poller.apple_mediaItems[0][0].durationInMillis!,
-                        GIF_url: self.selected_GIF_url?.absoluteString ?? "")
-                    
-                    seal.fulfill(post_from_now_playing!)
-                    
-                }
-                
-            } else if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
-                print("We got to now playing spotify")
-                var spotify_struct = song_db_struct()
-                var worker = ISRC_worker()
-                
-                spotify_struct.album_name = self.poller.spotify_currently_playing_object.item!.album?.name
-                spotify_struct.artist_name = self.poller.spotify_currently_playing_object.item!.artists?[0].name
-                spotify_struct.isrc_number = self.poller.spotify_currently_playing_object.item!.external_ids?.isrc
-                spotify_struct.playable_id = self.poller.spotify_currently_playing_object.item!.uri
-                spotify_struct.preview_url = self.poller.spotify_currently_playing_object.item!.preview_url
-                spotify_struct.release_date = self.poller.spotify_currently_playing_object.item!.album?.release_date
-                spotify_struct.song_name = self.poller.spotify_currently_playing_object.item!.name
-                
-                worker.get_this_song(target_catalog: "apple", song_data: spotify_struct).done {p1_found_id in
-                    print ("Heya wtf bruh")
-                    print (p1_found_id)
-                    print ("Heya wtf bruh")
-                    if p1_found_id == "nil" {
-                        print ("ERROR: Helper id not found !!!!!!!!!!!!!!!!!!!!!!")
-                    } else {
-                        print ("Helper id found !!!!!!!!!!!!!!!!!!!")
-                    }
-                    
-                    
-                    post_from_now_playing = Post(albumArtImage:  "",
-                                                 sourceAppImage:  "Spotify_cropped",
-                                                 typeImage: "icons8-musical-notes-50" ,
-                                                 profileImage:  "FullSizeRender 10-2" ,
-                                                 username: "Viraj",
-                                                 timeAgo: "Just now",
-                                                 numberoflikes: "0 likes",
-                                                 caption: self.Caption_text_view.text,
-                                                 offset: 0.0,
-                                                 startoffset: start_offset,
-                                                 audiolength: 30.0 ,
-                                                 paused: false,
-                                                 playing: false,
-                                                 trackid: self.poller.spotify_currently_playing_object.item!.uri,
-                                                 helper_id: p1_found_id,
-                                                 videoid: "empty",
-                                                 starttime: 0 ,
-                                                 endtime: 0,
-                                                 flag: ((self.lyrics) ? "lyric" : "audio"),
-                                                 lyrictext: self.Lyric_view.text,
-                                                 songname: self.poller.spotify_currently_playing_object.item!.name,
-                                                 sourceapp:  self.userDefaults.string(forKey: "UserAccount")!.lowercased(),
-                                                 preview_url: (self.poller.spotify_currently_playing_object.item!.preview_url) ?? "nil",
-                                                 albumArtUrl: self.poller.spotify_currently_playing_object.item!.album?.images![0].url,
-                                                 original_track_length: self.poller.spotify_currently_playing_object.item!.duration_ms!,
-                                                 GIF_url: self.selected_GIF_url?.absoluteString ?? "")
-                    
-                    seal.fulfill(post_from_now_playing!)
-                }
-                
-                
-            }
-        }
-    }
+   // func get_post_from_now_playing () -> Promise<Post> {
+//        return Promise { seal in
+//
+//            let start_offset =  Double(((self.collection_view_for_scroll.contentOffset.x + 96.5) / 5))
+//            var worker = ISRC_worker()
+//            var post_from_now_playing: Post?
+//
+//            if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
+//                var apple_struct = song_db_struct()
+//
+//                apple_struct.album_name = self.poller.apple_mediaItems[0][0].albumName
+//                apple_struct.artist_name = self.poller.apple_mediaItems[0][0].artistName
+//                apple_struct.isrc_number = self.poller.apple_mediaItems[0][0].isrc
+//                apple_struct.playable_id = self.poller.apple_mediaItems[0][0].identifier
+//                apple_struct.preview_url = self.poller.apple_mediaItems[0][0].previews[0]["url"] ?? ""
+//                apple_struct.release_date = self.poller.apple_mediaItems[0][0].releaseDate
+//                apple_struct.song_name = self.poller.apple_mediaItems[0][0].name
+//
+//                worker.get_this_song(target_catalog: "spotify", song_data: apple_struct).done {p1_found_id in
+//                    print ("Heya wtf bruh")
+//                    print (p1_found_id)
+//                    print ("Heya wtf bruh")
+//                    post_from_now_playing = Post(albumArtImage:  "",
+//                                                 sourceAppImage:  "apple_logo",
+//                                                 typeImage: "icons8-musical-notes-50" ,
+//                                                 profileImage:  "FullSizeRender 10-2" ,
+//                                                 username: "Viraj",
+//                                                 timeAgo: "Just now",
+//                                                 numberoflikes: "0 likes",
+//                                                 caption: self.Caption_text_view.text,
+//                                                 offset: 0.0,
+//                                                 startoffset: start_offset,    //<-Apple does not allow starting from a different point of time - No workaround so far :(. We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
+//                        audiolength: 30.0, //<- This has to be grabbed from user - provide physical slider - for now - width of the selection view = 30 times 1 second unit in the collection view  - which is 5 units = so width is 150
+//                        paused: false,
+//                        playing: false,
+//                        trackid: self.poller.apple_mediaItems[0][0].identifier,
+//                        helper_id: p1_found_id,
+//                        videoid: "empty",
+//                        starttime: 0 ,
+//                        endtime: 0,
+//                        flag: ((self.lyrics) ? "lyric" : "audio"),
+//                        lyrictext: self.Lyric_view.text,
+//                        songname: self.poller.apple_mediaItems[0][0].name,
+//                        sourceapp: self.userDefaults.string(forKey: "UserAccount")!.lowercased(),
+//                        preview_url: self.poller.apple_mediaItems[0][0].previews[0]["url"] ?? "",
+//                        albumArtUrl: self.poller.apple_mediaItems[0][0].artwork.imageURL(size: CGSize(width: 375, height: 375)).absoluteString,
+//                        original_track_length: self.poller.apple_mediaItems[0][0].durationInMillis!,
+//                        GIF_url: self.selected_GIF_url?.absoluteString ?? "")
+//
+//                    seal.fulfill(post_from_now_playing!)
+//
+//                }
+//
+//            } else if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
+//                print("We got to now playing spotify")
+//                var spotify_struct = song_db_struct()
+//                var worker = ISRC_worker()
+//
+//                spotify_struct.album_name = self.poller.spotify_currently_playing_object.item!.album?.name
+//                spotify_struct.artist_name = self.poller.spotify_currently_playing_object.item!.artists?[0].name
+//                spotify_struct.isrc_number = self.poller.spotify_currently_playing_object.item!.external_ids?.isrc
+//                spotify_struct.playable_id = self.poller.spotify_currently_playing_object.item!.uri
+//                spotify_struct.preview_url = self.poller.spotify_currently_playing_object.item!.preview_url
+//                spotify_struct.release_date = self.poller.spotify_currently_playing_object.item!.album?.release_date
+//                spotify_struct.song_name = self.poller.spotify_currently_playing_object.item!.name
+//
+//                worker.get_this_song(target_catalog: "apple", song_data: spotify_struct).done {p1_found_id in
+//                    print ("Heya wtf bruh")
+//                    print (p1_found_id)
+//                    print ("Heya wtf bruh")
+//                    if p1_found_id == "nil" {
+//                        print ("ERROR: Helper id not found !!!!!!!!!!!!!!!!!!!!!!")
+//                    } else {
+//                        print ("Helper id found !!!!!!!!!!!!!!!!!!!")
+//                    }
+//
+//
+//                    post_from_now_playing = Post(albumArtImage:  "",
+//                                                 sourceAppImage:  "Spotify_cropped",
+//                                                 typeImage: "icons8-musical-notes-50" ,
+//                                                 profileImage:  "FullSizeRender 10-2" ,
+//                                                 username: "Viraj",
+//                                                 timeAgo: "Just now",
+//                                                 numberoflikes: "0 likes",
+//                                                 caption: self.Caption_text_view.text,
+//                                                 offset: 0.0,
+//                                                 startoffset: start_offset,
+//                                                 audiolength: 30.0 ,
+//                                                 paused: false,
+//                                                 playing: false,
+//                                                 trackid: self.poller.spotify_currently_playing_object.item!.uri,
+//                                                 helper_id: p1_found_id,
+//                                                 videoid: "empty",
+//                                                 starttime: 0 ,
+//                                                 endtime: 0,
+//                                                 flag: ((self.lyrics) ? "lyric" : "audio"),
+//                                                 lyrictext: self.Lyric_view.text,
+//                                                 songname: self.poller.spotify_currently_playing_object.item!.name,
+//                                                 sourceapp:  self.userDefaults.string(forKey: "UserAccount")!.lowercased(),
+//                                                 preview_url: (self.poller.spotify_currently_playing_object.item!.preview_url) ?? "nil",
+//                                                 albumArtUrl: self.poller.spotify_currently_playing_object.item!.album?.images![0].url,
+//                                                 original_track_length: self.poller.spotify_currently_playing_object.item!.duration_ms!,
+//                                                 GIF_url: self.selected_GIF_url?.absoluteString ?? "")
+//
+//                    seal.fulfill(post_from_now_playing!)
+//                }
+//
+//
+//            }
+//        }
+    //}
     
     //This can be called in various scenarios, and we handle them separately
     @objc func dismiss_keyboard () {

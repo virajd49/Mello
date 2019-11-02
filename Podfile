@@ -16,6 +16,8 @@ target 'Project2' do
   pod 'GoogleSignIn', '~> 4.1.1'
   pod 'SwiftyGiphy', '~> 1.0'
   pod 'PostgresClientKit', '~> 0.3'
+  pod 'YoutubeKit'
+  pod 'YoutubePlayer-in-WKWebView', '~> 0.3.0'
 
   target 'Project2Tests' do
     inherit! :search_paths

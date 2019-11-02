@@ -27,6 +27,9 @@ struct AppleMusicRequestFactory {
     /// The base URL for all Apple Music API network calls.
     static let appleMusicAPIBaseURLString = "api.music.apple.com"
     
+    /// The base URL for all Itunes API network calls.
+    static let itunesAPIBaseURLString = "itunes.apple.com"
+    
     /// The Apple Music API endpoint for requesting a list of recently played items.
     static let recentlyPlayedPathURLString = "/v1/me/recent/played"
     
@@ -70,6 +73,37 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
+    //Used for basic apple podcast search by name
+    static func createPodcastSearchRequest(with term: String, countryCode: String, developerToken: String) -> URLRequest {
+        print ("--------------------------------createPodcastSearchRequest---------------------------------------")
+        // Create the URL components for the network call.
+        var urlComponents = URLComponents()
+        urlComponents.scheme = "https"
+        urlComponents.host = AppleMusicRequestFactory.itunesAPIBaseURLString
+        urlComponents.path = "/search"
+        //print(urlComponents.host)
+        let expectedTerms = term.replacingOccurrences(of: " ", with: "+")
+        let urlParameters = ["term": expectedTerms]
+        
+        var queryItems = [URLQueryItem]()
+        for (key, value) in urlParameters {
+            queryItems.append(URLQueryItem(name: key, value: value))
+        }
+        
+        urlComponents.queryItems = queryItems
+        
+        // Create and configure the `URLRequest`.
+        print("in creation")
+        var urlRequest = URLRequest(url: urlComponents.url!)
+        urlRequest.httpMethod = "GET"
+        print(urlRequest)
+        //urlRequest.addValue("Bearer \(developerToken)", forHTTPHeaderField: "Authorization")
+        //urlRequest.addValue("Bearer eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTM2NTEzNzM1LCJleHAiOjE1NDA4MzM3MzV9.ER-u0V7vTvM3V-5j0v7cJIe5JxhAekWHpz_Hzmg2r4XPTJHqFti9k6mBgmZVabv7qjE7dB8TfZMapo35JG201g", forHTTPHeaderField: "Authorization")
+        //print(urlRequest)
+        //print (urlRequest.allHTTPHeaderFields)
+        print("exiting creation")
+        return urlRequest
+    }
     
     //Used for standard apple Artist search by name
     static func createArtistSearchRequest(with term: String, countryCode: String, developerToken: String) -> URLRequest {
@@ -294,7 +328,7 @@ struct AppleMusicRequestFactory {
         return urlRequest
     }
     
-    //Standard apple function taht came with the apple music kit example project.
+    //Standard apple function that came with the apple music kit example project.
     static func createGetUserStorefrontRequest(developerToken: String, userToken: String) -> URLRequest {
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
@@ -420,5 +454,73 @@ struct AppleMusicRequestFactory {
         //print (urlRequest.allHTTPHeaderFields)
         print("exiting creation spotify")
         return urlRequest
+    }
+    
+    
+    
+    //Get a User's Top Artists and Tracks
+    
+    static func createSpotifySearchRequest_top_tracks(accesstoken: String) -> URLRequest {
+        
+        // Create the URL components for the network call.
+        var urlComponents = URLComponents()
+        urlComponents.scheme = "https"
+        urlComponents.host = "api.spotify.com"
+        urlComponents.path = "/v1/me/top/tracks"
+        
+        // Create and configure the `URLRequest`.
+        print("in creation spotify")
+        var urlRequest = URLRequest(url: urlComponents.url!)
+        urlRequest.httpMethod = "GET"
+        print(urlRequest)
+        urlRequest.addValue("Bearer \(accesstoken)", forHTTPHeaderField: "Authorization")
+        
+        //print(urlRequest)
+        //print (urlRequest.allHTTPHeaderFields)
+        print("exiting creation spotify")
+        return urlRequest
+    }
+    
+    static func createSpotifySearchRequest_top_artists(accesstoken: String) -> URLRequest {
+           
+           // Create the URL components for the network call.
+           var urlComponents = URLComponents()
+           urlComponents.scheme = "https"
+           urlComponents.host = "api.spotify.com"
+           urlComponents.path = "/v1/me/top/artists"
+           
+           // Create and configure the `URLRequest`.
+           print("in creation spotify")
+           var urlRequest = URLRequest(url: urlComponents.url!)
+           urlRequest.httpMethod = "GET"
+           print(urlRequest)
+           urlRequest.addValue("Bearer \(accesstoken)", forHTTPHeaderField: "Authorization")
+           
+           //print(urlRequest)
+           //print (urlRequest.allHTTPHeaderFields)
+           print("exiting creation spotify")
+           return urlRequest
+       }
+    
+    
+    static func createSpotifyUserRequest(accesstoken: String) -> URLRequest {
+        
+        // Create the URL components for the network call.
+                  var urlComponents = URLComponents()
+                  urlComponents.scheme = "https"
+                  urlComponents.host = "api.spotify.com"
+                  urlComponents.path = "/v1/me"
+                  
+                  // Create and configure the `URLRequest`.
+                  print("in creation spotify")
+                  var urlRequest = URLRequest(url: urlComponents.url!)
+                  urlRequest.httpMethod = "GET"
+                  print(urlRequest)
+                  urlRequest.addValue("Bearer \(accesstoken)", forHTTPHeaderField: "Authorization")
+                  
+                  //print(urlRequest)
+                  //print (urlRequest.allHTTPHeaderFields)
+                  print("exiting creation spotify")
+                  return urlRequest
     }
 }

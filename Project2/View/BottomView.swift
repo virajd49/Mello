@@ -54,7 +54,7 @@ class Setting: NSObject {
 
 class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
     
-    let current_user = "Spotify"
+    let current_user = "Apple"
     var userDefaults = UserDefaults.standard
     var flag = false
     let blackview = UIView()
@@ -65,7 +65,7 @@ class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate
         return cv
     }()
     //let playlist_access = UserAccess(musicPlayerController: MPMusicPlayerController.applicationMusicPlayer, myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
-    let playlist_access = UserAccess(myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
+    //let playlist_access = UserAccess(myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs(), mypodcastsQuery: MPMediaQuery.podcasts())
     
     let cellID = "cellID"
     let cellHeight: CGFloat = 50
@@ -81,10 +81,11 @@ class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate
     //Get a list of all the playlist names from the users library and ad them to the settings array
     func get_playlist_data() {
         if self.current_user == "Apple"{
-           let list: [String] = playlist_access.getplaylist_title()
-            for i in 1...list.count-1 {
-                settings.append(Setting(name: "Add to " + list[i] , nativeAppimageName: "apple_logo", addIconimageName: "icons8-add-100", mediaItem: list[i]))
-            }
+//           let list: [String] = playlist_access.getplaylist_title()
+//            for i in 1...list.count-1 {
+//                settings.append(Setting(name: "Add to " + list[i] , nativeAppimageName: "apple_logo", addIconimageName: "icons8-add-100", mediaItem: list[i]))
+//            }
+            
         } else{
             let dict: [String : String] = self.userDefaults.object(forKey: "Spotify_playlist_URIs") as! [String : String]
             for i in dict.keys {
@@ -122,10 +123,11 @@ class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate
             collectionView.layer.cornerRadius = 10.0
             
             if self.current_user == "Spotify" {
-                self.playlist_access.get_spotify_all_tracks()
-                self.playlist_access.get_spotify_playlists()
+//                self.playlist_access.get_spotify_all_tracks()
+//                self.playlist_access.get_spotify_playlists()
             } else if self.current_user == "Apple" {
-                self.playlist_access.getplaylists()
+//                self.playlist_access.getplaylists()
+//                self.playlist_access.getpodcasts()
             }
             
             //I forgot why I'm doing this twice, once here and once in dequeue
@@ -133,9 +135,9 @@ class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate
                 var containing_mediaItem: [String] = [""]
                 //print ("in dequeuereusable cell")
                 if self.current_user == "Apple" {
-                    containing_mediaItem = (playlist_access.check_in_library(trackid: self.song_id))
+//                    containing_mediaItem = (playlist_access.check_in_library(trackid: self.song_id))
                 }else {
-                    containing_mediaItem = (playlist_access.spotify_check_in_a_playlist(trackURI: self.song_id))
+//                    containing_mediaItem = (playlist_access.spotify_check_in_a_playlist(trackURI: self.song_id))
                 }
                 print(self.song_id)
                 print(cell.setting?.mediaItem)
@@ -201,9 +203,9 @@ class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate
         
         //We get every mediaItem - Library/playlist - that contains the song
         if self.current_user == "Apple" {
-            containing_mediaItem = (playlist_access.check_in_library(trackid: self.song_id))
+//            containing_mediaItem = (playlist_access.check_in_library(trackid: self.song_id))
         }else {
-            containing_mediaItem = (playlist_access.spotify_check_in_a_playlist(trackURI: self.song_id))
+//            containing_mediaItem = (playlist_access.spotify_check_in_a_playlist(trackURI: self.song_id))
         }
         print(self.song_id)
         print(cell.setting?.mediaItem)
@@ -239,9 +241,9 @@ class BottomView: NSObject, UICollectionViewDataSource, UICollectionViewDelegate
         let setting = settings[indexPath.item]
         print("here")
         if self.current_user == "Spotify" {
-            playlist_access.add_spotify_media_item(mediacollection: setting.mediaItem, mediaItem: self.song_id)
+//            playlist_access.add_spotify_media_item(mediacollection: setting.mediaItem, mediaItem: self.song_id)
         } else {
-            playlist_access.add_to_mediaItem(mediacollection: setting.mediaItem, mediaItem: self.song_id)
+//            playlist_access.add_to_mediaItem(mediacollection: setting.mediaItem, mediaItem: self.song_id)
         }
         let cell = self.collectionView.cellForItem(at: indexPath) as! BottomViewCell?
         cell?.addIconImageView.image = UIImage(named: "icons8-waste-96")

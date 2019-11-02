@@ -167,12 +167,15 @@ class ProfilePageViewController: UIViewController, UIGestureRecognizerDelegate ,
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        print("prepare for segue")
         if segue.identifier == "to_oom" {
             let destinationVC = segue.destination as! UINavigationController
             let postVC = destinationVC.children[0] as! PostViewController
             postVC.OOM_post = self.oom_post
             postVC.setup_media()
+            print ("\(self.oom_post.flag)")
             if self.oom_post.flag == "video" {
+                print ("post flag is video")
                 postVC.youtube_player_setup_from_global_player()
             }
         } else if segue.identifier == "to_hero" {

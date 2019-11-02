@@ -40,7 +40,7 @@ class AppleMusicControl: NSObject {
     var appleMusicManager: AppleMusicManager!
     let cloudServiceDidUpdateNotification = Notification.Name("cloudServiceDidUpdateNotification")
     //var musicPlayerManager: MusicPlayerManager!
-    let musicPlayerController = MPMusicPlayerController.systemMusicPlayer
+    //let musicPlayerController = MPMusicPlayerController.systemMusicPlayer
     
     /// Notification that is posted whenever there is a change in the authorization status that other parts of the sample should respond to.
     let authorizationDidUpdateNotification = Notification.Name("authorizationDidUpdateNotification")
@@ -96,7 +96,24 @@ class AppleMusicControl: NSObject {
        An application should only ever call `SKCloudServiceController.requestAuthorization(_:)` when their
        current authorization is `SKCloudServiceAuthorizationStatusNotDetermined`
          */
-        guard SKCloudServiceController.authorizationStatus() == .notDetermined else { return }
+        guard SKCloudServiceController.authorizationStatus() == .notDetermined else {
+            switch (SKCloudServiceController.authorizationStatus()) {
+            case .authorized:
+                print ("requestCloudServiceAuthorization - STATUS IS authorized")
+                break
+            case .denied:
+                print ("requestCloudServiceAuthorization - STATUS IS denied")
+                break
+            case .restricted:
+                print ("requestCloudServiceAuthorization - STATUS IS restricted")
+                break
+            default:
+                print ("requestCloudServiceAuthorization - STATUS IS unknown")
+                break
+            }
+            return
+            
+        }
         print ("requestCloudServiceAuthorization - STATUS NOT DETERMINED")
         /*
         `SKCloudServiceController.requestAuthorization(_:)` triggers a prompt for the user asking if they wish to allow the application
@@ -112,6 +129,7 @@ class AppleMusicControl: NSObject {
             switch authorizationStatus {
                 case .authorized:
                 self?.requestCloudServiceCapabilities()
+                
                 self?.requestUserToken()
             default:
                 break
@@ -128,7 +146,25 @@ class AppleMusicControl: NSObject {
          An application should only ever call `MPMediaLibrary.requestAuthorization(_:)` when their
          current authorization is `MPMediaLibraryAuthorizationStatusNotDetermined`
          */
-        guard MPMediaLibrary.authorizationStatus() == .notDetermined else { return }
+        guard MPMediaLibrary.authorizationStatus() == .notDetermined else {
+            
+            switch (MPMediaLibrary.authorizationStatus()) {
+                case .authorized:
+                    print ("requestMediaLibraryAuthorization - STATUS IS authorized")
+                    break
+                case .denied:
+                    print ("requestMediaLibraryAuthorization - STATUS IS denied")
+                    break
+                case .restricted:
+                    print ("requestMediaLibraryAuthorization - STATUS IS restricted")
+                    break
+                default:
+                    print ("requestMediaLibraryAuthorization - STATUS IS unknown")
+                    break
+            }
+            return
+            
+        }
         print (" requestMediaLibraryAuthorization - STATUS NOT DETERMINED")
         /*
          `MPMediaLibrary.requestAuthorization(_:)` triggers a prompt for the user asking if they wish to allow the application
@@ -137,10 +173,14 @@ class AppleMusicControl: NSObject {
          This prompt will also include the value provided in the application's Info.plist for the `NSAppleMusicUsageDescription` key.
          This usage description should reflect what the application intends to use this access for.
          */
-        
+
         MPMediaLibrary.requestAuthorization { (_) in
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "AppleMusicMediaLibraryAuthorized"), object: nil)
+            }
             NotificationCenter.default.post(name: (self.cloudServiceDidUpdateNotification), object: nil)
         }
+        
     }
     
     // MARK: `SKCloudServiceController` Related Methods
@@ -149,6 +189,25 @@ class AppleMusicControl: NSObject {
         cloudServiceController.requestCapabilities(completionHandler: { [weak self] (cloudServiceCapability, error) in
             guard error == nil else {
                 fatalError("An error occurred when requesting capabilities: \(error!.localizedDescription)")
+            }
+            
+            if cloudServiceCapability.contains(SKCloudServiceCapability.musicCatalogPlayback) {
+                print("user has Apple Music subscription and can play music from apple music api")
+            }
+
+            if cloudServiceCapability.contains(SKCloudServiceCapability.addToCloudMusicLibrary) {
+                print("user has an Apple Music subscription, can play music from api, also can add to their music library")
+            }
+
+            if cloudServiceCapability.contains(SKCloudServiceCapability.musicCatalogSubscriptionEligible) {
+                print("user does not have subscription")
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "NoAppleMusicSubscriptionPresent"), object: nil)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "AppleMusicSubscriptionPresent"), object: nil)
+                }
             }
             
             self?.cloudServiceCapabilities = cloudServiceCapability
@@ -215,6 +274,8 @@ class AppleMusicControl: NSObject {
                 }
                 
                 self?.userToken = token
+                print("user token is \(self!.userToken)")
+                
                 
                 /// Store the Music User Token for future use in your application.
                 let userDefaults = UserDefaults.standard
@@ -255,7 +316,7 @@ class AppleMusicControl: NSObject {
     func fetchDeveloperToken() -> String? {
         
         // MARK: ADAPT: YOU MUST IMPLEMENT THIS METHOD
-        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTY3Mjg2Njg2LCJleHAiOjE1NjkwMTQ2ODZ9.P12QGtHx4drm_7dCzkHdf2hyZrni5YQ7kyd2svsUIYUpENHMa5LDdoO8KuR8sN57426AtT6YgYi7G3vlmLcFIg"
+        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTcyMTA3ODMxLCJleHAiOjE1NzM4Mzk0MzF9.y7zHJXZ66kaHoo1PmE6fM8aceIfz6XhPwMzcAr3457jLn7EnF9DNY5qGo0GfkEjZWuVP4DMABOUxUYeNcW8evA"
         return developerAuthenticationToken
     }
     
@@ -282,6 +343,11 @@ class AppleMusicControl: NSObject {
             //print ("yeah yeah 2")
         }
         
+        
+        /*
+         If the application has already been authorized in a previous run or manually by the user then it can request
+         the current set of `SKCloudServiceCapability` and Storefront Identifier.
+         */
         if SKCloudServiceController.authorizationStatus() == .authorized {
             requestCloudServiceCapabilities()
             //print ("yeah yeah 3")
@@ -291,6 +357,7 @@ class AppleMusicControl: NSObject {
             
             if let token = UserDefaults.standard.string(forKey: AppleMusicControl.userTokenUserDefaultsKey) {
                 userToken = token
+                print("user token is \(userToken)")
                 self.requestStorefrontCountryCode()
                 print("then this")
             } else {

@@ -180,6 +180,7 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         })
             break
         case "Apple":
+            print("playing now")
             self.apple_music_player.play()
             break
         case "Youtube":
@@ -194,8 +195,8 @@ class ShowUpdateController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         }
         
         
-        self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress), userInfo: nil, repeats: true)
-        self.updateProgress()
+        //self.timer = Timer.scheduledTimer(timeInterval: 0.00005, target: self, selector: #selector(self.updateProgress), userInfo: nil, repeats: true)
+       // self.updateProgress()
         
     }
     

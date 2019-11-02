@@ -13,10 +13,13 @@ import QuartzCore
 import MediaPlayer
 import FLAnimatedImage
 import SDWebImage
+import YoutubeKit
 
 class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate {
 
 
+    @IBOutlet weak var timer_label: UILabel!
+    @IBOutlet weak var dimmer_layer: UIView!
     @IBOutlet weak var gif_image_view: FLAnimatedImageView!
     @IBOutlet weak var progressBar: UIProgressView!
     @IBOutlet weak var albumArtImage: UIImageView!
@@ -51,7 +54,7 @@ class PostCell: UITableViewCell, SPTAudioStreamingDelegate, SPTAudioStreamingPla
     //When we give data to this post we want to load the data
     let getView = BottomView()
     
-    
+    var playback_post: PlaybackPost!
     var post: Post!{
         didSet {
             self.updateUI()

@@ -12,7 +12,7 @@ import Foundation
 
 class myTabBarController: UITabBarController, UITabBarControllerDelegate {
     
-    var poller = now_playing_poller.shared
+   // var poller = now_playing_poller.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()

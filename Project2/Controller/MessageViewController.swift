@@ -13,7 +13,7 @@ import PostgresClientKit
 
 
 /*
-    This is still at stage zero. Been using this guy as a testing ground for a lot of things all the app. So everything below is useless.
+    This is still at stage zero. Been using this guy as a testing ground for a lot of things all around the app. So everything below is useless.
  
  
  
@@ -46,8 +46,8 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         
         let time: Float = youtube.currentTime() + 2.00
         print (time)
-        mini_youtube.cueVideo(byId: "_N2xvUhqPEA", startSeconds: time, endSeconds: 120, suggestedQuality: YTPlaybackQuality.default)
-        //mini_youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": time, "end": 120, "rel": 0])
+        //mini_youtube.cueVideo(byId: "_N2xvUhqPEA", startSeconds: time, endSeconds: 120, suggestedQuality: YTPlaybackQuality.default)
+        mini_youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": time, "end": 120, "rel": 0])
         mini_youtube.playVideo()
         
     }
@@ -75,7 +75,8 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         //bottomView.bringupview(id: "")
         let time2: Float = mini_youtube.currentTime() + 2.00
         print (time2)
-        youtube.cueVideo(byId: "_N2xvUhqPEA", startSeconds: time2, endSeconds: 120, suggestedQuality: YTPlaybackQuality.default)
+        //youtube.cueVideo(byId: "_N2xvUhqPEA", startSeconds: time2, endSeconds: 120, suggestedQuality: YTPlaybackQuality.default)
+        youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": time, "end": 120, "rel": 0])
         youtube.playVideo()
         
     }
@@ -91,7 +92,7 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         tapGesture.delegate = self as? UIGestureRecognizerDelegate
         test_album_art_image.addGestureRecognizer(tapGesture)
         
-        musicPlayerController.beginGeneratingPlaybackNotifications()
+        //musicPlayerController.beginGeneratingPlaybackNotifications()
         youtube = YTPlayerView.init(frame: CGRect(x: 67, y: 431, width: 240, height: 128))
         mini_youtube = YTPlayerView.init(frame: CGRect(x: 67, y: 260, width: 240, height: 128))
         self.view.addSubview(youtube!)
@@ -102,15 +103,50 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         mini_youtube.delegate = self
         
         youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": 20, "end": 120, "rel": 0])
-        mini_youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": 20, "end": 120, "rel": 0])
+        //mini_youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": 20, "end": 120, "rel": 0])
         
-        youtube.currentTime()
+        //youtube.currentTime()
         alertController.addAction(cancelAction)
         alertController.addAction(OKAction)
         alertController.addAction(destroyAction)
         
-        postgres_testing()
+        //postgres_testing()
+        print("stopping apple player")
+        // musicPlayerController.stop()
        
+    }
+    
+    
+    func playerView(_ playerView: YTPlayerView, didChangeTo state: YTPlayerState)
+    {
+        print("state changed youtube")
+        switch(state){
+        case YTPlayerState.unstarted:
+            print("unstarted youtube")
+            
+            break;
+        case YTPlayerState.queued:
+            print("queued youtube")
+            break;
+        case YTPlayerState.buffering:
+            print("buffering youtube")
+           // musicPlayerController.stop()
+            
+            break;
+        case YTPlayerState.ended:
+            print("ended youtube")
+            break;
+        case YTPlayerState.playing:
+            print("playing youtube")
+            //self.animate_color()
+            break;
+        case YTPlayerState.paused:
+            print("paused youtube")
+        default:
+            break;
+            
+            
+        }
     }
     
     func postgres_testing () {
@@ -182,18 +218,18 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
     
     
     func beginPlayback(itemID: String) {
-        musicPlayerController.setQueue(with: ["1224353520"])
+       musicPlayerController.setQueue(with: ["1224353520"])
         
         musicPlayerController.play()
-        togglePlayPause()
+        //togglePlayPause()
     }
     
     // MARK: Playback Control Methods
     
     func togglePlayPause() {
         if musicPlayerController.playbackState == .playing {
-            musicPlayerController.pause()
-            togglePlayPause()
+           musicPlayerController.pause()
+            //togglePlayPause()
         } else {
             musicPlayerController.play()
             musicPlayerController.currentPlaybackTime = 30.0

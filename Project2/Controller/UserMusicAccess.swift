@@ -23,6 +23,7 @@ class UserAccess {
     //var musicPlayerController = MPMusicPlayerController.applicationMusicPlayer
     var myPlaylistQuery = MPMediaQuery.playlists()
     var myLibrarySongsQuery = MPMediaQuery.songs()
+    var mypodcastsQuery = MPMediaQuery.podcasts()
     var session: SPTSession!
     let userDefaults = UserDefaults.standard
     lazy var full_library_spotifytrackIDs = [""]
@@ -33,10 +34,11 @@ class UserAccess {
     var ErrorPointer: ErrorPointer = nil
     
     
-    init(myPlaylistQuery: MPMediaQuery, myLibrarySongsQuery: MPMediaQuery) {
+    init(myPlaylistQuery: MPMediaQuery, myLibrarySongsQuery: MPMediaQuery, mypodcastsQuery: MPMediaQuery) {
         //self.musicPlayerController = musicPlayerController
         self.myPlaylistQuery = myPlaylistQuery
         self.myLibrarySongsQuery = myLibrarySongsQuery
+        self.mypodcastsQuery = mypodcastsQuery
         self.access_token = (self.userDefaults.object(forKey: "spotify_access_token") as! String)
         //self.access_token = "BQChhry-k4ofBoCQqMFiEPTMXwWE5lPcHQt7b05pnOJhdA5dibaZpbEiiKCQZKuwF3ASJs3bm4VxNfzGcsiPSYSTHAEgGBSi5ItLKaEhPFFfOKguD5yuKsrohGkG23keL74nOhaZXQs3MzNWgRxEdFiEvw"
         
@@ -369,6 +371,51 @@ class UserAccess {
         }
         return playlistarray
     }
+    
+    
+    func getpodcast_title() -> [String]{
+        let podcasts = mypodcastsQuery.collections
+        var podcastarray: [String] = []
+        for podcast in podcasts! {
+            //print(playlist.value(forProperty: MPMediaPlaylistPropertyName)!)
+            podcastarray.append(podcast.value(forProperty: MPMediaItemPropertyTitle)! as! String)
+        }
+        return podcastarray
+    }
+    
+    func getpodcasts () -> [String : [String]] {
+        print ("--------------------------get podcasts -------------------------------------")
+        let podcasts = mypodcastsQuery.collections
+        print ("podcasts.collections is \(podcasts)")
+        print ("podcasts count is \(podcasts?.count)")
+        var podcastdict: [String : [String]] = [:]
+        for podcast in podcasts! {
+            print(podcast.representativeItem?.albumTitle)
+            print(podcast.representativeItem?.playbackStoreID)
+            print(podcast.representativeItem?.podcastTitle)
+            print(podcast.representativeItem?.podcastPersistentID)
+            print(podcast.representativeItem?.playbackDuration)
+            print ("----------------------In podcasts --------------------------")
+            let episodes = podcast.items
+            for episode in episodes {
+                print(episode.albumTitle)
+                print(episode.playbackStoreID)
+                print(episode.podcastTitle)
+                print(episode.podcastPersistentID)
+                print(episode.playbackDuration)
+                print ("----------------------in episodes---------------------------------")
+                print (episode as MPMediaItem)
+                let episodeTitle = episode.value(forProperty: MPMediaItemPropertyTitle)
+                print (episodeTitle)
+                
+                //podcastdict[podcast.value(forProperty: as! String]?.append(episodeTitle as! String)]
+            }
+        }
+        
+        return podcastdict
+        
+    }
+        
     
     
     func getplaylists () -> [String : [String]] {

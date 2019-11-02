@@ -20,9 +20,32 @@ import GoogleSignIn
  
  Ignore all the new spotify sdk stuff, we are sticking to the old sdk for now.
  Most of what is going on in this view controller is following standard auth flow as documented by Spotify, apple and google.
+ 
+ 
+ PENDING: Need to find a better place for the poller.
+ 
+ //Actions:
+ 
+ Atleast one is required
+ 
+ 1. Connect spotify = initiate spotify sign in sequence - complete sign in - go to app delegate - come back here - check spotify connection.
+ 
+ 2. Connect apple - itunes will ask for permission - accept confirmation - check apple connection
+ 
+ 3. Youtube sign in - complete google sign in and check google connection - create an account? it's free!
+ 
+ 4. Next
  */
 
-class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate, GIDSignInDelegate, GIDSignInUIDelegate {
+
+
+
+
+class ServiceSignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioStreamingPlaybackDelegate, GIDSignInDelegate, GIDSignInUIDelegate, AuthenticationMasterDelegate {
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
    
     let SpotifyClientID = "5b5198fe415746c0a9410281d041a4f9"
     let SpotifyRedirectURL = URL(string: "viraj-project2://spotify-login-callback")!
@@ -42,9 +65,20 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
     let signInButton = GIDSignInButton()
     private let service = GTLRYouTubeService()
     //let requestedScopes: SPTScope = [.appRemoteControl, .userReadCurrentlyPlaying]
-    var poller = now_playing_poller.shared
+    //var poller = now_playing_poller.shared
     let myGroup = DispatchGroup()
     
+    var authMaster = AuthenticationMaster()
+    var applemanager = AppleMusicManager()
+    var new_user =  UserAccount()
+    var userdefaults = UserDefaults.standard
+    
+    @IBOutlet weak var spotify_signin_button: UIButton!
+    @IBOutlet weak var youtube_signin_button: UIButton!
+    @IBOutlet weak var apple_signin_button: UIButton!
+    @IBOutlet weak var spotify_check_mark: UIImageView!
+    @IBOutlet weak var youtube_check_mark: UIImageView!
+    @IBOutlet weak var apple_check_mark: UIImageView!
     
     //NEW SPOTIFY SDK STUFF - IGNORE THIS - THIS IS FROM WHEN I TRIED TO SWITCH OVER TO THE NEW API AND ABANDONED IT CAUSE THE USE FLOW WAS WEIRD
 //    lazy var configuration = SPTConfiguration(
@@ -75,13 +109,7 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         GIDSignIn.sharedInstance().uiDelegate = self
         GIDSignIn.sharedInstance().scopes = scopes
         GIDSignIn.sharedInstance()?.clientID = "898533962642-u5k25pe6v3jgso5o8hkq16k1jalhec1l.apps.googleusercontent.com"
-        GIDSignIn.sharedInstance().signInSilently()
         userDefaults.setValue("AIzaSyCWyumtxOwkf0zXWsh2Pe0vSwXFNHfax8E", forKey: "google_api_key")
-        
-        view.addSubview(signInButton)
-        signInButton.center.x = self.view.center.x
-        signInButton.frame.origin.y = 200
-      
     }
     
     //IGNORE - inactive code for now - don't press the Sign in to Spotify button on the screen
@@ -89,23 +117,123 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         
         //self.spotify_sign_button_old_sdk()
         //self.performSegue(withIdentifier: "toNewsFeed", sender: self)
+        hide_done_button()
+        self.authMaster.spotify_sign_in_initialize_old_sdk()
     }
     
+    @IBAction func google_sign_in(_ sender: Any) {
+        //GIDSignIn.sharedInstance().signIn()
+        hide_done_button()
+        self.authMaster.google_sign_in()
+    }
     
     @IBAction func signInToAppleMusic(_ sender: Any) {
-        appleauthority.requestCloudServiceAuthorization()
-        appleauthority.requestMediaLibraryAuthorization()
+        //appleauthority.requestCloudServiceAuthorization()
+        //appleauthority.requestMediaLibraryAuthorization()
+        print("signInToAppleMusic button called")
+        hide_done_button()
+        self.authMaster.apple_sign_in_initialize()
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        
+        newsfeed_yt_player_init()
+        //view.addSubview(signInButton)
+        //signInButton.frame = CGRect(x: 306, y: 211, width: 53, height: 25)
+        
         //This is the beggining of the spotify authentication sequence
-        self.spotify_sign_in_initialize_old_sdk()
+        //self.spotify_sign_in_initialize_old_sdk()
+        self.authMaster.delegate = self
+        self.authMaster.google_initialize_sign_in()
+        
+        self.spotify_check_mark.isHidden = true
+        self.apple_check_mark.isHidden = true
+        self.youtube_check_mark.isHidden = true
 
     }
     
+    func set_done_button () {
+        if self.navigationItem.rightBarButtonItem == nil {
+            self.navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Done", style: UIBarButtonItem.Style.plain, target: self, action: #selector(done_button))
+        }
+    }
+    
+    func hide_done_button () {
+        if self.navigationItem.rightBarButtonItem != nil {
+            self.navigationItem.rightBarButtonItem == nil
+        }
+    }
+    
+    @objc func done_button (sender: UIBarButtonItem) {
+        userdefaults.setisLoggedIn(value: true)
+        new_user.register_new_user()
+        self.performSegue(withIdentifier: "toNewsFeed", sender: self)
+        
+    }
+    
+    func spotify_login_done () {
+        print ("spotify login done called")
+        self.spotify_signin_button.isHidden = true
+        self.spotify_signin_button.isUserInteractionEnabled = false
+        self.spotify_check_mark.isHidden = false
+        //Add spotify service
+        var spotify_service = Service()
+        
+        self.applemanager.get_spotify_current_user().done { user in
+            
+            print("\(user.display_name)")
+            print("\(user.email)")
+            print("\(user.product)")
+            if user.product == "\(subscription.free)" {
+                spotify_service.subscription = .free
+                print("Spotify subscription is free")
+            } else if user.product == "\(subscription.premium)" {
+                spotify_service.subscription = .premium
+                print("Spotify subscription is premium")
+            } else if user.product == "\(subscription.unknown)" {
+                spotify_service.subscription = .unknown
+                print("Spotify subscription is unknown")
+            } else if user.product == "\(subscription.unlimited)" {
+                spotify_service.subscription = .unlimited
+                print("Spotify subscription is unlimited")
+            }
+            
+            spotify_service.name = service_name.spotify
+            self.new_user.services.append(spotify_service)
+            self.set_done_button()
+        }
+        
+    }
+    
+    func google_login_done () {
+        
+        self.youtube_signin_button.isHidden = true
+        self.youtube_signin_button.isUserInteractionEnabled = false
+        self.youtube_check_mark.isHidden = false
+        //Add youtube service
+        var youtube_service = Service()
+        youtube_service.name = service_name.youtube
+        youtube_service.subscription = .free
+        self.new_user.services.append(youtube_service)
+        set_done_button()
+    }
+    
+    func apple_login_done () {
+        
+        self.apple_signin_button.isHidden = true
+        self.apple_signin_button.isUserInteractionEnabled = false
+        self.apple_check_mark.isHidden = false
+        //Add apple service
+        var apple_service = Service()
+        apple_service.name = service_name.apple
+        apple_service.subscription = .paid
+        self.new_user.services.append(apple_service)
+        set_done_button()
+    }
+/*
     func apple_sign_in_initialize () {
         
         //Was trying to make sure that the segue is called synchronously after the three apple auth calls - used dispatch groups for that - no sure if there is a simpler/better way to do this here
@@ -190,11 +318,17 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
                 print(" and this guy")
                 //Here we store it in user defaults for further use within the app
                 self.userDefaults.set(user.canonicalUserName, forKey: "current_spotify_username")
+                print("Spotify subscription type = \(user.product)")
                 
                 //Here we grab what is essentially the users latest library and playlists
-                let playlist_access = UserAccess(myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs())
-                playlist_access.get_spotify_playlists()
-                playlist_access.get_spotify_all_tracks()
+                let playlist_access = UserAccess(myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs(), mypodcastsQuery: MPMediaQuery.podcasts())
+                
+                if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
+                    playlist_access.get_spotify_playlists()
+                    playlist_access.get_spotify_all_tracks()
+                } else {
+                    //
+                }
                 print("username set")
             }else {
                 print ("error getting username")
@@ -228,22 +362,23 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         self.google_sign_in_initialize()
     }
     
-    
+  */
     //My understanding is that the google sign in flow is initiated when the sign in button is pressed, unsure why it gives us an auth failed error before we click the button, will have to go over google auth flow documentation
     func sign(_ signIn: GIDSignIn!, didSignInFor user: GIDGoogleUser!, withError error: Error!) {
         print ("Google sign in")
         if let error = error {
             //this is the error we see
-            showAlert(title: "Authentication Error", message: error.localizedDescription)
+            //showAlert(title: "Authentication Error", message: error.localizedDescription)
             self.service.authorizer = nil
         } else {
             //this means auth was successful
             self.signInButton.isHidden = true
             self.service.authorizer = user.authentication.fetcherAuthorizer()
             //we move on to apple auth flow
-            self.apple_sign_in_initialize()
+            //self.apple_sign_in_initialize()
         }
     }
+/*
     
     func showAlert(title : String, message: String) {
         let alert = UIAlertController(
@@ -292,7 +427,7 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
         SPTAuth.defaultInstance().requestedScopes = [SPTAuthStreamingScope, SPTAuthPlaylistReadPrivateScope, SPTAuthPlaylistModifyPublicScope, SPTAuthPlaylistModifyPrivateScope, SPTAuthUserLibraryReadScope, SPTAuthUserLibraryModifyScope, SPTAuthUserReadPrivateScope]
         //loginUrl = SPTAuth.defaultInstance().spotifyAppAuthenticationURL()
         //This is the AppAuthenticationURL format  - using a hardcoded value because SPTAuth from the old sdk does not have 'user-read-playback-state' and 'user-read-recently-played' scopes.
-        loginUrl = URL(string: "spotify-action://authorize?nolinks=true&nosignup=true&response_type=code&scope=streaming%20playlist-read-private%20playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-library-read%20user-library-modify%20user-read-recently-played&utm_source=spotify-sdk&utm_medium=ios-sdk&utm_campaign=ios-sdk&redirect_uri=viraj-project2%3A%2F%2Fspotify-login-callback&show_dialog=true&client_id=5b5198fe415746c0a9410281d041a4f9")
+        loginUrl = URL(string: "spotify-action://authorize?nolinks=true&nosignup=true&response_type=code&scope=streaming%20playlist-read-private%20playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-library-read%20user-top-read%20user-library-modify%20user-read-recently-played&utm_source=spotify-sdk&utm_medium=ios-sdk&utm_campaign=ios-sdk&redirect_uri=viraj-project2%3A%2F%2Fspotify-login-callback&show_dialog=true&client_id=5b5198fe415746c0a9410281d041a4f9")
         print(loginUrl)
         print(SPTAuth.defaultInstance().spotifyAppAuthenticationURL())
         print(SPTAuth.defaultInstance().spotifyWebAuthenticationURL())
@@ -347,9 +482,9 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
                             
                             //As soon as we are done authenticating, we want to get the currently playing item from apple/spotify
                             //I'm not sure if this is blocking anything as of now, but it can probably go on a background thread
-                            self.poller.grab_now_playing_item().done {
-                                print("Done checking for now playing")
-                            }
+                            //self.poller.grab_now_playing_item().done {
+                              //  print("Done checking for now playing")
+                            //}
                             //this notification will call updateAfterFirstLogin
                             NotificationCenter.default.post(name: Notification.Name(rawValue: "loginSuccessfull"), object: nil)
                             
@@ -362,9 +497,9 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
                     print("Session is valid")
                     //As soon as we are done authenticating, we want to get the currently playing item from apple/spotify
                     //I'm not sure if this is blocking anything, but it can probably go on a background thread - Look at now_playing_poller.swift under Model
-                    self.poller.grab_now_playing_item().done {
-                        print ("Done checking for now playing")
-                    }
+                    //self.poller.grab_now_playing_item().done {
+                        //print ("Done checking for now playing")
+                    //}
                     
                     //this notification will call updateAfterFirstLogin
                     NotificationCenter.default.post(name: Notification.Name(rawValue: "loginSuccessfull"), object: nil)
@@ -461,4 +596,5 @@ class SignInViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudi
 //
 //
   
+ */
 }

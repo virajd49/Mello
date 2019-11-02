@@ -81,7 +81,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
         self.navigationController?.navigationBar.shadowImage = UIImage()
 
         if self.grab_oom.stored_oom.flag == "audio" {
-            self.youtubeplayer.isHidden = true
+            //self.youtubeplayer.isHidden = true
             self.lyric_view.isHidden = true
             self.visual_aid_container.bringSubviewToFront(self.album_art)
         } else if self.grab_oom.stored_oom.flag == "video" {
@@ -89,7 +89,7 @@ class PostViewController: UIViewController, SPTAudioStreamingDelegate, SPTAudioS
             self.lyric_view.isHidden = true
             self.view.bringSubviewToFront(self.youtubeplayer)
         } else if self.grab_oom.stored_oom.flag == "lyric" {
-            self.youtubeplayer.isHidden = true
+           // self.youtubeplayer.isHidden = true
             self.album_art.isHidden = true
             self.visual_aid_container.bringSubviewToFront(self.lyric_view)
         }

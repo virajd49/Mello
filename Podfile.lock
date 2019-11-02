@@ -124,6 +124,8 @@ PODS:
     - NSTimer-Blocks
     - ObjectMapper (~> 3.0)
     - SDWebImage/GIF
+  - YoutubeKit (0.3.0)
+  - YoutubePlayer-in-WKWebView (0.3.1)
 
 DEPENDENCIES:
   - Firebase/Auth
@@ -135,6 +137,8 @@ DEPENDENCIES:
   - PostgresClientKit (~> 0.3)
   - PromiseKit (~> 6.0)
   - SwiftyGiphy (~> 1.0)
+  - YoutubeKit
+  - YoutubePlayer-in-WKWebView (~> 0.3.0)
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
@@ -164,6 +168,8 @@ SPEC REPOS:
     - PromiseKit
     - SDWebImage
     - SwiftyGiphy
+    - YoutubeKit
+    - YoutubePlayer-in-WKWebView
 
 SPEC CHECKSUMS:
   BlueSocket: ff75aa92edb147aebf43ce7b20bf7a3693f8dcca
@@ -192,7 +198,9 @@ SPEC CHECKSUMS:
   PromiseKit: 94c6e781838c5bf4717677d0d882b0e7250c80fc
   SDWebImage: ecc03494e973b93b80213649d32175f8d2d17d4d
   SwiftyGiphy: 6fb86ca967445826a9b1aa629ce22d970bca579d
+  YoutubeKit: a00e9eebcb3cfe26d7e233c5f8591dfd0b08f7a0
+  YoutubePlayer-in-WKWebView: 86f6b4c04797296071585b92724f3904d0273f12
 
-PODFILE CHECKSUM: 1fe5b25f4b76068249eed2eb89759bd6be553a04
+PODFILE CHECKSUM: b8ddc638283d94ebe7e04b0a474f8cc9bc144f33
 
 COCOAPODS: 1.5.3

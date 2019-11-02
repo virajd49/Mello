@@ -98,7 +98,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     
     //The singleton instance from where we access the currently playing song.
-    var poller = now_playing_poller.shared
+    //var poller = now_playing_poller.shared
     
     @IBOutlet weak var pane_view_for_keyboard_dismiss: UIView! //the pane that darkens the background when the keyboard is active and that reacts to the tap to dismiss the keyboard
     @IBOutlet weak var url_paste_container_view: UIView!
@@ -312,7 +312,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         self.now_playing_mini_image.layer.cornerRadius = 5
         
         //Get the currently playing song from the poller
-        self.grab_and_load_now_playing()
+        //self.grab_and_load_now_playing()
         
         self.upload_flag = "now_playing"
         
@@ -331,35 +331,35 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     
-    //This function gets song data for the currently playing song from the poller singleton and sets it up in the currently paying image view.
-    func grab_and_load_now_playing() {
-        if self.poller.something_is_playing {
-            print("poller is playing something")
-            if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
-                self.now_playing_mini_image.image = poller.return_image()
-                if let mediaItem = self.apple_system_player.nowPlayingItem {
-                    print ("\(mediaItem.playbackDuration)")
-                    self.now_playing_mini_image.isHidden = false
-                    self.now_playing_mini_image_container.isHidden = false
-                    self.apple_is_currently_playing = true
-                }
-            } else if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
-                self.poller.grab_now_playing_item().done {
-                    self.now_playing_mini_image.image = self.poller.return_image()
-                }
-                self.temp_spotify_media_context_uri = self.poller.spotify_currently_playing_object.item?.uri
-                self.temp_spotify_media_context_duration = self.poller.spotify_currently_playing_object.item?.duration_ms
-                self.now_playing_mini_image.isHidden = false
-                self.now_playing_mini_image_container.isHidden = false
-                self.spotify_is_currently_playing = true
-            }
-        } else {
-            self.now_playing_mini_image.isHidden = true
-            self.now_playing_mini_image_container.isHidden = true
-            self.spotify_is_currently_playing = false
-        }
-        
-    }
+//    //This function gets song data for the currently playing song from the poller singleton and sets it up in the currently paying image view.
+//    func grab_and_load_now_playing() {
+//        if self.poller.something_is_playing {
+//            print("poller is playing something")
+//            if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
+//                self.now_playing_mini_image.image = poller.return_image()
+//                if let mediaItem = self.apple_system_player.nowPlayingItem {
+//                    print ("\(mediaItem.playbackDuration)")
+//                    self.now_playing_mini_image.isHidden = false
+//                    self.now_playing_mini_image_container.isHidden = false
+//                    self.apple_is_currently_playing = true
+//                }
+//            } else if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
+//                self.poller.grab_now_playing_item().done {
+//                    self.now_playing_mini_image.image = self.poller.return_image()
+//                }
+//                self.temp_spotify_media_context_uri = self.poller.spotify_currently_playing_object.item?.uri
+//                self.temp_spotify_media_context_duration = self.poller.spotify_currently_playing_object.item?.duration_ms
+//                self.now_playing_mini_image.isHidden = false
+//                self.now_playing_mini_image_container.isHidden = false
+//                self.spotify_is_currently_playing = true
+//            }
+//        } else {
+//            self.now_playing_mini_image.isHidden = true
+//            self.now_playing_mini_image_container.isHidden = true
+//            self.spotify_is_currently_playing = false
+//        }
+//
+//    }
  
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -369,8 +369,8 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     //Everytime the view appears, we need to grab the currently playing song and load it on the currently playing image
     override func viewWillAppear(_ animated: Bool) {
-        self.poller.grab_now_playing_item() //The poller singletion gets the currently playing song from apple/spotify
-        self.grab_and_load_now_playing()
+       // self.poller.grab_now_playing_item() //The poller singletion gets the currently playing song from apple/spotify
+       // self.grab_and_load_now_playing()
     }
     
     override var prefersStatusBarHidden: Bool {
@@ -401,6 +401,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     //When user taps on the apple button - setup search button, hide now playing image, etc.
     @IBAction func apple_upload_button(_ sender: Any) {
+        self.appleMusicManager.performItunesCatalogSearchNew(with: "Why'd you push that button?", countryCode: "us")
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1,
                        options: [.curveEaseIn], animations: {
                         self.stack_leading.constant = 87.5
@@ -422,11 +423,27 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     //When user taps on the spotify button - setup search button, hide now playing image, etc.
     @IBAction func spotify_button(_ sender: Any) {
+        self.appleMusicManager.performSpotifyCatalogSearch_users_top_music().done { searchResults in
+            print ("performSpotifyCatalogSearch_users_top_music done")
+            
+            var top_tracks = [SpotifyTopTracksMediaObject.item]()
+            
+            
+            top_tracks = searchResults
+            print(" count from setterqueue \(searchResults.count)")
+            
+            for track in top_tracks {
+                print(track.name)
+                print(track.uri)
+            }
+            self.search_result_count = top_tracks.count ?? 0
+           
+        }
         UIView.animate(withDuration: 0.5, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 1,
                        options: [.curveEaseIn], animations: {
                         self.stack_leading.constant = 7.5
                         self.stack_trailing.constant = 87.5
-                        self.change_alpha(center_button: 2)
+//                        self.change_alpha(center_button: 2)
                         self.view.layoutIfNeeded()
         }, completion: nil )
         searchController.searchBar.placeholder = "Search Spotify"
@@ -1181,98 +1198,98 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     //this is triggered when the user taps on the now playing image. So when the user wants to upload the currently playing song. We package the song data into the internal structures and then send it to the next viewcontroller.
      @objc func tapEdit2(recognizer: UITapGestureRecognizer)  {
-        print ("tapEdit2 called ")
-        
-        
-        self.now_playing_mini_image.isHidden = true
-        self.now_playing_mini_image_container.isHidden = true
-
-         if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
-        self.selected_search_result_post_image = self.poller.return_image()
-        self.selected_search_result_song_db_struct.album_name = self.poller.spotify_currently_playing_object.item?.album?.name
-        self.selected_search_result_song_db_struct.artist_name = self.poller.spotify_currently_playing_object.item?.artists?[0].name
-        self.selected_search_result_song_db_struct.isrc_number = self.poller.spotify_currently_playing_object.item?.external_ids?.isrc
-        self.selected_search_result_song_db_struct.playable_id = self.poller.spotify_currently_playing_object.item?.uri
-        self.selected_search_result_song_db_struct.preview_url = self.poller.spotify_currently_playing_object.item?.preview_url
-        self.selected_search_result_song_db_struct.release_date = self.poller.spotify_currently_playing_object.item?.album?.release_date
-        self.selected_search_result_song_db_struct.song_name = self.poller.spotify_currently_playing_object.item?.name
-        
-        self.selected_search_result_post = Post(albumArtImage:  "",
-                                                sourceAppImage:  "Spotify_cropped",
-                                                typeImage: "icons8-musical-notes-50" ,
-                                                profileImage:  "FullSizeRender 10-2" ,
-                                                username: "Viraj",
-                                                timeAgo: "Just now",
-                                                numberoflikes: "0 likes",
-                                                caption: "",
-                                                offset: 0.0,
-                                                startoffset: 0.0, //<- Apple does not allow starting from a particular point. No workaround so far :( We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
-                                                audiolength: 30.0 ,
-                                                paused: false,
-                                                playing: false,
-                                                trackid: self.poller.spotify_currently_playing_object.item?.uri,
-                                                helper_id: "",
-                                                videoid: "empty",
-                                                starttime: 0 ,
-                                                endtime: 0,
-                                                flag: "audio",
-                                                lyrictext: "",
-                                                songname: self.poller.spotify_currently_playing_object.item?.name,
-                                                sourceapp: self.upload_flag,
-                                                preview_url: (self.poller.spotify_currently_playing_object.item?.preview_url) ?? "nil",
-                                                albumArtUrl: self.poller.spotify_currently_playing_object.item?.album?.images![0].url,
-                                                original_track_length: (self.temp_spotify_media_context_duration!),
-                                                GIF_url: "" )
-        
-            self.duration = (self.temp_spotify_media_context_duration!) / 1000
-            self.duration_for_number_of_cells = Int(ceil(Double(self.temp_spotify_media_context_duration!) / 1000))
-            
-         } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
-            
-            self.selected_search_result_post_image = self.poller.return_image()
-            self.selected_search_result_song_db_struct.album_name = self.poller.apple_mediaItems[0][0].albumName
-            self.selected_search_result_song_db_struct.artist_name = self.poller.apple_mediaItems[0][0].artistName
-            self.selected_search_result_song_db_struct.isrc_number = self.poller.apple_mediaItems[0][0].isrc
-            self.selected_search_result_song_db_struct.playable_id = self.poller.apple_mediaItems[0][0].identifier
-            self.selected_search_result_song_db_struct.preview_url = self.poller.apple_mediaItems[0][0].url
-            self.selected_search_result_song_db_struct.release_date = self.poller.apple_mediaItems[0][0].releaseDate
-            self.selected_search_result_song_db_struct.song_name = self.poller.apple_mediaItems[0][0].name
-            
-            self.selected_search_result_post = Post(albumArtImage:  "",
-                                                    sourceAppImage:  "Spotify_cropped",
-                                                    typeImage: "icons8-musical-notes-50" ,
-                                                    profileImage:  "FullSizeRender 10-2" ,
-                                                    username: "Viraj",
-                                                    timeAgo: "Just now",
-                                                    numberoflikes: "0 likes",
-                                                    caption: "",
-                                                    offset: 0.0,
-                                                    startoffset: 0.0, //<- Apple does not allow starting from a particular point. No workaround so far :( We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
-                                                    audiolength: 30.0 ,
-                                                    paused: false,
-                                                    playing: false,
-                                                    trackid: self.poller.apple_mediaItems[0][0].identifier,
-                                                    helper_id: "",
-                                                    videoid: "empty",
-                                                    starttime: 0 ,
-                                                    endtime: 0,
-                                                    flag: "audio",
-                                                    lyrictext: "",
-                                                    songname: self.poller.apple_mediaItems[0][0].name,
-                                                    sourceapp: self.upload_flag,
-                                                    preview_url: (self.poller.apple_mediaItems[0][0].url) ?? "nil",
-                                                    albumArtUrl: self.poller.apple_mediaItems[0][0].artwork.imageURL(size: CGSize(width: 375, height: 375)).absoluteString,
-                                                    original_track_length: (self.poller.apple_mediaItems[0][0].durationInMillis!),
-                                                    GIF_url: "" )
-            
-            self.duration = (self.poller.apple_mediaItems[0][0].durationInMillis!) / 1000
-            self.duration_for_number_of_cells = Int(ceil(Double(self.poller.apple_mediaItems[0][0].durationInMillis!) / 1000))
-            
-            print ("duration we're going for now playing \(self.duration)")
-            print("duration_for_number_of_cells \(self.duration_for_number_of_cells)")
-            
-            
-        }
+//        print ("tapEdit2 called ")
+//
+//
+//        self.now_playing_mini_image.isHidden = true
+//        self.now_playing_mini_image_container.isHidden = true
+//
+//         if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
+//        self.selected_search_result_post_image = self.poller.return_image()
+//        self.selected_search_result_song_db_struct.album_name = self.poller.spotify_currently_playing_object.item?.album?.name
+//        self.selected_search_result_song_db_struct.artist_name = self.poller.spotify_currently_playing_object.item?.artists?[0].name
+//        self.selected_search_result_song_db_struct.isrc_number = self.poller.spotify_currently_playing_object.item?.external_ids?.isrc
+//        self.selected_search_result_song_db_struct.playable_id = self.poller.spotify_currently_playing_object.item?.uri
+//        self.selected_search_result_song_db_struct.preview_url = self.poller.spotify_currently_playing_object.item?.preview_url
+//        self.selected_search_result_song_db_struct.release_date = self.poller.spotify_currently_playing_object.item?.album?.release_date
+//        self.selected_search_result_song_db_struct.song_name = self.poller.spotify_currently_playing_object.item?.name
+//
+//        self.selected_search_result_post = Post(albumArtImage:  "",
+//                                                sourceAppImage:  "Spotify_cropped",
+//                                                typeImage: "icons8-musical-notes-50" ,
+//                                                profileImage:  "FullSizeRender 10-2" ,
+//                                                username: "Viraj",
+//                                                timeAgo: "Just now",
+//                                                numberoflikes: "0 likes",
+//                                                caption: "",
+//                                                offset: 0.0,
+//                                                startoffset: 0.0, //<- Apple does not allow starting from a particular point. No workaround so far :( We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
+//                                                audiolength: 30.0 ,
+//                                                paused: false,
+//                                                playing: false,
+//                                                trackid: self.poller.spotify_currently_playing_object.item?.uri,
+//                                                helper_id: "",
+//                                                videoid: "empty",
+//                                                starttime: 0 ,
+//                                                endtime: 0,
+//                                                flag: "audio",
+//                                                lyrictext: "",
+//                                                songname: self.poller.spotify_currently_playing_object.item?.name,
+//                                                sourceapp: self.upload_flag,
+//                                                preview_url: (self.poller.spotify_currently_playing_object.item?.preview_url) ?? "nil",
+//                                                albumArtUrl: self.poller.spotify_currently_playing_object.item?.album?.images![0].url,
+//                                                original_track_length: (self.temp_spotify_media_context_duration!),
+//                                                GIF_url: "" )
+//
+//            self.duration = (self.temp_spotify_media_context_duration!) / 1000
+//            self.duration_for_number_of_cells = Int(ceil(Double(self.temp_spotify_media_context_duration!) / 1000))
+//
+//         } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
+//
+//            self.selected_search_result_post_image = self.poller.return_image()
+//            self.selected_search_result_song_db_struct.album_name = self.poller.apple_mediaItems[0][0].albumName
+//            self.selected_search_result_song_db_struct.artist_name = self.poller.apple_mediaItems[0][0].artistName
+//            self.selected_search_result_song_db_struct.isrc_number = self.poller.apple_mediaItems[0][0].isrc
+//            self.selected_search_result_song_db_struct.playable_id = self.poller.apple_mediaItems[0][0].identifier
+//            self.selected_search_result_song_db_struct.preview_url = self.poller.apple_mediaItems[0][0].url
+//            self.selected_search_result_song_db_struct.release_date = self.poller.apple_mediaItems[0][0].releaseDate
+//            self.selected_search_result_song_db_struct.song_name = self.poller.apple_mediaItems[0][0].name
+//
+//            self.selected_search_result_post = Post(albumArtImage:  "",
+//                                                    sourceAppImage:  "Spotify_cropped",
+//                                                    typeImage: "icons8-musical-notes-50" ,
+//                                                    profileImage:  "FullSizeRender 10-2" ,
+//                                                    username: "Viraj",
+//                                                    timeAgo: "Just now",
+//                                                    numberoflikes: "0 likes",
+//                                                    caption: "",
+//                                                    offset: 0.0,
+//                                                    startoffset: 0.0, //<- Apple does not allow starting from a particular point. No workaround so far :( We keep this for spotify users playing apple posts - we give this value as 0.0 in update_apple in newsfeed controller.
+//                                                    audiolength: 30.0 ,
+//                                                    paused: false,
+//                                                    playing: false,
+//                                                    trackid: self.poller.apple_mediaItems[0][0].identifier,
+//                                                    helper_id: "",
+//                                                    videoid: "empty",
+//                                                    starttime: 0 ,
+//                                                    endtime: 0,
+//                                                    flag: "audio",
+//                                                    lyrictext: "",
+//                                                    songname: self.poller.apple_mediaItems[0][0].name,
+//                                                    sourceapp: self.upload_flag,
+//                                                    preview_url: (self.poller.apple_mediaItems[0][0].url) ?? "nil",
+//                                                    albumArtUrl: self.poller.apple_mediaItems[0][0].artwork.imageURL(size: CGSize(width: 375, height: 375)).absoluteString,
+//                                                    original_track_length: (self.poller.apple_mediaItems[0][0].durationInMillis!),
+//                                                    GIF_url: "" )
+//
+//            self.duration = (self.poller.apple_mediaItems[0][0].durationInMillis!) / 1000
+//            self.duration_for_number_of_cells = Int(ceil(Double(self.poller.apple_mediaItems[0][0].durationInMillis!) / 1000))
+//
+//            print ("duration we're going for now playing \(self.duration)")
+//            print("duration_for_number_of_cells \(self.duration_for_number_of_cells)")
+//
+//
+//        }
         
             self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
     }

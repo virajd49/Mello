@@ -44,6 +44,20 @@ extension UIImageView {
         }).resume()
     }
     
+}
+
+
+
+extension UserDefaults {
     
+    func setisLoggedIn(value: Bool) {
+        set(value, forKey:"isLoggedIn")
+        synchronize()
+    }
+    
+    func getisLoggedIn() -> Bool {
+        return self.bool(forKey:"isLoggedIn")
+       
+    }
     
 }
