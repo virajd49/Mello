@@ -74,7 +74,7 @@ class AppleMusicManager {
     func fetchDeveloperToken() -> String? {
         
         // MARK: ADAPT: YOU MUST IMPLEMENT THIS METHOD
-        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTcyMTA3ODMxLCJleHAiOjE1NzM4Mzk0MzF9.y7zHJXZ66kaHoo1PmE6fM8aceIfz6XhPwMzcAr3457jLn7EnF9DNY5qGo0GfkEjZWuVP4DMABOUxUYeNcW8evA"
+        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTc4NDUzOTk4LCJleHAiOjE1ODAxODE5OTh9.sQax4KtczD_a8MpKpWrl2b-Um1CbxrI5fB0wEt1QeciVniT_ByqOeQam-_F7rvBKd9PSUjNbkXXbviQ6aAFgvQ"
         
 //        "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTUyNTMyMzIwLCJleHAiOjE1NTY4NTIzMjB9.omYV_K9GTUgO8zYjMe7ySp-3p6xOO5WR6JkPeSJPtaePcaKIyGzLHnAlOkj_cOfJxuStUP8U1bh3c2ZWrAU97A"
         return developerAuthenticationToken

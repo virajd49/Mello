@@ -139,8 +139,7 @@ class ServiceSignInViewController: UIViewController, SPTAudioStreamingDelegate, 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        newsfeed_yt_player_init()
+        //newsfeed_yt_player_init()
         //view.addSubview(signInButton)
         //signInButton.frame = CGRect(x: 306, y: 211, width: 53, height: 25)
         
@@ -168,10 +167,12 @@ class ServiceSignInViewController: UIViewController, SPTAudioStreamingDelegate, 
     }
     
     @objc func done_button (sender: UIBarButtonItem) {
-        userdefaults.setisLoggedIn(value: true)
+        //This code needs to be revisted 
+        if !new_user.is_user_logged_in() {
+            new_user.set_as_logged_in()
+        }
         new_user.register_new_user()
         self.performSegue(withIdentifier: "toNewsFeed", sender: self)
-        
     }
     
     func spotify_login_done () {
@@ -187,7 +188,7 @@ class ServiceSignInViewController: UIViewController, SPTAudioStreamingDelegate, 
             print("\(user.display_name)")
             print("\(user.email)")
             print("\(user.product)")
-            if user.product == "\(subscription.free)" {
+            if user.product == "\(subscription.free)" || user.product == "\(subscription.open)"{
                 spotify_service.subscription = .free
                 print("Spotify subscription is free")
             } else if user.product == "\(subscription.premium)" {
@@ -200,7 +201,8 @@ class ServiceSignInViewController: UIViewController, SPTAudioStreamingDelegate, 
                 spotify_service.subscription = .unlimited
                 print("Spotify subscription is unlimited")
             }
-            
+            spotify_service.can_play = true
+            spotify_service.can_add = true
             spotify_service.name = service_name.spotify
             self.new_user.services.append(spotify_service)
             self.set_done_button()
@@ -217,12 +219,14 @@ class ServiceSignInViewController: UIViewController, SPTAudioStreamingDelegate, 
         var youtube_service = Service()
         youtube_service.name = service_name.youtube
         youtube_service.subscription = .free
+        youtube_service.can_add = true
+        youtube_service.can_play = true
         self.new_user.services.append(youtube_service)
         set_done_button()
     }
     
     func apple_login_done () {
-        
+        print("service sign in apple_login_done")
         self.apple_signin_button.isHidden = true
         self.apple_signin_button.isUserInteractionEnabled = false
         self.apple_check_mark.isHidden = false
@@ -230,6 +234,8 @@ class ServiceSignInViewController: UIViewController, SPTAudioStreamingDelegate, 
         var apple_service = Service()
         apple_service.name = service_name.apple
         apple_service.subscription = .paid
+        apple_service.can_add = self.authMaster.can_add_music
+        apple_service.can_play = self.authMaster.can_play_music
         self.new_user.services.append(apple_service)
         set_done_button()
     }

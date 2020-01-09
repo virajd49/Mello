@@ -244,14 +244,14 @@ class ISRC_worker {
                                                             seal.fulfill(())
                                                         } else {
     
-                                                            //print (self?.mediaItems[0][0].genreNames)
-                                                            variable.release_date = self.spotify_mediaItems[i].album?.release_date
-                                                            variable.album_name = self.spotify_mediaItems[i].album?.name
-                                                            variable.artist_name = self.spotify_mediaItems[i].artists?[0].name
-                                                            variable.playable_id = self.spotify_mediaItems[i].uri
-                                                            variable.song_name = self.spotify_mediaItems[i].name
-                                                            variable.isrc_number = self.spotify_mediaItems[i].external_ids?.isrc
-                                                            variable.preview_url =  self.spotify_mediaItems[i].preview_url
+                                                            print ("\(self.spotify_mediaItems[i])")
+                                                            variable.release_date = self.spotify_mediaItems[i].album?.release_date ?? ""
+                                                            variable.album_name = self.spotify_mediaItems[i].album?.name ?? ""
+                                                            variable.artist_name = self.spotify_mediaItems[i].artists?[0].name ?? ""
+                                                            variable.playable_id = self.spotify_mediaItems[i].uri ?? ""
+                                                            variable.song_name = self.spotify_mediaItems[i].name ?? ""
+                                                            variable.isrc_number = self.spotify_mediaItems[i].external_ids?.isrc ?? ""
+                                                            variable.preview_url =  self.spotify_mediaItems[i].preview_url ?? ""
                                                             self.spotify_struct = variable
                                                             print ("end of spotify_search_and_parse")
                                                             seal.fulfill(())
@@ -419,13 +419,14 @@ class ISRC_worker {
                                                                 self.this_catalogue_doesnt_have_the_song_right_now = "apple"
                                                                 seal.fulfill(())
                                                             } else {
-                                                                variable.album_name = self.apple_mediaItems[i].albumName
-                                                                variable.song_name = self.apple_mediaItems[i].name
-                                                                variable.playable_id = self.apple_mediaItems[i].identifier
-                                                                variable.artist_name = self.apple_mediaItems[i].artistName
-                                                                variable.isrc_number = self.apple_mediaItems[i].isrc
+                                                                print ("\(self.apple_mediaItems[i])")
+                                                                variable.album_name = self.apple_mediaItems[i].albumName ?? ""
+                                                                variable.song_name = self.apple_mediaItems[i].name ?? ""
+                                                                variable.playable_id = self.apple_mediaItems[i].identifier ?? ""
+                                                                variable.artist_name = self.apple_mediaItems[i].artistName ?? ""
+                                                                variable.isrc_number = self.apple_mediaItems[i].isrc ?? ""
                                                                 print(self.apple_mediaItems[i].previews[0]["url"])
-                                                                variable.preview_url =  self.apple_mediaItems[i].previews[0]["url"]
+                                                                variable.preview_url =  (self.apple_mediaItems[i].previews[0]["url"]) ?? ""
                                                                 self.apple_struct = variable
                                                                 seal.fulfill(())
                                                             }
@@ -479,7 +480,7 @@ class ISRC_worker {
     }
     
     
-    func get_this_song (target_catalog: String, song_data: song_db_struct) -> Promise<String> {
+    func get_this_song (target_catalog: String, song_data: song_db_struct) -> Promise<song_db_struct> {
         return Promise { seal in
         var found_song = song_db_struct()
         //Check if the database has this isrc entry
@@ -504,7 +505,7 @@ class ISRC_worker {
                     }
                     self.new_db_entry(target: target_catalog, reference_struct: song_data).done { Void in
                         found_song = self.target_struct
-                        seal.fulfill(found_song.playable_id ?? "nil")
+                        seal.fulfill(found_song)
                     }
                 }
                 
@@ -515,9 +516,9 @@ class ISRC_worker {
                         //found_song = snapshot2.value as! song_db_struct
                         let temp_dict = snapshot2.value as! [String : String]
                         found_song.playable_id = temp_dict["playable_id"]
-                        seal.fulfill(found_song.playable_id ?? "nil")
+                        seal.fulfill(found_song)
                     } else {
-                        seal.fulfill("nil")
+                        seal.fulfill(found_song)
                         print("ERROR: get_this_song: \(target_catalog)_set in isrc_db is empty")
                     }
                  }
@@ -526,7 +527,7 @@ class ISRC_worker {
                     print("song aint there")
                     self.new_db_entry(target: target_catalog, reference_struct: song_data).done { Void in
                     found_song = self.target_struct
-                    seal.fulfill(found_song.playable_id ?? "nil")
+                    seal.fulfill(found_song)
                 }
             }
         }

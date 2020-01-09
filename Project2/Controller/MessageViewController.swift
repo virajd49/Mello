@@ -29,7 +29,7 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
     var youtube: YTPlayerView!
     var mini_youtube: YTPlayerView!
     let alertController = UIAlertController(title: nil, message: "Takes the appearance of the bottom bar if specified; otherwise, same as UIActionSheetStyleDefault.", preferredStyle: .actionSheet)
-    
+    var pngimageView: UIImageView!
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { action in
         // ...
     }
@@ -47,8 +47,8 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         let time: Float = youtube.currentTime() + 2.00
         print (time)
         //mini_youtube.cueVideo(byId: "_N2xvUhqPEA", startSeconds: time, endSeconds: 120, suggestedQuality: YTPlaybackQuality.default)
-        mini_youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": time, "end": 120, "rel": 0])
-        mini_youtube.playVideo()
+        //mini_youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": time, "end": 120, "rel": 0])
+        //mini_youtube.playVideo()
         
     }
     
@@ -94,15 +94,19 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         
         //musicPlayerController.beginGeneratingPlaybackNotifications()
         youtube = YTPlayerView.init(frame: CGRect(x: 67, y: 431, width: 240, height: 128))
-        mini_youtube = YTPlayerView.init(frame: CGRect(x: 67, y: 260, width: 240, height: 128))
+        //mini_youtube = YTPlayerView.init(frame: CGRect(x: 67, y: 260, width: 240, height: 128))
+        
+        pngimageView = UIImageView.init(frame: CGRect(x: 67, y: 260, width: 240, height: 128))
+        pngimageView.image = UIImage(named: "Beatles")
+        self.view.addSubview(pngimageView)
         self.view.addSubview(youtube!)
-        self.view.addSubview(mini_youtube!)
-        mini_youtube.backgroundColor = UIColor.black
+        //self.view.addSubview(mini_youtube!)
+        //mini_youtube.backgroundColor = UIColor.black
         youtube.backgroundColor = UIColor.black
         youtube.delegate = self
-        mini_youtube.delegate = self
+        //mini_youtube.delegate = self
         
-        youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": 20, "end": 120, "rel": 0])
+        //youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": 20, "end": 120, "rel": 0])
         //mini_youtube.load(withVideoId: "_N2xvUhqPEA" , playerVars: ["playsinline": 1, "showinfo": 0, "origin": "https://www.youtube.com", "modestbranding" : 0, "controls": 1, "start": 20, "end": 120, "rel": 0])
         
         //youtube.currentTime()
@@ -113,6 +117,7 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
         //postgres_testing()
         print("stopping apple player")
         // musicPlayerController.stop()
+        //self.animated_png()
        
     }
     
@@ -239,8 +244,25 @@ class MessageViewController: UIViewController, YTPlayerViewDelegate {
     
     @objc func tapEdit(recognizer: UITapGestureRecognizer)  {
         
-        
-        self.togglePlayPause()
+        self.animated_png()
+        //self.togglePlayPause()
+    }
+    
+    func animated_png () {
+        print ("animated_png")
+        let start = CFAbsoluteTimeGetCurrent()
+        let url = Bundle.main.resourceURL!
+        print (Bundle.main.resourceURL)
+        print (Bundle.main.bundlePath)
+        pngimageView.animationImages = (0 ..< 15).map {
+            UIImage(contentsOfFile: Bundle.main.path(forResource: "Fire_\($0)", ofType: "png")!)!
+        }
+        pngimageView.animationDuration = 2.0
+        pngimageView.animationRepeatCount = 1
+        pngimageView.startAnimating()
+
+        print(CFAbsoluteTimeGetCurrent() - start)
+        print ("animated_png done")
     }
     
     

@@ -12,6 +12,7 @@ import MediaPlayer
 import Firebase
 import GoogleAPIClientForREST
 import GoogleSignIn
+import PromiseKit
 
 
 
@@ -44,13 +45,14 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
     private let service = GTLRYouTubeService()
     var delegate: AuthenticationMasterDelegate!
     var spotify_subscription: subscription! = .free
-    var apple_subscription: subscription! = .free
+    var apple_subscription: subscription! = .unknown
+    var can_play_music: Bool = true
+    var can_add_music: Bool = true
     
   
     
   
     // MARK: Google
-    
     
     //This is the beginning of the google authentocation sequence - this sets up the auth instance and makes the button visible on the screen.
       //My understanding is that the google sign in flow is initiated when the sign in button is pressed, unsure why it gives us a auth failed error before we click the button, will have to go over google auth flow documentation
@@ -103,129 +105,7 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
       //Once login is done - we initialize the spotify player with the authorized session - here we just grab the session and then call the initialize player function with that session.
         //this player is a single instance that can be shared throughout the app - 90% sure
         //this function contains a lot of redundant steps - needs to reduced
-        @objc func updateAfterFirstLogin (notification: Notification) {
-            print("out here5")
-            if let sessionObj: AnyObject = userDefaults.object(forKey: "SpotifySession") as AnyObject? {
-                let sessionDataObj = sessionObj as! Data
-                let firstTimeSession = NSKeyedUnarchiver.unarchiveObject(with: sessionDataObj) as! SPTSession
-                self.session = firstTimeSession
-                self.player?.delegate = self
-                initializePlayer(authSession: self.session)
-                print("out here2")
-                
-                
-            }
-        }
-        
-        //We login to the player with the passed down session - once we are logged into the player, it calls audioStreamingDidLogin where we can do any operations that require the player to be initialized
-        func initializePlayer(authSession:SPTSession){
-            print("In initializePlayer")
-            if self.player == nil {
-                print ("In self.player == nil")
-                self.player = SPTAudioStreamingController.sharedInstance()
-                 print ("In self.player == nil2")
-                self.player!.playbackDelegate = self as SPTAudioStreamingPlaybackDelegate
-                 print ("In self.player == nil3")
-                self.player!.delegate = self as SPTAudioStreamingDelegate
-                 print ("In self.player == nil4")
-                try! player!.start(withClientId: SpotifyClientID)
-                print(authSession.accessToken)
-                self.player!.login(withAccessToken: authSession.accessToken)
-                print("out here3")
-                
-            }
-        }
-        
-    func audioStreamingDidLogin(_ audioStreaming: SPTAudioStreamingController) {
-            // after a user authenticates a session, the SPTAudioStreamingController is then initialized and this method is called
-            print("logged in")
-            
-            //here we make a request to get the current user name from the authenticated session.
-            let request1: URLRequest = try! SPTUser.createRequestForCurrentUser(withAccessToken: self.session.accessToken, error: ErrorPointer)
-            print (self.session.accessToken)
-            SPTRequest.sharedHandler().perform(request1, callback: { (error, response, data) in
-                if error == nil {
-                    let dataAsString = String(data: data!, encoding: .utf8)
-                    print (dataAsString)
-                    var user = SPTUser(from: data!, with: response!, error: self.ErrorPointer)
-                    if self.ErrorPointer != nil {
-                        print(self.ErrorPointer)
-                    }
-                    print(" and this guy")
-                    print("Spotify subscription is \(user.product.rawValue)")
-                    //Here we store it in user defaults for further use within the app
-                    self.userDefaults.set(user.canonicalUserName, forKey: "current_spotify_username")
-//                    if user.product == .free {
-//                        self.spotify_subscription = .free
-//                        print("Spotify subscription is free")
-//                    } else if user.product == .premium {
-//                        self.spotify_subscription = .premium
-//                        print("Spotify subscription is premium")
-//                    } else if user.product == .unknown {
-//                        print("Spotify subscription is unknown")
-//                    } else if user.product == .unlimited {
-//                        print("Spotify subscription is unlimited")
-//                    }
-//
-//                    //Need to find a better place for this
-//                    //Here we grab what is essentially the users latest library and playlists
-//                    /*
-//                    let playlist_access = UserAccess(myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs(), mypodcastsQuery: MPMediaQuery.podcasts())
-//
-//                    if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
-//                        playlist_access.get_spotify_playlists()
-//                        playlist_access.get_spotify_all_tracks()
-//                    } else {
-//                        //
-//                    }
-//                    */
-//                    print("username set")
-//                }else {
-//                    print ("error getting username")
-//                    print (error)
-                }
-            })
-//
-        
-        self.applemanager.get_spotify_current_user().done { user in
-            
-            print("\(user.display_name)")
-            print("\(user.email)")
-            print("\(user.product)")
-            if user.product == "\(subscription.free)" {
-                self.spotify_subscription = .free
-                print("Spotify subscription is free")
-            } else if user.product == "\(subscription.premium)" {
-                self.spotify_subscription = .premium
-                print("Spotify subscription is premium")
-            } else if user.product == "\(subscription.unknown)" {
-                self.spotify_subscription = .unknown
-                print("Spotify subscription is unknown")
-            } else if user.product == "\(subscription.unlimited)" {
-                self.spotify_subscription = .unlimited
-                print("Spotify subscription is unlimited")
-            }
-            
-           
-            
-            
-        }
-            
-//        self.applemanager.performSpotifyCurrentPlayingSearch().done { spotify_current_playing_context in
-//
-//            guard !spotify_current_playing_context.isEmpty else {
-//                print ("Spotify: Nothing is playing - spotify_current_playing_context is nil")
-//                return
-//            }
-//
-//            print ("Spotify: Something is playing - spotify_current_playing_context is not nil")
-//
-//        }
-            self.delegate.spotify_login_done()
-    }
-    
-    
-    
+ 
     func spotify_sign_in_initialize_old_sdk () {
            print("spotify_sign_in_initialize_old_sdk")
            NotificationCenter.default.addObserver(self, selector: #selector(self.updateAfterFirstLogin), name: Notification.Name(rawValue: "loginSuccessfull"), object: nil )
@@ -249,20 +129,20 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
            
        }
 
-       func spotify_sign_button_old_sdk () {
-           //User has to sign in - here we use the loginUrl that we set up in spotify_sign_in_initialize_old_sdk.
-           //openURL on that URL takes us to the spotify app to get authorized - when we come back - app delegate takes control - so go to app deleagte from here to follow the flow.
+    func spotify_sign_button_old_sdk () {
+        //User has to sign in - here we use the loginUrl that we set up in spotify_sign_in_initialize_old_sdk.
+        //openURL on that URL takes us to the spotify app to get authorized - when we come back - app delegate takes control - so go to app deleagte from here to follow the flow.
            
-           if UIApplication.shared.openURL(premiumloginUrl!)
-           {
-               print ("HEY HEY HEY ")
-               if auth.canHandle(auth.redirectURL!) {
-                   // To do - build in error handling
+        if UIApplication.shared.openURL(premiumloginUrl!)
+        {
+            print ("HEY HEY HEY ")
+            if auth.canHandle(auth.redirectURL!) {
+                // To do - build in error handling
 
-               }
-           }
+            }
+        }
 
-       }
+    }
        
        
        //Here we check if a session object exists, if it does we check if it is valid or not,
@@ -285,7 +165,7 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
                            if error == nil {
                                let sessionData = NSKeyedArchiver.archivedData(withRootObject: session!)
                                self.userDefaults.set(sessionData, forKey: "SpotifySession")
-                               self.userDefaults.set("Apple", forKey: "UserAccount") //<- this value is independent of any auth flow, it is used as a flag throughout the app to simulate if the user uses apple music or spotify - see top of this file for full explanantion.
+                               //self.userDefaults.set("Apple", forKey: "UserAccount") //<- this value is independent of any auth flow, it is used as a flag throughout the app to simulate if the user uses apple music or spotify - see top of this file for full explanantion.
                             //DO WE NEED TO SAVE THESE ??
                                self.userDefaults.set(session?.accessToken, forKey: "spotify_access_token")
                                self.userDefaults.set(session?.encryptedRefreshToken, forKey: "spotify_refresh_token")
@@ -348,7 +228,6 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
             print (auth.tokenRefreshURL)
             print (auth.tokenSwapURL)
             
-            
             //we get 'session' from url
             auth.handleAuthCallback(withTriggeredAuthURL: url, callback: { (error, session) in
                 // 4- handle error
@@ -366,7 +245,7 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
                 
                     let sessionData = NSKeyedArchiver.archivedData(withRootObject: session!)
                     self.userDefaults.set(sessionData, forKey: "SpotifySession")
-                    self.userDefaults.set("Apple", forKey: "UserAccount") //<- this value is independent of any auth flow, it is used as a flag throughout the app to simulate if the user uses apple music or spotify - see top of this file for full
+                    //self.userDefaults.set("Apple", forKey: "UserAccount") //<- this value is independent of any auth flow, it is used as a flag throughout the app to simulate if the user uses apple music or spotify - see top of this file for full
                     self.userDefaults.set(session?.accessToken, forKey: "spotify_access_token")
                     self.userDefaults.set(session?.encryptedRefreshToken, forKey: "spotify_refresh_token")
                     self.userDefaults.synchronize()
@@ -389,19 +268,163 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
         return false
         
     }
+    
+          @objc func updateAfterFirstLogin (notification: Notification) {
+              print("out here5")
+              if let sessionObj: AnyObject = userDefaults.object(forKey: "SpotifySession") as AnyObject? {
+                  let sessionDataObj = sessionObj as! Data
+                  let firstTimeSession = NSKeyedUnarchiver.unarchiveObject(with: sessionDataObj) as! SPTSession
+                  self.session = firstTimeSession
+                  
+                  
+                  
+                  self.applemanager.get_spotify_current_user().done { user in
+                             
+                      print("\(user.display_name)")
+                      print("\(user.email)")
+                      print("\(user.product)")
+                      if user.product == "\(subscription.free)" {
+                          self.spotify_subscription = .free
+                          print("Spotify subscription is free")
+                      } else if user.product == "\(subscription.premium)" {
+                          self.spotify_subscription = .premium
+                          print("Spotify subscription is premium")
+                      } else if user.product == "\(subscription.unknown)" {
+                          self.spotify_subscription = .unknown
+                          print("Spotify subscription is unknown")
+                      } else if user.product == "\(subscription.unlimited)" {
+                          self.spotify_subscription = .unlimited
+                          print("Spotify subscription is unlimited")
+                      }
+                      
+                      
+                      if self.spotify_subscription == .premium {
+                          //If we have a premium spotify subscripion - we can initialize the streaming player
+                          self.player?.delegate = self
+                          self.initializePlayer(authSession: self.session)
+                          print("out here2")
+                      } else {
+                          //If we don't have a premium subscription - we can't initialize the streaming player - we can only play the preview samples using AVplayer
+                          self.get_spotify_user_data().done {
+                              self.delegate.spotify_login_done()
+                          }
+                      }
+    
+              
+                  }
+                  
+                  
+              }
+          }
+          
+          //We login to the player with the passed down session - once we are logged into the player, it calls audioStreamingDidLogin where we can do any operations that require the player to be initialized
+          func initializePlayer(authSession:SPTSession){
+              print("In initializePlayer")
+              if self.player == nil {
+                  print ("In self.player == nil")
+                  self.player = SPTAudioStreamingController.sharedInstance()
+                   print ("In self.player == nil2")
+                  self.player!.playbackDelegate = self as SPTAudioStreamingPlaybackDelegate
+                   print ("In self.player == nil3")
+                  self.player!.delegate = self as SPTAudioStreamingDelegate
+                   print ("In self.player == nil4")
+                  try! player!.start(withClientId: SpotifyClientID)
+                  print(authSession.accessToken)
+                  self.player!.login(withAccessToken: authSession.accessToken)
+                  print("out here3")
+                  
+              }
+          }
+          
+      func audioStreamingDidLogin(_ audioStreaming: SPTAudioStreamingController) {
+          // after a user authenticates a session, the SPTAudioStreamingController is then initialized and this method is called
+          print("logged in")
+          get_spotify_user_data().done {
+                  self.delegate.spotify_login_done()
+          }
+
+      }
+      
+    
+    
+    
+    func get_spotify_user_data () -> Promise<Void> {
+        return Promise { seal in
+        let request1: URLRequest = try! SPTUser.createRequestForCurrentUser(withAccessToken: self.session.accessToken, error: ErrorPointer)
+        print (self.session.accessToken)
+        SPTRequest.sharedHandler().perform(request1, callback: { (error, response, data) in
+            if error == nil {
+                let dataAsString = String(data: data!, encoding: .utf8)
+                print (dataAsString)
+                var user = SPTUser(from: data!, with: response!, error: self.ErrorPointer)
+                if self.ErrorPointer != nil {
+                    print(self.ErrorPointer)
+                }
+                print(" and this guy")
+                print("Spotify subscription is \(user.product.rawValue)")
+                //Here we store it in user defaults for further use within the app
+                self.userDefaults.set(user.canonicalUserName, forKey: "current_spotify_username")
+                
+//                    //Need to find a better place for this
+//                    //Here we grab what is essentially the users latest library and playlists
+//                    /*
+//                    let playlist_access = UserAccess(myPlaylistQuery: MPMediaQuery.playlists(), myLibrarySongsQuery: MPMediaQuery.songs(), mypodcastsQuery: MPMediaQuery.podcasts())
+//
+//                    if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
+//                        playlist_access.get_spotify_playlists()
+//                        playlist_access.get_spotify_all_tracks()
+//                    } else {
+//                        //
+//                    }
+//                    */
+//                    print("username set")
+//                }else {
+//                    print ("error getting username")
+//                    print (error)
+            }
+        })
+//
+                
+        self.applemanager.get_spotify_current_user().done { user in
+                    
+            print("\(user.display_name)")
+            print("\(user.email)")
+            print("\(user.product)")
+            if user.product == "\(subscription.free)" {
+                self.spotify_subscription = .free
+                print("Spotify subscription is free")
+            } else if user.product == "\(subscription.premium)" {
+                self.spotify_subscription = .premium
+                print("Spotify subscription is premium")
+            } else if user.product == "\(subscription.unknown)" {
+                self.spotify_subscription = .unknown
+                print("Spotify subscription is unknown")
+            } else if user.product == "\(subscription.unlimited)" {
+                self.spotify_subscription = .unlimited
+                print("Spotify subscription is unlimited")
+            }
+                    
+                   
         
+            seal.fulfill_()
+        }
+        
+        }
+        
+    }
+ 
     
     
     
     
     // MARK: Apple
     
+    
+    //First time service setup flow
     func apple_sign_in_initialize () {
         
-        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_sub_present_handler), name: Notification.Name(rawValue: "NoAppleMusicSubscriptionPresent"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_sub_absent_handler), name: Notification.Name(rawValue: "AppleMusicSubscriptionPresent"), object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_media_lib_authorized_handler), name: Notification.Name(rawValue: "AppleMusicMediaLibraryAuthorized"), object: nil)
-        // NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_sub_present_handler), name: Notification.Name(rawValue: "AppleMusicCloudServiceAuthorized"), object: nil)
+        
+      
         
         //Was trying to make sure that the segue is called synchronously after the three apple auth calls - used dispatch groups for that - no sure if there is a simpler/better way to do this here
         
@@ -409,7 +432,7 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
        // let mygroup = DispatchGroup()
         
        // mygroup.enter()
-        
+        self.setup_apple_service_notifications()
         self.appleauthority.initialize()
         self.appleauthority.requestCloudServiceAuthorization()
         //self.appleauthority.requestMediaLibraryAuthorization()
@@ -425,9 +448,60 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
         
     }
     
+    
+    //Service session refresh check flow
+    func apple_refresh_session_check () {
+        
+        self.setup_apple_service_notifications()
+        self.appleauthority.initialize()
+        self.appleauthority.check_cloud_auth()
+ 
+    }
+    
+    func setup_apple_service_notifications () {
+        
+        //The following three are sent from requestCapabilities
+        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_cannot_play_handler), name: Notification.Name(rawValue: "musicCatalogPlaybackABSENT"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_can_play_handler), name: Notification.Name(rawValue: "musicCatalogPlaybackPRESENT"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_can_add_handler), name: Notification.Name(rawValue: "addToCloudMusicLibraryPRESENT"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_cannot_add_handler), name: Notification.Name(rawValue: "addToCloudMusicLibraryABSENT"), object: nil)
+            
+        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_sub_present_handler), name: Notification.Name(rawValue: "AppleMusicSubscriptionPresent"), object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_sub_absent_handler), name: Notification.Name(rawValue: "NoAppleMusicSubscriptionPresent"), object: nil)
+        
+        //Once the above three notifications are received - we wait for the AppleMusicMediaLibraryAuthorized notification
+        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_media_lib_authorized_handler), name: Notification.Name(rawValue: "AppleMusicMediaLibraryAuthorized"), object: nil)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(self.apple_music_user_token_saved), name: Notification.Name(rawValue: "AppleMusicUserTokenSaved"), object: nil)
+    
+    }
+    
+    
+     @objc func apple_music_can_play_handler () {
+             print(" --------------------- apple_music_can_play_handler ------------------------- ")
+          self.can_play_music = true
+         }
+      
+      @objc func apple_music_cannot_play_handler () {
+             print(" --------------------- apple_music_cannot_play_handler ------------------------- ")
+          self.can_play_music = false
+         }
+      
+      @objc func apple_music_can_add_handler () {
+             print(" --------------------- apple_music_can_add_handler ------------------------- ")
+          self.can_add_music = true
+         }
+      
+      @objc func apple_music_cannot_add_handler () {
+             print(" --------------------- apple_music_cannot_add_handler ------------------------- ")
+          self.can_add_music = false
+         }
+    
     @objc func apple_music_sub_present_handler () {
         print(" --------------------- apple_music_sub_present_handler ------------------------- ")
-        self.appleauthority.requestMediaLibraryAuthorization()
+        self.apple_subscription = .paid
+        self.appleauthority.check_for_user_token()
     }
     
     @objc func apple_music_sub_absent_handler () {
@@ -436,17 +510,15 @@ class AuthenticationMaster: NSObject, GIDSignInUIDelegate, GIDSignInDelegate, SP
     }
     
     @objc func apple_music_media_lib_authorized_handler () {
-        print(" ------------------------  apple_music_sub_absent_handler ------------------------ ")
+        print(" ------------------------  apple_music_media_lib_authorized_handler ------------------------ ")
         self.delegate.apple_login_done()
     }
     
-    func apple_sign_in () {
-        
-        appleauthority.requestCloudServiceAuthorization()
-        appleauthority.requestMediaLibraryAuthorization()
-        
+    @objc func apple_music_user_token_saved () {
+        //AppleMusicUserTokenSaved
+        print(" ------------------------  apple_music_user_token_saved ------------------------ ")
+        self.appleauthority.requestMediaLibraryAuthorization()
     }
-
     
     
     func showAlert(title : String, message: String) {

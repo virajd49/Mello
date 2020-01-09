@@ -70,7 +70,7 @@ class MusicPlayerMaster: NSObject {
     
     func make_posts_newfeed_ready () -> Promise<Void> {
         return Promise { seal in
-            
+            print("make_posts_newfeed_ready")
             current_user.get_current_user()
             current_user.get_user_subscriptions().done { services_array in
                 self.user_services = services_array
@@ -85,16 +85,29 @@ class MusicPlayerMaster: NSObject {
                     if self.user_has_apple {
                         switch self.apple_service.subscription! {
                         case subscription.free:
+                            temp_playback_post.can_play_this_post = false
+                            temp_playback_post.message_for_user = "Sign up with Apple to listen to this song"
                             //playable id should be sample URL - apple
                             temp_playback_post.trackid = post.preview_url
                             //player should be AV player
                             temp_playback_post.player = player_type.avplayer
                             break
                         case subscription.paid:
-                            //playable id should be apple trackid
-                            temp_playback_post.trackid = post.trackid
-                            //player should be appleplayer
-                            temp_playback_post.player = player_type.appleplayer
+                            
+                            if post.trackid != nil && post.trackid != "" {
+                                //playable id should be apple trackid
+                                temp_playback_post.trackid = post.trackid
+                                //player should be appleplayer
+                                temp_playback_post.player = player_type.appleplayer
+                            } else if post.preview_url != nil && post.preview_url != "" {
+                                //playable id should be sample URL - apple
+                                temp_playback_post.trackid = post.preview_url
+                                //player should be AV player
+                                temp_playback_post.player = player_type.avplayer
+                            } else {
+                                temp_playback_post.can_play_this_post = false
+                                temp_playback_post.message_for_user = "Sorry we're having trouble retreiving this song at the moment!"
+                            }
                             break
                         default:
                             break
@@ -102,16 +115,35 @@ class MusicPlayerMaster: NSObject {
                     } else if self.user_has_spotify {
                         switch self.spotify_service.subscription! {
                         case subscription.free:
-                            //playable id should be sample URL - spotify/apple
-                            temp_playback_post.trackid = post.preview_url
-                            //player should be AV player
-                            temp_playback_post.player = player_type.avplayer
+                            //Need helper url with helper id
+                            if post.helper_preview_url != nil && post.helper_preview_url != "" {
+                                //playable id should be sample URL - spotify
+                                temp_playback_post.trackid = post.helper_preview_url
+                                //player should be AV player
+                                temp_playback_post.player = player_type.avplayer
+                            } else {
+                                temp_playback_post.can_play_this_post = false
+                                temp_playback_post.message_for_user = "Sorry we're having trouble retreiving this song at the moment!"
+                            }
                             break
                         case subscription.premium:
-                            //playable id should be spotify trackid (helper)
-                            temp_playback_post.trackid = post.helper_id
-                            //player should be spotifyplayer
-                            temp_playback_post.player = player_type.spotifyplayer
+                            
+                            if post.helper_id != nil && post.helper_id != "" {
+                                //playable id should be apple trackid
+                                temp_playback_post.trackid = post.helper_id
+                                //player should be spotifyplayer
+                                temp_playback_post.player = player_type.spotifyplayer
+                            } else if post.helper_preview_url != nil && post.helper_preview_url != "" {
+                                //playable id should be sample URL - spotify
+                                temp_playback_post.trackid = post.helper_preview_url
+                                //player should be AV player
+                                temp_playback_post.player = player_type.avplayer
+                            } else {
+                                temp_playback_post.can_play_this_post = false
+                                temp_playback_post.message_for_user = "Sorry we're having trouble retreiving this song at the moment!"
+                            }
+                            
+                       
                             break
                         default:
                             break
@@ -125,37 +157,62 @@ class MusicPlayerMaster: NSObject {
                     
                     break
                 case service_name.spotify.rawValue:
+                    print("service name is spotify")
                     if self.user_has_spotify {
                         switch self.spotify_service.subscription! {
                         case subscription.free:
-                            //playable id should be sample URL - spotify
-                            temp_playback_post.trackid = post.preview_url
-                            //player should be AV player
-                            temp_playback_post.player = player_type.avplayer
+                            if post.preview_url != nil && post.preview_url != "" {
+                                //playable id should be sample URL - spotify
+                                temp_playback_post.trackid = post.preview_url
+                                //player should be AV player
+                                temp_playback_post.player = player_type.avplayer
+                            } else {
+                                temp_playback_post.can_play_this_post = false
+                                temp_playback_post.message_for_user = "Sorry we're having trouble retreiving this song at the moment!"
+                            }
                             break
                         case subscription.premium:
-                            //playable id should be spotify trackid
-                            temp_playback_post.trackid = post.trackid
-                            //player should be spotifyplayer
-                            temp_playback_post.player = player_type.spotifyplayer
+                            
+                            if post.trackid != nil && post.trackid != "" {
+                                //playable id should be spotify trackid
+                                temp_playback_post.trackid = post.trackid
+                                //player should be spotifyplayer
+                                temp_playback_post.player = player_type.spotifyplayer
+                            } else if post.preview_url != nil && post.preview_url != "" {
+                                //playable id should be sample URL - spotify
+                                temp_playback_post.trackid = post.preview_url
+                                //player should be AV player
+                                temp_playback_post.player = player_type.avplayer
+                            } else {
+                                temp_playback_post.can_play_this_post = false
+                                temp_playback_post.message_for_user = "Sorry we're having trouble retreiving this song at the moment!"
+                            }
+
                             break
                         default:
                             break
                         }
                     } else if self.user_has_apple {
+                        print ("user has apple")
                         switch self.apple_service.subscription! {
                         case subscription.free:
-                            //playable id should be sample URL - spotify/apple
-                            temp_playback_post.trackid = post.preview_url
-                            
-                            //player should be AV player
-                            temp_playback_post.player = player_type.avplayer
+                            temp_playback_post.can_play_this_post = false
+                            temp_playback_post.message_for_user = "Sign up with Spotify to listen to this song"
                             break
                         case subscription.paid:
-                            //playable id should be apple trackid (helper)
-                            temp_playback_post.trackid = post.helper_id
-                            //player should be appleplayer
-                            temp_playback_post.player = player_type.appleplayer
+                            if post.helper_id != nil && post.helper_id == "" {
+                                //playable id should be apple trackid (helper)
+                                temp_playback_post.trackid = post.helper_id
+                                //player should be appleplayer
+                                temp_playback_post.player = player_type.appleplayer
+                            } else if post.helper_preview_url != nil && post.helper_preview_url != "" {
+                                print ("AV PLAYER POST ADDED")
+                                //playable id should be sample URL - apple
+                                temp_playback_post.trackid = post.helper_preview_url
+                                //player should be AV player
+                                temp_playback_post.player = player_type.avplayer
+                            }
+                            
                             break
                         default:
                             break
@@ -169,10 +226,16 @@ class MusicPlayerMaster: NSObject {
                     break
                 case service_name.youtube.rawValue:
                     if self.user_has_youtube {
-                        //playable id should be video id
-                        temp_playback_post.trackid = post.videoid
-                        //player should be youtube player
-                        temp_playback_post.player = player_type.youtubeplayer
+                        
+                        if post.videoid != nil && post.videoid != "" {
+                            //playable id should be video id
+                            temp_playback_post.trackid = post.videoid
+                            //player should be youtube player
+                            temp_playback_post.player = player_type.youtubeplayer
+                        } else {
+                            temp_playback_post.can_play_this_post = false
+                            temp_playback_post.message_for_user = "Sorry we're having trouble retreiving this song at the moment!"
+                        }
                     }
                     break
                 default:
@@ -250,9 +313,14 @@ class MusicPlayerMaster: NSObject {
         what primary player do I have ?
             -> Does any id match my primary player/s ?
                 ->yes  - grab the id and play using that player
-                ->no - is there a sample url ?
-                        -> yes, grab that and play using AV player
-                        -> no, (rare case) - display UI saying sorry sign up to this service to listen to this song.
+                ->no - is there a helper id ?
+                        -> yes, grab helper id and play using my player
+                        -> no, is there a sample url ?
+                                -> yes, if source app is spotify - grab that and play using AV player
+                                -> no, (rare case) - display UI saying sorry sign up to this service to listen to this song.
+     
+     for spotify song - if user does not have any subscription - we can play 30 sec preview
+     for apple song - if user does not have apple subscription - we cannot play anything
      
      */
     

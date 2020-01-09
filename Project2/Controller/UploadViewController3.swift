@@ -519,7 +519,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             print (Float(self.selected_search_result_post.original_track_length) / 1000)
             self.spotify_current_uri = self.selected_search_result_post.trackid
             self.Song_name_label.text = self.selected_search_result_post.songname
-            self.Artist_name_label.text = ""
+            self.Artist_name_label.text = self.selected_search_result_post.artistName
             self.uploading = true
         } else if (self.upload_flag == "apple") {
             print ("asetup_selected_media pple")
@@ -534,7 +534,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             self.duration_for_number_of_cells = Int(ceil(Double(self.selected_search_result_post.original_track_length) / 1000))
             self.apple_id = self.selected_search_result_post.trackid
             self.Song_name_label.text = self.selected_search_result_post.songname
-            self.Artist_name_label.text = ""
+            self.Artist_name_label.text = self.selected_search_result_post.artistName
             self.uploading = true
         } else if self.upload_flag == "youtube" {
             print (" == youtube")
@@ -551,7 +551,6 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
             self.Artist_name_label.text = ""
         } else if self.upload_flag == "now_playing" {
             if (self.userDefaults.string(forKey: "UserAccount") == "Spotify") {
-                self.Artist_name_label.text = ""
                 self.Now_playing_image.image = self.selected_search_result_post_image
                 self.spotifyplayer.playSpotifyURI(self.selected_search_result_post.trackid, startingWith: 0, startingWithPosition: 0.0, callback: { (error) in
                     if (error == nil) {
@@ -563,6 +562,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                 self.duration_for_number_of_cells = Int(ceil(Double(self.selected_search_result_post.original_track_length) / 1000))
                 self.spotify_current_uri = self.selected_search_result_post.trackid
                 self.Song_name_label.text = self.selected_search_result_post.songname
+                self.Artist_name_label.text = self.selected_search_result_post.artistName
                 self.uploading = true
             } else if (self.userDefaults.string(forKey: "UserAccount") == "Apple") {
 
@@ -579,7 +579,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                 //print(self.audio_scrubber_ot.maximumValue)
                 self.apple_id = self.selected_search_result_post.trackid
                 self.Song_name_label.text = self.selected_search_result_post.songname
-                self.Artist_name_label.text = ""
+                self.Artist_name_label.text = self.selected_search_result_post.artistName
                 self.uploading = true
             }
         }
@@ -668,6 +668,8 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
         self.is_selecting_audio_clip = true
         self.is_selecting_animation = false
         var upload_post: Post?
+        print ("\(self.selected_search_result_post.songname)")
+        print ("\(self.upload_flag)")
         if (self.selected_search_result_post != nil) && self.upload_flag != "now_playing" {
             print ("self.upload_flag != now_playing")
             
@@ -1178,12 +1180,19 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                     spotify_struct.release_date = self.selected_search_result_song_db_struct.release_date
                     spotify_struct.song_name = self.selected_search_result_song_db_struct.song_name
                     
-                    worker.get_this_song(target_catalog: "apple", song_data: spotify_struct).done {p1_found_id in
+                    worker.get_this_song(target_catalog: "apple", song_data: spotify_struct).done {p1_found_song in
                         print ("Heya wtf bruh")
-                        print (p1_found_id)
+                        print (p1_found_song)
                         print ("Heya wtf bruh")
-                        if p1_found_id == "nil" {
+                        if p1_found_song.playable_id == "" {
                             print ("ERROR: Helper id not found !!!!!!!!!!!!!!!!!!!!!!")
+                        } else {
+                            print ("Helper id found !!!!!!!!!!!!!!!!!!!")
+                        }
+                        
+                        
+                        if p1_found_song.preview_url == "" {
+                            print ("ERROR: Helper url not found !!!!!!!!!!!!!!!!!!!!!!")
                         } else {
                             print ("Helper id found !!!!!!!!!!!!!!!!!!!")
                         }
@@ -1203,7 +1212,8 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                             paused: false,
                             playing: false,
                             trackid: self.selected_search_result_post.trackid,
-                            helper_id: p1_found_id,
+                            helper_id: p1_found_song.playable_id,
+                            helper_preview_url: p1_found_song.preview_url,
                             videoid: "empty",
                             starttime: 0 ,
                             endtime: 0,
@@ -1232,10 +1242,24 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                     apple_struct.release_date = self.selected_search_result_song_db_struct.release_date
                     apple_struct.song_name = self.selected_search_result_song_db_struct.song_name
                     
-                    worker.get_this_song(target_catalog: "spotify", song_data: apple_struct).done {p1_found_id in
+                    worker.get_this_song(target_catalog: "spotify", song_data: apple_struct).done {p1_found_song in
                         print ("Heya wtf bruh")
-                        print (p1_found_id)
+                        print (p1_found_song)
                         print ("Heya wtf bruh")
+                        
+                        if p1_found_song.playable_id == "" {
+                            print ("ERROR: Helper id not found !!!!!!!!!!!!!!!!!!!!!!")
+                        } else {
+                            print ("Helper id found !!!!!!!!!!!!!!!!!!!")
+                        }
+                        
+                        
+                        if p1_found_song.preview_url == "" {
+                            print ("ERROR: Helper url not found !!!!!!!!!!!!!!!!!!!!!!")
+                        } else {
+                            print ("Helper id found !!!!!!!!!!!!!!!!!!!")
+                        }
+                        
                         post_from_cell = Post(albumArtImage:  "",
                                               sourceAppImage:  "apple_logo",
                                               typeImage: "icons8-musical-notes-50" ,
@@ -1250,7 +1274,8 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                             paused: false,
                             playing: false,
                             trackid: self.selected_search_result_post.trackid,
-                            helper_id: p1_found_id,
+                            helper_id: p1_found_song.playable_id,
+                            helper_preview_url: p1_found_song.preview_url,
                             videoid: "empty",
                             starttime: 0 ,
                             endtime: 0,
@@ -1285,6 +1310,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                                           playing: false,
                                           trackid: self.selected_search_result_post.trackid,
                                           helper_id: "",
+                                          helper_preview_url: "",
                                           videoid: "empty",
                                           starttime: 0 ,
                                           endtime: 0,
@@ -1320,6 +1346,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
                                       playing: false,
                                       trackid: "",
                                       helper_id: "",
+                                      helper_preview_url: "",
                                       videoid: self.selected_search_result_post.videoid,
                                       starttime: Float(start_offset),
                                       endtime: Float(start_offset + 30.0),
@@ -1380,6 +1407,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
 //                        playing: false,
 //                        trackid: self.poller.apple_mediaItems[0][0].identifier,
 //                        helper_id: p1_found_id,
+//                        helper_preview_url: "",
 //                        videoid: "empty",
 //                        starttime: 0 ,
 //                        endtime: 0,
@@ -1435,6 +1463,7 @@ class UploadViewController3: UIViewController, SPTAudioStreamingDelegate, SPTAud
 //                                                 playing: false,
 //                                                 trackid: self.poller.spotify_currently_playing_object.item!.uri,
 //                                                 helper_id: p1_found_id,
+//                                                 helper_preview_url: "",
 //                                                 videoid: "empty",
 //                                                 starttime: 0 ,
 //                                                 endtime: 0,
@@ -1598,6 +1627,7 @@ extension UploadViewController3: UISearchResultsUpdating  {
         post_dict.updateValue(new_post.flag, forKey: "flag")
         post_dict.updateValue(new_post.trackid, forKey: "trackid")
         post_dict.updateValue(new_post.helper_id, forKey: "helper_id")
+        post_dict.updateValue(new_post.helper_preview_url, forKey: "helper_preview_url")
         post_dict.updateValue(new_post.lyrictext, forKey: "lyrictext")
         post_dict.updateValue(new_post.numberoflikes, forKey: "numberoflikes")
         post_dict.updateValue(new_post.offset, forKey: "offset")
@@ -1701,7 +1731,7 @@ extension UploadViewController3: UISearchResultsUpdating  {
     @objc func update_color_animate () {
         print ("update_color_animate")
         print ("seek position is \((self.collection_view_for_scroll.contentOffset.x + 96.5) / 5)")
-        print ("current playback position is \(self.apple_player.currentPlaybackTime)")
+        //print ("current playback position is \(self.apple_player.currentPlaybackTime)")
         print ("\(Float(self.color_animate_trailing.constant))")
         
         

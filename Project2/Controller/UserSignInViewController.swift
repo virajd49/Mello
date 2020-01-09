@@ -92,34 +92,40 @@ class UserSignInViewController: UIViewController, UITextFieldDelegate {
                     self.email_username_text_field.textColor = UIColor.systemPink
                     return
                 } else {
-                    self.go_to_servicesVC()
+                    print("we reach password check")
+                    if self.password_check {
+                        print("password check is true")
+                             //Authenticate credentials
+                             
+                             //if authenticated move ahead
+                             
+                             //else
+                             
+                        self.user_login.authenticate_login_creds(username_or_email: self.email_username_text_field.text!).done { auth_check in
+                                 if auth_check != nil {
+                                     print (auth_check!)
+                                     
+                                     self.password_error_label.text = auth_check
+                                     self.password_error_label.isHidden = false
+                                     
+                                     self.password_text_field.layer.backgroundColor = UIColor.systemPink.cgColor
+                                     self.password_text_field.layer.borderWidth = 1
+                                     self.password_text_field.textColor = UIColor.systemPink
+                                     return
+                                 } else {
+                                     print("auth check done")
+                                     self.user_login.login_and_save_user_on_device()
+                                     self.go_to_servicesVC()
+                                 }
+                             }
+                    } else {
+                        print("password check is false")
+                    }
+                    
                 }
             }
         }
-        
-        if password_check {
-            //Authenticate credentials
-            
-            //if authenticated move ahead
-            
-            //else
-            
-            user_login.authenticate_login_creds(username_or_email: email_username_text_field.text!).done { auth_check in
-                if auth_check != nil {
-                    print (auth_check!)
-                    
-                    self.password_error_label.text = auth_check
-                    self.password_error_label.isHidden = false
-                    
-                    self.password_text_field.layer.backgroundColor = UIColor.systemPink.cgColor
-                    self.password_text_field.layer.borderWidth = 1
-                    self.password_text_field.textColor = UIColor.systemPink
-                    return
-                } else {
-                    self.go_to_servicesVC()
-                }
-            }
-        }
+     
       
     }
     
@@ -135,8 +141,9 @@ class UserSignInViewController: UIViewController, UITextFieldDelegate {
     
     
     func textFieldDidEndEditing(_ textField: UITextField) {
-           
+           print("textFieldDidEndEditing")
         if textField.tag == 1 {
+            print("tag = 1")
             if textField.text != nil {
                 //email
                 //check if thats a valid email address
@@ -151,10 +158,11 @@ class UserSignInViewController: UIViewController, UITextFieldDelegate {
             } else {
                 email_username_check = false
             }
-        } else if textField.tag == 2 {
-            //Name
+        } else if textField.tag == 4 {
+            print("tag = 2 text is \(textField.text)")
             if textField.text != nil {
                 password_check = true
+                print("password check is true")
                 user_login.password = textField.text
             } else {
                 password_check = false

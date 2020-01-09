@@ -141,6 +141,8 @@ class SignUpViewController: UIViewController, UITextFieldDelegate {
        
         if all_fields_check() {
             print("all checks passed")
+            current_text_field?.endEditing(true)
+            
             //new_user.register_new_user() - > do this is service sign in after we've signed up for services
             if let servicesigninVC = self.storyboard?.instantiateViewController(withIdentifier: "servicesigninVC") as? ServiceSignInViewController {
                 self.navigationController?.navigationItem.backBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: nil, action: nil)

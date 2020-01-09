@@ -83,7 +83,9 @@ class SongPlayControlViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        self.timer.invalidate()
+        if self.timer != nil {
+            self.timer.invalidate()
+        }
     }
 
     

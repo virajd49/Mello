@@ -24,6 +24,7 @@ enum service_name: String {
 
 enum subscription: String {
     case free = "free"
+    case open = "open"
     case paid = "paid"
     case premium = "premium"
     case unlimited = "unlimited"
@@ -33,6 +34,9 @@ enum subscription: String {
 struct Service {
     var name: service_name!
     var subscription: subscription!
+    //These are apple music specific - don't mean anything for Spotify or Youtube
+    var can_play: Bool!
+    var can_add: Bool!
 }
 
 
@@ -64,6 +68,10 @@ class UserAccount: NSObject {
     
     func register_new_user () {
         
+        guard !is_user_logged_in() else {
+            return
+        }
+        
         //Set the user creds up with the Auth server
         //Set user creds up with the Database
         add_new_user_to_firebase()
@@ -74,6 +82,7 @@ class UserAccount: NSObject {
     }
     
     func login_user (user: UserAccount) -> Promise<Bool> {
+        print("login_user")
         return Promise { seal in
         //Check against Auth server get token
             check_if_username_exists_in_firebase().done { found_user in
@@ -92,6 +101,12 @@ class UserAccount: NSObject {
         
     }
     
+    
+    func login_and_save_user_on_device () {
+        self.set_as_logged_in()
+        self.save_current_user()
+    }
+    
     //Save current username/UUID
     func save_current_user () {
         self.userDefaults.set(username, forKey: "currentUser_username")
@@ -108,6 +123,7 @@ class UserAccount: NSObject {
         print ("get_current_user")
         var current_username = ""
         if self.userDefaults.getisLoggedIn() {
+            print("getting user right now \(userDefaults.value(forKey: "currentUser_username") as! String)")
             current_username = userDefaults.value(forKey: "currentUser_username") as! String
         }
         return current_username
@@ -122,9 +138,13 @@ class UserAccount: NSObject {
         user_creds.updateValue(password!, forKey: "password")
         user_creds.updateValue(name!, forKey: "name")
         
-        var services_dict = [String: String]()
+        var services_dict = [String: [String: String]]()
         for service in services {
-            services_dict.updateValue(service.subscription.rawValue, forKey:service.name.rawValue)
+            var temp_dict = [String: String] ()
+            temp_dict.updateValue(service.subscription.rawValue, forKey:"subscription_type")
+            temp_dict.updateValue(String(service.can_play), forKey:"can_play")
+            temp_dict.updateValue(String(service.can_add), forKey:"can_add")
+            services_dict.updateValue(temp_dict, forKey: service.name.rawValue)
         }
         
         let final_user_dict = [username: user_creds]
@@ -165,12 +185,12 @@ class UserAccount: NSObject {
                     if self.username == snap.key  {
                         print("found a username!!")
                         found = true
+                        break
                     }
                 }
+                print("promise should fulfill")
                 seal.fulfill(found)
             })
-            
-                
         }
     }
     
@@ -201,6 +221,7 @@ class UserAccount: NSObject {
         var temp_services = [Service]()
         
         if self.username == "" {
+            print("username is empty string")
             self.username = self.get_current_user()
         }
         print ("username is \(self.username)")
@@ -209,11 +230,12 @@ class UserAccount: NSObject {
             print (snapshot.childrenCount)
             for child in snapshot.children {
                 let snap = child as! DataSnapshot
-                let temp_value = snap.value as! String
+                
+                let temp_value_dict = snap.value as! [String: String]
                 let temp_key = snap.key as! String
                 
-                    var temp_service = Service()
-                    switch temp_key {
+                var temp_service = Service()
+                switch temp_key {
                     case service_name.apple.rawValue:
                         temp_service.name = service_name.apple
                         print("apple service")
@@ -229,10 +251,9 @@ class UserAccount: NSObject {
                     default:
                         temp_service.name = service_name.youtube
                         break
-                        
-                    }
+                }
                     
-                    switch temp_value {
+                switch temp_value_dict["subscription_type"] {
                     case subscription.free.rawValue:
                         temp_service.subscription = subscription.free
                         print("free subs")
@@ -249,9 +270,21 @@ class UserAccount: NSObject {
                         temp_service.subscription = subscription.free
                         print("free subs")
                         break
-                    }
+                }
+                
+                if temp_value_dict["can_play"] == "true" {
+                    temp_service.can_play = true
+                } else {
+                    temp_service.can_play = false
+                }
+                
+                if temp_value_dict["can_add"] == "true" {
+                    temp_service.can_add = true
+                } else {
+                    temp_service.can_add = false
+                }
                     
-                    temp_services.append(temp_service)
+                temp_services.append(temp_service)
                 
             }
             seal.fulfill(temp_services)
@@ -282,22 +315,104 @@ class UserAccount: NSObject {
             if username_or_email.contains("@") {
                 if !check_if_email_exists_in_firebase() {
                     seal.fulfill("We could'nt find an account with that email address, Sign up ?")
+                } else {
+                    seal.fulfill(nil)
                 }
             } else {
                 check_if_username_exists_in_firebase().done { found_user in
+                    print("found user returned")
                     if !found_user {
+                        print("found user is false")
                         seal.fulfill("We could'nt find an account with that username address, Sign up ?")
+                    } else {
+                        print("found user is true")
+                        seal.fulfill(nil)
                     }
                 }
             }
-            
-            seal.fulfill(nil)
-            
+                    
+        }
+    }
+    
+    func refresh_apple_service_info (subscription: subscription, can_play: Bool, can_add: Bool) {
+        
+        var services_attributes_dict = [String: String]()
+              for service in services {
+                if service.name == service_name.apple {
+                    services_attributes_dict.updateValue(service.subscription.rawValue, forKey:"subscription_type")
+                    services_attributes_dict.updateValue(String(service.can_play), forKey:"can_play")
+                    services_attributes_dict.updateValue(String(service.can_add), forKey:"can_add")
+                }
+              }
+        
+        
+        if !services_attributes_dict.isEmpty {
+            let root_ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
+            root_ref.child("user_db").child("users").child(self.username!).child("services").child(service_name.apple.rawValue).updateChildValues(services_attributes_dict) { (err, ref) in
+                if err != nil {
+                    print ("ERROR saving post value")
+                    print (err as! String)
+                    return
+                }
+                print ("saved post value to db")
+            }
         }
     }
     
     
+    func refresh_spotify_subscription () {
+        var services_attributes_dict = [String: String]()
+                     for service in services {
+                       if service.name == service_name.spotify {
+                           services_attributes_dict.updateValue(service.subscription.rawValue, forKey:"subscription_type")
+                           services_attributes_dict.updateValue(String(service.can_play), forKey:"can_play")
+                           services_attributes_dict.updateValue(String(service.can_add), forKey:"can_add")
+                       }
+                     }
+               
+               
+               if !services_attributes_dict.isEmpty {
+                   let root_ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
+                   root_ref.child("user_db").child("users").child(self.username!).child("services").child(service_name.spotify.rawValue).updateChildValues(services_attributes_dict) { (err, ref) in
+                       if err != nil {
+                           print ("ERROR saving post value")
+                           print (err as! String)
+                           return
+                       }
+                       print ("saved post value to db")
+                   }
+               }
+    
+    }
+    
+    func refresh_youtube_subscription () {
+        var services_attributes_dict = [String: String]()
+                     for service in services {
+                       if service.name == service_name.youtube {
+                           services_attributes_dict.updateValue(service.subscription.rawValue, forKey:"subscription_type")
+                           services_attributes_dict.updateValue(String(service.can_play), forKey:"can_play")
+                           services_attributes_dict.updateValue(String(service.can_add), forKey:"can_add")
+                       }
+                     }
+               
+               
+               if !services_attributes_dict.isEmpty {
+                   let root_ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
+                   root_ref.child("user_db").child("users").child(self.username!).child("services").child(service_name.youtube.rawValue).updateChildValues(services_attributes_dict) { (err, ref) in
+                       if err != nil {
+                           print ("ERROR saving post value")
+                           print (err as! String)
+                           return
+                       }
+                       print ("saved post value to db")
+                   }
+               }
+    
+    }
+    
+    
     func authenticate_login_creds (username_or_email: String) -> Promise<String?> {
+        print("authenticate login creds")
         return Promise { seal in
             //Need the proper authentication routine here
             var authenticated: String? = "We could not authneticate those credentials, forgot password ?"
@@ -324,8 +439,8 @@ class UserAccount: NSObject {
                     for child in snapshot.children {
                         let snap = child as! DataSnapshot
                         if username_or_email == snap.key {
-                            let temp_dict = snap.value as! [String : String]
-                            if self.password == temp_dict["password"] {
+                            let temp_dict = snap.value as! [String : Any]
+                            if self.password == temp_dict["password"] as! String {
                                  authenticated = nil
                             }
                         }
@@ -337,6 +452,9 @@ class UserAccount: NSObject {
         }
         
     }
+    
+    
+    
        
     
     

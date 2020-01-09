@@ -14,7 +14,7 @@ import SwiftyGiphy
 class AppDelegate: UIResponder, UIApplicationDelegate {
  
 
-   
+    var hide_status_bar: Bool = false
     let user_defs = UserDefaults.standard
     var window: UIWindow?
     var viewController: UIViewController!

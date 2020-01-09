@@ -11,6 +11,17 @@ import StoreKit
 import UIKit
 import MediaPlayer
 
+/*
+ 
+ IMPORTANT TO DO:
+    1. Developer token needs to be generated on the server - call has to be made from - fetchDeveloperToken
+    2. Evertime app is opened/launched -
+            - test user token and developer token for validity - if it fails - request them again - this should happen in initialize.
+            - Also request capabilities again
+    3. Make sure user is allowed to play music / add songs to library only if they have the right capabilities
+ 
+ 
+ */
 
 /*This file is a direct copy from apple's music kit example project, changes made by me are mostly debugs - the only problem with apple auth stuff is the 'developerAuthenticationToken' - there is a specific process to generate this token, given on the apple developer docs website here -
     https://developer.apple.com/documentation/applemusicapi/getting_keys_and_creating_tokens
@@ -129,8 +140,6 @@ class AppleMusicControl: NSObject {
             switch authorizationStatus {
                 case .authorized:
                 self?.requestCloudServiceCapabilities()
-                
-                self?.requestUserToken()
             default:
                 break
             }
@@ -151,6 +160,9 @@ class AppleMusicControl: NSObject {
             switch (MPMediaLibrary.authorizationStatus()) {
                 case .authorized:
                     print ("requestMediaLibraryAuthorization - STATUS IS authorized")
+                    DispatchQueue.main.async {
+                        NotificationCenter.default.post(name: Notification.Name(rawValue: "AppleMusicMediaLibraryAuthorized"), object: nil)
+                    }
                     break
                 case .denied:
                     print ("requestMediaLibraryAuthorization - STATUS IS denied")
@@ -193,10 +205,24 @@ class AppleMusicControl: NSObject {
             
             if cloudServiceCapability.contains(SKCloudServiceCapability.musicCatalogPlayback) {
                 print("user has Apple Music subscription and can play music from apple music api")
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "musicCatalogPlaybackPRESENT"), object: nil)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "musicCatalogPlaybackABSENT"), object: nil)
+                }
             }
 
             if cloudServiceCapability.contains(SKCloudServiceCapability.addToCloudMusicLibrary) {
                 print("user has an Apple Music subscription, can play music from api, also can add to their music library")
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "addToCloudMusicLibraryPRESENT"), object: nil)
+                }
+            } else {
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: Notification.Name(rawValue: "addToCloudMusicLibraryABSENT"), object: nil)
+                }
             }
 
             if cloudServiceCapability.contains(SKCloudServiceCapability.musicCatalogSubscriptionEligible) {
@@ -288,6 +314,7 @@ class AppleMusicControl: NSObject {
                     print ("we did this guy 3")
                 }
                 
+                NotificationCenter.default.post(name: Notification.Name(rawValue: "AppleMusicUserTokenSaved"), object: nil)
                 NotificationCenter.default.post(name: (self?.cloudServiceDidUpdateNotification)!, object: nil)
             }
             
@@ -316,7 +343,7 @@ class AppleMusicControl: NSObject {
     func fetchDeveloperToken() -> String? {
         
         // MARK: ADAPT: YOU MUST IMPLEMENT THIS METHOD
-        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTcyMTA3ODMxLCJleHAiOjE1NzM4Mzk0MzF9.y7zHJXZ66kaHoo1PmE6fM8aceIfz6XhPwMzcAr3457jLn7EnF9DNY5qGo0GfkEjZWuVP4DMABOUxUYeNcW8evA"
+        let developerAuthenticationToken: String? = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Iko3VDc3WjQ0V1oifQ.eyJpc3MiOiIyODJIMlU4VkZUIiwiaWF0IjoxNTc4NDUzOTk4LCJleHAiOjE1ODAxODE5OTh9.sQax4KtczD_a8MpKpWrl2b-Um1CbxrI5fB0wEt1QeciVniT_ByqOeQam-_F7rvBKd9PSUjNbkXXbviQ6aAFgvQ"
         return developerAuthenticationToken
     }
     
@@ -343,7 +370,9 @@ class AppleMusicControl: NSObject {
             //print ("yeah yeah 2")
         }
         
+    }
         
+    func check_auth_session () {
         /*
          If the application has already been authorized in a previous run or manually by the user then it can request
          the current set of `SKCloudServiceCapability` and Storefront Identifier.
@@ -352,9 +381,6 @@ class AppleMusicControl: NSObject {
             requestCloudServiceCapabilities()
             //print ("yeah yeah 3")
             /// Retrieve the Music User Token for use in the application if it was stored from a previous run.
-            
-            
-            
             if let token = UserDefaults.standard.string(forKey: AppleMusicControl.userTokenUserDefaultsKey) {
                 userToken = token
                 print("user token is \(userToken)")
@@ -367,6 +393,31 @@ class AppleMusicControl: NSObject {
             }
             
             
+        }
+    }
+    
+    
+    func check_cloud_auth () {
+        if SKCloudServiceController.authorizationStatus() == .authorized {
+            print ("already authorized")
+            requestCloudServiceCapabilities()
+        } else {
+            requestCloudServiceAuthorization()
+        }
+    }
+    
+    
+    func check_for_user_token () {
+        if let token = UserDefaults.standard.string(forKey: AppleMusicControl.userTokenUserDefaultsKey) {
+            userToken = token
+            print("user token is \(userToken)")
+            self.requestStorefrontCountryCode()
+            print("then this")
+            NotificationCenter.default.post(name: Notification.Name(rawValue: "AppleMusicUserTokenSaved"), object: nil)
+        } else {
+            /// The token was not stored previously then request one.
+            print("was not stored previously")
+            requestUserToken()
         }
     }
 

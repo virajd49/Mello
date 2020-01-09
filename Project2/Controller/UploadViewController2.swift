@@ -36,7 +36,7 @@ class upload_path_keeper {
     static let shared = upload_path_keeper()
     var new_post_selected = false
     var upload_path = "none"
-    var keeper_post: Post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
+    var keeper_post: Post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", helper_preview_url: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
     /* Values
         none - nothing is being uploaded
         default - basic upload path from tab bar button
@@ -125,7 +125,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     //the dismiss chevron at the bottom of the view
     @IBOutlet weak var dismiss_chevron_button: UIButton!
   
-    var apple_system_player = MPMusicPlayerController.systemMusicPlayer
+    //var apple_system_player = MPMusicPlayerController.systemMusicPlayer
     var yt_id: String?
     var scroller_timer = Timer()
     
@@ -320,6 +320,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
         navigationItem.titleView = searchController.searchBar
         
         //Load recently played stuff in the table
+        print("calling update_recently_played")
         self.update_recently_played()
 
         //setup header view for album  - apple recently played selection nonsense
@@ -950,7 +951,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                     }
                 } else {
                     self.cache_selected_cell(at: tapIndexPath)
-                    
+                    self.upload_flag = (self.userDefaults.string(forKey: "UserAccount")?.lowercased())!
                     self.performSegue(withIdentifier: "upload_2_to_3", sender: self)
                 }
             }
@@ -1006,17 +1007,19 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                           playing: false,
                                           trackid: upload_cell.spotify_mediaItem.uri,
                                           helper_id: "",
+                                          helper_preview_url: "",
                                           videoid: "empty",
                                           starttime: 0 ,
                                           endtime: 0,
                                           flag: "audio",
                                           lyrictext: "",
                                           songname: upload_cell.spotify_mediaItem.name,
+                                          artistName: upload_cell.spotify_mediaItem.artists?[0].name,
                                           sourceapp: self.upload_flag,
                                           preview_url: (upload_cell.spotify_mediaItem.preview_url) ?? "nil",
                                           albumArtUrl: upload_cell.spotify_mediaItem.album?.images![0].url,
                                           original_track_length: upload_cell.spotify_mediaItem!.duration_ms!,
-                                          GIF_url: "" )
+                                          GIF_url: "")
                     
             case "apple":
                 print (" case apple ")
@@ -1044,12 +1047,14 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                           playing: false,
                                           trackid: upload_cell.mediaItem.identifier,
                                           helper_id: "",
+                                          helper_preview_url: "",
                                           videoid: "empty",
                                           starttime: 0 ,
                                           endtime: 0,
                                           flag: "audio",
                                           lyrictext: "",
                                           songname: upload_cell.mediaItem.name,
+                                          artistName: upload_cell.mediaItem.artistName,
                                           sourceapp: self.upload_flag,
                                           preview_url: upload_cell.mediaItem.previews[0]["url"] ?? "",
                                           albumArtUrl: upload_cell.mediaItem.artwork.imageURL(size: CGSize(width: 375, height: 375)).absoluteString,
@@ -1083,16 +1088,18 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                                         playing: false,
                                                         trackid: upload_cell.spotify_recently_played_mediaItem.track?.uri,
                                                         helper_id: "",
+                                                        helper_preview_url: "",
                                                         videoid: "empty",
                                                         starttime: 0 ,
                                                         endtime: 0,
                                                         flag: "audio",
                                                         lyrictext: "",
                                                         songname: upload_cell.spotify_recently_played_mediaItem.track?.name,
+                                                        artistName: upload_cell.spotify_mediaItem.artists?[0].name,
                                                         sourceapp: self.upload_flag,
                                                         preview_url: (upload_cell.spotify_recently_played_mediaItem.track?.preview_url) ?? "nil",
                                                         albumArtUrl: upload_cell.spotify_recently_played_mediaItem.track?.album?.images![0].url,
-                                                        original_track_length: upload_cell.spotify_recently_played_mediaItem.track?.duration_ms!,
+                                                        original_track_length: (upload_cell.spotify_recently_played_mediaItem.track?.duration_ms!)!,
                                                         GIF_url: "" )
                 
             default:   //now_playing - do we need 'default' case? it's going to be apple/spotify anyway.
@@ -1113,12 +1120,14 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                       playing: false,
                                       trackid: "",
                                       helper_id: "",
+                                      helper_preview_url: "",
                                       videoid: "empty",
                                       starttime: 0 ,
                                       endtime: 0,
                                       flag: "audio",
                                       lyrictext: "",
                                       songname: "",
+                                      artistName: "",
                                       sourceapp: "",
                                       preview_url: "",
                                       albumArtUrl: "",
@@ -1144,12 +1153,14 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                   playing: false,
                                   trackid: "",
                                   helper_id: "",
+                                  helper_preview_url: "",
                                   videoid: upload_cell.youtube_video_resource.identifier?.videoId,
                                   starttime: 0 ,
                                   endtime: 0,
                                   flag: "video",
                                   lyrictext: "",
                                   songname: upload_cell.youtube_video_resource.snippet?.title,
+                                  artistName: "",
                                   sourceapp: self.upload_flag,
                                   preview_url: "",
                                   albumArtUrl: upload_cell.youtube_video_resource.snippet?.thumbnails?.high?.url,
@@ -1182,6 +1193,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                                 playing: false,
                                                 trackid: "",
                                                 helper_id: "",
+                                                helper_preview_url: "",
                                                 videoid: "empty",
                                                 starttime: 0 ,
                                                 endtime: 0,
@@ -1229,6 +1241,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
 //                                                playing: false,
 //                                                trackid: self.poller.spotify_currently_playing_object.item?.uri,
 //                                                helper_id: "",
+//                                                helper_preview_url: "",
 //                                                videoid: "empty",
 //                                                starttime: 0 ,
 //                                                endtime: 0,
@@ -1270,6 +1283,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
 //                                                    playing: false,
 //                                                    trackid: self.poller.apple_mediaItems[0][0].identifier,
 //                                                    helper_id: "",
+//                                                    helper_preview_url: "",
 //                                                    videoid: "empty",
 //                                                    starttime: 0 ,
 //                                                    endtime: 0,
@@ -1337,6 +1351,7 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
                                                     playing: false,
                                                     trackid: "",
                                                     helper_id: "",
+                                                    helper_preview_url: "",
                                                     videoid: video.identifier,
                                                     starttime: 0 ,
                                                     endtime: 0,
@@ -1442,8 +1457,8 @@ class UploadViewController2: UIViewController, UITableViewDelegate, UITableViewD
     
     
     func update_recently_played () {
-        
-        
+        print("update_recently_played")
+        print (self.userDefaults.string(forKey: "UserAccount"))
         if self.userDefaults.string(forKey: "UserAccount") == "Spotify" {
             appleMusicManager.performSpotifyRecentlyPlayedSearch().done { searchResults in
                 print ("performSpotifyRecentlyPlayedSearch done")
@@ -1643,6 +1658,7 @@ extension UploadViewController2: UISearchResultsUpdating  {
         post_dict.updateValue(new_post.flag, forKey: "flag")
         post_dict.updateValue(new_post.trackid, forKey: "trackid")
         post_dict.updateValue(new_post.helper_id, forKey: "helper_id")
+        post_dict.updateValue(new_post.helper_preview_url, forKey: "helper_preview_url")
         post_dict.updateValue(new_post.lyrictext, forKey: "lyrictext")
         post_dict.updateValue(new_post.numberoflikes, forKey: "numberoflikes")
         post_dict.updateValue(new_post.offset, forKey: "offset")

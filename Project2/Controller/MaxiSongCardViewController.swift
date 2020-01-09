@@ -190,6 +190,7 @@ extension MaxiSongCardViewController {
 //background image animation
 extension MaxiSongCardViewController {
     
+    //Background image animation steps
     //1.
     private func configureBackingImageInPosition(presenting: Bool) {
         let edgeInset: CGFloat = presenting ? backingImageEdgeInset : 0

@@ -209,6 +209,7 @@ class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, U
                     playing: false,
                     trackid: upload_cell?.mediaItem.identifier,
                     helper_id: "",
+                    helper_preview_url: "",
                     videoid: "empty",
                     starttime: 0 ,
                     endtime: 0,
@@ -218,7 +219,7 @@ class UploadViewControllerAlbumDisplay: UIViewController, UITableViewDelegate, U
                     sourceapp: self.upload_flag,
                     preview_url: upload_cell?.mediaItem.previews[0]["url"] ?? "",
                     albumArtUrl: upload_cell?.mediaItem.artwork.imageURL(size: CGSize(width: 375, height: 375)).absoluteString,
-                    original_track_length: upload_cell?.mediaItem.durationInMillis!,
+                    original_track_length: (upload_cell?.mediaItem.durationInMillis!)!,
                     GIF_url: "" )
                 
                 self.performSegue(withIdentifier: "album_display_to_3", sender: self)

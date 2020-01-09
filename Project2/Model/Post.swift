@@ -37,16 +37,18 @@ struct Post {
     var playing: Bool!
     var trackid: String!
     var helper_id: String!
+    var helper_preview_url: String!
     var videoid: String!
     var starttime: Float!           //The time at which a video post should start
     var endtime: Float!             //The time at which a video post should end - You can give a end time for youtube player, you cannot give an end time for apple or spotify players - so we don't use this for audio posts
     var flag: String!  //can be audio, video or lyric
     var lyrictext: String!
     var songname: String!
+    var artistName: String!
     var sourceapp: String!          //apple/spotify/youtube
     var preview_url: String!        //30 second preview url given provided by spotify and apple for free subscription members
     var albumArtUrl: String!        //URL for the album art/video thumbnail
-    var original_track_length: Int!     //Full lenght of the track
+    var original_track_length: Int     //Full lenght of the track
     var GIF_url: String!                //Gif url for any GIF that the user might attach to the post
     
     
@@ -59,10 +61,10 @@ struct Post {
         
         var ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
         ref.child("user_db").child("post_db").observeSingleEvent(of: .value, with: { snapshot in
-            
+
             //the snapshot here is a dictionary of all the posts
         print (snapshot.childrenCount)
-        let dummy_post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
+            let dummy_post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", helper_preview_url: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", artistName: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
         posts = Array<Post>(repeating: dummy_post, count: Int(snapshot.childrenCount))
 
         for child in snapshot.children {
@@ -70,10 +72,10 @@ struct Post {
             //We grab a post - stuff it into our Post data structure - add it to the posts array and then return the array once we are through with all the posts
             let snap = child as! DataSnapshot
             print (snap.key)
-            let index = snap.key 
+            let index = snap.key
             let absolute_index = index.replacingOccurrences(of: "Post", with: "")
             let temp_dict = snap.value as! [String : Any]
-            
+
             //for debug purposes
 //                print(temp_dict)
 //                print (temp_dict["albumArtImage"] as! String)
@@ -91,6 +93,7 @@ struct Post {
 //                print (temp_dict["playing"] as! Bool)
 //                print (temp_dict["trackid"] as! String)
 //                print (temp_dict["helper_id"] as! String)
+//                print (temp_dict["helper_preview_url"] as! String)
 //                print (temp_dict["videoid"] as! String)
 //                print (temp_dict["starttime"] as! Float)
 //                print (temp_dict["endtime"] as! Float)
@@ -100,7 +103,7 @@ struct Post {
 //                print (temp_dict["sourceapp"] as! String)
 //                print (temp_dict["preview_url"] as! String)
 //                print (temp_dict["original_track_length"] as! String)
-            let post = Post(albumArtImage: (temp_dict["albumArtImage"] as! String) , sourceAppImage: (temp_dict["sourceAppImage"] as! String), typeImage: (temp_dict["typeImage"] as! String) , profileImage: (temp_dict["profileImage"] as! String) , username: (temp_dict["username"] as! String) ,timeAgo: (temp_dict["timeAgo"] as! String), numberoflikes: (temp_dict["numberoflikes"] as! String) ,caption: (temp_dict["caption"] as! String), offset: (temp_dict["offset"] as! TimeInterval), startoffset: (temp_dict["startoffset"] as! TimeInterval), audiolength: (temp_dict["audiolength"] as! Float), paused: (temp_dict["paused"] as! Bool), playing: (temp_dict["playing"] as! Bool), trackid: (temp_dict["trackid"] as! String), helper_id: (temp_dict["helper_id"] as! String), videoid: (temp_dict["videoid"] as! String), starttime: (temp_dict["starttime"] as! Float) , endtime: (temp_dict["endtime"] as! Float), flag: (temp_dict["flag"] as! String), lyrictext: (temp_dict["lyrictext"] as! String), songname: (temp_dict["songname"] as! String), sourceapp: (temp_dict["sourceapp"] as! String), preview_url: (temp_dict["preview_url"] as! String), albumArtUrl: (temp_dict["albumArtUrl"] as! String), original_track_length: 0, GIF_url: (temp_dict["GIF_url"] as! String))
+            let post = Post(albumArtImage: (temp_dict["albumArtImage"] as! String) , sourceAppImage: (temp_dict["sourceAppImage"] as! String), typeImage: (temp_dict["typeImage"] as! String) , profileImage: (temp_dict["profileImage"] as! String) , username: (temp_dict["username"] as! String) ,timeAgo: (temp_dict["timeAgo"] as! String), numberoflikes: (temp_dict["numberoflikes"] as! String) ,caption: (temp_dict["caption"] as! String), offset: (temp_dict["offset"] as! TimeInterval), startoffset: (temp_dict["startoffset"] as! TimeInterval), audiolength: (temp_dict["audiolength"] as! Float), paused: (temp_dict["paused"] as! Bool), playing: (temp_dict["playing"] as! Bool), trackid: (temp_dict["trackid"] as! String), helper_id: (temp_dict["helper_id"] as! String), helper_preview_url: (temp_dict["helper_preview_url"] as! String), videoid: (temp_dict["videoid"] as! String), starttime: (temp_dict["starttime"] as! Float) , endtime: (temp_dict["endtime"] as! Float), flag: (temp_dict["flag"] as! String), lyrictext: (temp_dict["lyrictext"] as! String), songname: (temp_dict["songname"] as! String), artistName: "" ,sourceapp: (temp_dict["sourceapp"] as! String), preview_url: (temp_dict["preview_url"] as! String), albumArtUrl: (temp_dict["albumArtUrl"] as! String), original_track_length: 0, GIF_url: (temp_dict["GIF_url"] as! String))
             posts[Int(absolute_index)!] = post
         }
             seal.fulfill(posts)
@@ -109,17 +112,17 @@ struct Post {
             
             
                 //Hardcoded posts -
-        var post1 = Post(albumArtImage: "clapton" , sourceAppImage: "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "20 mins ago"  , numberoflikes: "20 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0, audiolength: 30, paused: false, playing: false, trackid: "14268593", helper_id: "spotify:track:6zC0mpGYwbNTpk9SKwh08f", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Wonderful Tonight", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/efe0ee0512fbaf28307158f871427ec6aec7181c", original_track_length: 219333, GIF_url: "")
+            var post1 = Post(albumArtImage: "clapton" , sourceAppImage: "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "20 mins ago"  , numberoflikes: "20 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0, audiolength: 30, paused: false, playing: false, trackid: "14268593", helper_id: "spotify:track:6zC0mpGYwbNTpk9SKwh08f", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Wonderful Tonight", artistName: "", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/efe0ee0512fbaf28307158f871427ec6aec7181c", original_track_length: 219333, GIF_url: "")
         
-        var post2 = Post(albumArtImage:"doesitfeellike" , sourceAppImage: "Spotify_cropped", typeImage:"icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "2 hours ago"  , numberoflikes: "28 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "spotify:track:3ZakaL0QEt5eeD3N7HbaN1", helper_id: "1311238254", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Does it feel like falling", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/13e4b7ca24993f21e80611fbacc7fcc5cdb7c00a", original_track_length: 234918, GIF_url: "")
+        var post2 = Post(albumArtImage:"doesitfeellike" , sourceAppImage: "Spotify_cropped", typeImage:"icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "2 hours ago"  , numberoflikes: "28 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "spotify:track:3ZakaL0QEt5eeD3N7HbaN1", helper_id: "1311238254", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Does it feel like falling", artistName: "", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/13e4b7ca24993f21e80611fbacc7fcc5cdb7c00a", original_track_length: 234918, GIF_url: "")
             
-        var post3 = Post(albumArtImage: "IMG_4387" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "3 hours ago"  , numberoflikes: "10 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "312319419", helper_id: "spotify:track:2So1k5N6x7iomF1T44gGkb",videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Wonderwall", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/3c4581eabc924b41527625b849f40864f43a5c7d", original_track_length: 286493, GIF_url: "")
+        var post3 = Post(albumArtImage: "IMG_4387" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "3 hours ago"  , numberoflikes: "10 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "312319419", helper_id: "spotify:track:2So1k5N6x7iomF1T44gGkb",helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Wonderwall", artistName: "", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/3c4581eabc924b41527625b849f40864f43a5c7d", original_track_length: 286493, GIF_url: "")
 
-        var post4 = Post(albumArtImage: "clapton", sourceAppImage:  "Youtube_cropped", typeImage: "video" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 0.0, startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "empty", helper_id: "default",videoid: "mQ055hHdxbE", starttime: 120, endtime: 180, flag: "video", lyrictext: "", songname: "John Mayer - New Light", sourceapp: "youtube", preview_url: "", albumArtUrl:  "https://i.ytimg.com/vi/mQ055hHdxbE/hqdefault.jpg", original_track_length: 229000, GIF_url: "")
+        var post4 = Post(albumArtImage: "clapton", sourceAppImage:  "Youtube_cropped", typeImage: "video" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 0.0, startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "empty", helper_id: "default",helper_preview_url: "", videoid: "mQ055hHdxbE", starttime: 120, endtime: 180, flag: "video", lyrictext: "", songname: "John Mayer - New Light", artistName: "", sourceapp: "youtube", preview_url: "", albumArtUrl:  "https://i.ytimg.com/vi/mQ055hHdxbE/hqdefault.jpg", original_track_length: 229000, GIF_url: "")
         
-        var post5 = Post(albumArtImage:  "inthearms" , sourceAppImage: "Spotify_cropped", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "spotify:track:48GBbQiTSlXX5i0cn3iIiJ", helper_id: "1204587476",videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "In the Arms of a Stranger", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/37c5af43b274e8c7e0c98c63b602ef2174ae880d", original_track_length: 212626, GIF_url: "")
+        var post5 = Post(albumArtImage:  "inthearms" , sourceAppImage: "Spotify_cropped", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "spotify:track:48GBbQiTSlXX5i0cn3iIiJ", helper_id: "1204587476",helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "In the Arms of a Stranger", artistName: "", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/37c5af43b274e8c7e0c98c63b602ef2174ae880d", original_track_length: 212626, GIF_url: "")
 
-        var post6 = Post(albumArtImage: "clapton" , sourceAppImage: "apple_logo", typeImage: "icons8-sheet-music-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "1 day ago"  , numberoflikes: "17 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "1224353521", helper_id: "spotify:track:0Zrug5Ry3x6x60lohpEU0C",videoid: "empty", starttime: 0 , endtime: 0, flag: "lyric", lyrictext:
+        var post6 = Post(albumArtImage: "clapton" , sourceAppImage: "apple_logo", typeImage: "icons8-sheet-music-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "1 day ago"  , numberoflikes: "17 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "1224353521", helper_id: "spotify:track:0Zrug5Ry3x6x60lohpEU0C", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "lyric", lyrictext:
             """
             One last drink to wishful thinkin'\nAnd then another again\nThe bar is getting brighter\nAnd the walls are closin' in\n
 
@@ -130,15 +133,15 @@ struct Post {
             Roll it on home\nRoll it on home\nTomorrow's another chance you won't go it alone\n
             
             If you roll it on home
-            """, songname: "Roll it on home", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/dfa9264c5427a0dfcfdf99a6592d608b42420e84", original_track_length: 204160, GIF_url: "")
+            """, songname: "Roll it on home", artistName: "",sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/dfa9264c5427a0dfcfdf99a6592d608b42420e84", original_track_length: 204160, GIF_url: "")
         
-        var post7 = Post(albumArtImage:  "queen2" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "12 hours ago"  , numberoflikes: "22 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "932648605", helper_id: "spotify:track:7hQJA50XrCWABAu5v6QZ4i", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Dont stop me now", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/2e82bac8c64908ef1504e8391362c030b0fdad2e", original_track_length: 209391, GIF_url: "")
+        var post7 = Post(albumArtImage:  "queen2" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "12 hours ago"  , numberoflikes: "22 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "932648605", helper_id: "spotify:track:7hQJA50XrCWABAu5v6QZ4i", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Dont stop me now", artistName: "",sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/2e82bac8c64908ef1504e8391362c030b0fdad2e", original_track_length: 209391, GIF_url: "")
             
-        var post8 = Post(albumArtImage:  "misbehaving1" , sourceAppImage:  "Spotify_cropped", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "22 hours ago"  , numberoflikes: "15 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60,paused: false, playing: false, trackid: "spotify:track:04EDShdWyBr2aJPqjFjKAQ", helper_id: "1282343124",videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Misbehaving", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/191682b2b8e9bd9a140bdaa1db15e4126808cf72", original_track_length: 228855, GIF_url: "")
+        var post8 = Post(albumArtImage:  "misbehaving1" , sourceAppImage:  "Spotify_cropped", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "22 hours ago"  , numberoflikes: "15 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60,paused: false, playing: false, trackid: "spotify:track:04EDShdWyBr2aJPqjFjKAQ", helper_id: "1282343124",helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Misbehaving", artistName: "",sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/191682b2b8e9bd9a140bdaa1db15e4126808cf72", original_track_length: 228855, GIF_url: "")
 
-        var post9 = Post(albumArtImage:  "clapton", sourceAppImage:  "Youtube_cropped", typeImage: "video" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 0.0, startoffset: 0.0, audiolength: 110, paused: false, playing: false, trackid: "empty", helper_id: "default", videoid: "o1VvgO7RNXg", starttime: 210 , endtime: 320, flag: "video", lyrictext: "", songname: "Bewajah - Coke Studio", sourceapp: "youtube", preview_url: "", albumArtUrl: "https://i.ytimg.com/vi/o1VvgO7RNXg/hqdefault.jpg", original_track_length: 362000, GIF_url: "")
+        var post9 = Post(albumArtImage:  "clapton", sourceAppImage:  "Youtube_cropped", typeImage: "video" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 0.0, startoffset: 0.0, audiolength: 110, paused: false, playing: false, trackid: "empty", helper_id: "default",helper_preview_url: "", videoid: "o1VvgO7RNXg", starttime: 210 , endtime: 320, flag: "video", lyrictext: "", songname: "Bewajah - Coke Studio", artistName: "", sourceapp: "youtube", preview_url: "", albumArtUrl: "https://i.ytimg.com/vi/o1VvgO7RNXg/hqdefault.jpg", original_track_length: 362000, GIF_url: "")
         
-        var post10 = Post(albumArtImage:  "Screen Shot 2017-10-24 at 7.30.42 PM" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "1 day ago"  , numberoflikes: "17 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 40, paused: false, playing: false, trackid: "1224353520", helper_id: "spotify:track:5KsLlcmWDoHUoJFzRw14wD", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Rosie", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/dfa9264c5427a0dfcfdf99a6592d608b42420e84", original_track_length: 242747, GIF_url: "")
+        var post10 = Post(albumArtImage:  "Screen Shot 2017-10-24 at 7.30.42 PM" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "1 day ago"  , numberoflikes: "17 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 40, paused: false, playing: false, trackid: "1224353520", helper_id: "spotify:track:5KsLlcmWDoHUoJFzRw14wD", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Rosie", artistName: "", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/dfa9264c5427a0dfcfdf99a6592d608b42420e84", original_track_length: 242747, GIF_url: "")
 
             //This section is only to be used when using the hardcoded posts, and when doing so you have to comment out everything from var ref = .. to seal.fulfill at the beginning of the function.
 //        posts.append(post1)
@@ -181,6 +184,7 @@ struct Post {
                 post_dict.updateValue(post_list![i].flag, forKey: "flag")
                 post_dict.updateValue(post_list![i].trackid, forKey: "trackid")
                 post_dict.updateValue(post_list![i].helper_id, forKey: "helper_id")
+                post_dict.updateValue(post_list![i].helper_preview_url, forKey: "helper_preview_url")
                 post_dict.updateValue(post_list![i].lyrictext, forKey: "lyrictext")
                 post_dict.updateValue(post_list![i].numberoflikes, forKey: "numberoflikes")
                 post_dict.updateValue(post_list![i].offset, forKey: "offset")
@@ -189,6 +193,7 @@ struct Post {
                 post_dict.updateValue(post_list![i].preview_url, forKey: "preview_url")
                 post_dict.updateValue(post_list![i].profileImage, forKey: "profileImage")
                 post_dict.updateValue(post_list![i].songname, forKey: "songname")
+                post_dict.updateValue(post_list![i].artistName, forKey: "artistName")
                 post_dict.updateValue(post_list![i].sourceapp, forKey: "sourceapp")
                 post_dict.updateValue(post_list![i].sourceAppImage, forKey: "sourceAppImage")
                 post_dict.updateValue(post_list![i].startoffset, forKey: "startoffset")
@@ -235,6 +240,7 @@ struct Post {
         post_dict.updateValue(new_post.flag, forKey: "flag")
         post_dict.updateValue(new_post.trackid, forKey: "trackid")
         post_dict.updateValue(new_post.helper_id, forKey: "helper_id")
+        post_dict.updateValue(new_post.helper_preview_url, forKey: "helper_preview_url")
         post_dict.updateValue(new_post.lyrictext, forKey: "lyrictext")
         post_dict.updateValue(new_post.numberoflikes, forKey: "numberoflikes")
         post_dict.updateValue(new_post.offset, forKey: "offset")
@@ -243,6 +249,7 @@ struct Post {
         post_dict.updateValue(new_post.preview_url, forKey: "preview_url")
         post_dict.updateValue(new_post.profileImage, forKey: "profileImage")
         post_dict.updateValue(new_post.songname, forKey: "songname")
+        post_dict.updateValue(new_post.artistName, forKey: "artistName")
         post_dict.updateValue(new_post.sourceapp, forKey: "sourceapp")
         post_dict.updateValue(new_post.sourceAppImage, forKey: "sourceAppImage")
         post_dict.updateValue(new_post.startoffset, forKey: "startoffset")
@@ -277,59 +284,59 @@ struct Post {
             var worker = ISRC_worker()
             
             var ref = Database.database().reference(fromURL: "https://project2-a2c32.firebaseio.com/")
-            ref.child("user_db").child("profile_db").child("profile_post_db").observeSingleEvent(of: .value, with: { snapshot in
-                print (snapshot.childrenCount)
-                let dummy_post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
-                posts = Array<Post>(repeating: dummy_post, count: Int(snapshot.childrenCount))
-
-                for child in snapshot.children {
-                    let snap = child as! DataSnapshot
-                    print (snap.key)
-                    let index = snap.key
-                    let absolute_index = index.replacingOccurrences(of: "Post", with: "")
-                    let temp_dict = snap.value as! [String : Any]
-                    //                print(temp_dict)
-                    //                print (temp_dict["albumArtImage"] as! String)
-                    //                print (temp_dict["sourceAppImage"] as! String)
-                    //                print (temp_dict["typeImage"] as! String)
-                    //                print (temp_dict["profileImage"] as! String)
-                    //                print (temp_dict["username"] as! String)
-                    //                print (temp_dict["timeAgo"] as! String)
-                    //                print (temp_dict["numberoflikes"] as! String)
-                    //                print (temp_dict["caption"] as! String)
-                    //                print (temp_dict["offset"] as! TimeInterval)
-                    //                print (temp_dict["startoffset"] as! TimeInterval)
-                    //                print (temp_dict["audiolength"] as! Float)
-                    //                print (temp_dict["paused"] as! Bool)
-                    //                print (temp_dict["playing"] as! Bool)
-                    //                print (temp_dict["trackid"] as! String)
-                    //                print (temp_dict["helper_id"] as! String)
-                    //                print (temp_dict["videoid"] as! String)
-                    //                print (temp_dict["starttime"] as! Float)
-                    //                print (temp_dict["endtime"] as! Float)
-                    //                print (temp_dict["flag"] as! String)
-                    //                print (temp_dict["lyrictext"] as! String)
-                    //                print (temp_dict["songname"] as! String)
-                    //                print (temp_dict["sourceapp"] as! String)
-                    //                print (temp_dict["preview_url"] as! String)
-                    //                print (temp_dict["original_track_length"] as! String)
-                    let post = Post(albumArtImage: (temp_dict["albumArtImage"] as! String) , sourceAppImage: (temp_dict["sourceAppImage"] as! String), typeImage: (temp_dict["typeImage"] as! String) , profileImage: (temp_dict["profileImage"] as! String) , username: (temp_dict["username"] as! String) ,timeAgo: (temp_dict["timeAgo"] as! String), numberoflikes: (temp_dict["numberoflikes"] as! String) ,caption: (temp_dict["caption"] as! String), offset: (temp_dict["offset"] as! TimeInterval), startoffset: (temp_dict["startoffset"] as! TimeInterval), audiolength: (temp_dict["audiolength"] as! Float), paused: (temp_dict["paused"] as! Bool), playing: (temp_dict["playing"] as! Bool), trackid: (temp_dict["trackid"] as! String), helper_id: (temp_dict["helper_id"] as! String), videoid: (temp_dict["videoid"] as! String), starttime: (temp_dict["starttime"] as! Float) , endtime: (temp_dict["endtime"] as! Float), flag: (temp_dict["flag"] as! String), lyrictext: (temp_dict["lyrictext"] as! String), songname: (temp_dict["songname"] as! String), sourceapp: (temp_dict["sourceapp"] as! String), preview_url: (temp_dict["preview_url"] as! String), albumArtUrl: (temp_dict["albumArtUrl"] as! String), original_track_length: 0, GIF_url: (temp_dict["GIF_url"] as! String))
-                    posts[Int(absolute_index)!] = post
-                }
-                seal.fulfill(posts)
-            })
+//            ref.child("user_db").child("profile_db").child("profile_post_db").observeSingleEvent(of: .value, with: { snapshot in
+//                print (snapshot.childrenCount)
+//                let dummy_post = Post(albumArtImage: "" , sourceAppImage: "", typeImage: "" , profileImage: "" , username: "" ,timeAgo: "", numberoflikes: "" ,caption:"", offset: 0.0, startoffset: 0.0, audiolength: 0.0, paused: false, playing: true, trackid: "", helper_id: "", helper_preview_url: "", videoid: "", starttime: 0.0 , endtime: 0.0, flag: "", lyrictext: "", songname: "", sourceapp: "", preview_url: "", albumArtUrl: "", original_track_length: 0, GIF_url: "")
+//                posts = Array<Post>(repeating: dummy_post, count: Int(snapshot.childrenCount))
+//
+//                for child in snapshot.children {
+//                    let snap = child as! DataSnapshot
+//                    print (snap.key)
+//                    let index = snap.key
+//                    let absolute_index = index.replacingOccurrences(of: "Post", with: "")
+//                    let temp_dict = snap.value as! [String : Any]
+//                    //                print(temp_dict)
+//                    //                print (temp_dict["albumArtImage"] as! String)
+//                    //                print (temp_dict["sourceAppImage"] as! String)
+//                    //                print (temp_dict["typeImage"] as! String)
+//                    //                print (temp_dict["profileImage"] as! String)
+//                    //                print (temp_dict["username"] as! String)
+//                    //                print (temp_dict["timeAgo"] as! String)
+//                    //                print (temp_dict["numberoflikes"] as! String)
+//                    //                print (temp_dict["caption"] as! String)
+//                    //                print (temp_dict["offset"] as! TimeInterval)
+//                    //                print (temp_dict["startoffset"] as! TimeInterval)
+//                    //                print (temp_dict["audiolength"] as! Float)
+//                    //                print (temp_dict["paused"] as! Bool)
+//                    //                print (temp_dict["playing"] as! Bool)
+//                    //                print (temp_dict["trackid"] as! String)
+//                    //                print (temp_dict["helper_id"] as! String)
+//                    //                print (temp_dict["videoid"] as! String)
+//                    //                print (temp_dict["starttime"] as! Float)
+//                    //                print (temp_dict["endtime"] as! Float)
+//                    //                print (temp_dict["flag"] as! String)
+//                    //                print (temp_dict["lyrictext"] as! String)
+//                    //                print (temp_dict["songname"] as! String)
+//                    //                print (temp_dict["sourceapp"] as! String)
+//                    //                print (temp_dict["preview_url"] as! String)
+//                    //                print (temp_dict["original_track_length"] as! String)
+//                    let post = Post(albumArtImage: (temp_dict["albumArtImage"] as! String) , sourceAppImage: (temp_dict["sourceAppImage"] as! String), typeImage: (temp_dict["typeImage"] as! String) , profileImage: (temp_dict["profileImage"] as! String) , username: (temp_dict["username"] as! String) ,timeAgo: (temp_dict["timeAgo"] as! String), numberoflikes: (temp_dict["numberoflikes"] as! String) ,caption: (temp_dict["caption"] as! String), offset: (temp_dict["offset"] as! TimeInterval), startoffset: (temp_dict["startoffset"] as! TimeInterval), audiolength: (temp_dict["audiolength"] as! Float), paused: (temp_dict["paused"] as! Bool), playing: (temp_dict["playing"] as! Bool), trackid: (temp_dict["trackid"] as! String), helper_id: (temp_dict["helper_id"] as! String), helper_preview_url: (temp_dict["helper_preview_url"] as! String), videoid: (temp_dict["videoid"] as! String), starttime: (temp_dict["starttime"] as! Float) , endtime: (temp_dict["endtime"] as! Float), flag: (temp_dict["flag"] as! String), lyrictext: (temp_dict["lyrictext"] as! String), songname: (temp_dict["songname"] as! String), sourceapp: (temp_dict["sourceapp"] as! String), preview_url: (temp_dict["preview_url"] as! String), albumArtUrl: (temp_dict["albumArtUrl"] as! String), original_track_length: 0, GIF_url: (temp_dict["GIF_url"] as! String))
+//                    posts[Int(absolute_index)!] = post
+//                }
+//                seal.fulfill(posts)
+//            })
             
-            var post1 = Post(albumArtImage: "clapton" , sourceAppImage: "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "20 mins ago"  , numberoflikes: "20 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0, audiolength: 30, paused: false, playing: false, trackid: "14268593", helper_id: "spotify:track:6zC0mpGYwbNTpk9SKwh08f", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Wonderful Tonight", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/efe0ee0512fbaf28307158f871427ec6aec7181c", original_track_length: 219333, GIF_url: "")
+            var post1 = Post(albumArtImage: "clapton" , sourceAppImage: "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "20 mins ago"  , numberoflikes: "20 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0, audiolength: 30, paused: false, playing: false, trackid: "14268593", helper_id: "spotify:track:6zC0mpGYwbNTpk9SKwh08f", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Wonderful Tonight", artistName: "", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/efe0ee0512fbaf28307158f871427ec6aec7181c", original_track_length: 219333, GIF_url: "")
             
-            var post2 = Post(albumArtImage:"doesitfeellike" , sourceAppImage: "Spotify_cropped", typeImage:"icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "2 hours ago"  , numberoflikes: "28 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "spotify:track:3ZakaL0QEt5eeD3N7HbaN1", helper_id: "1311238254", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Does it feel like falling", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/13e4b7ca24993f21e80611fbacc7fcc5cdb7c00a", original_track_length: 234918, GIF_url: "")
+            var post2 = Post(albumArtImage:"doesitfeellike" , sourceAppImage: "Spotify_cropped", typeImage:"icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "2 hours ago"  , numberoflikes: "28 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "spotify:track:3ZakaL0QEt5eeD3N7HbaN1", helper_id: "1311238254", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Does it feel like falling", artistName: "", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/13e4b7ca24993f21e80611fbacc7fcc5cdb7c00a", original_track_length: 234918, GIF_url: "")
             
-            var post3 = Post(albumArtImage: "IMG_4387" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "3 hours ago"  , numberoflikes: "10 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "312319419", helper_id: "spotify:track:2So1k5N6x7iomF1T44gGkb",videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Wonderwall", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/3c4581eabc924b41527625b849f40864f43a5c7d", original_track_length: 286493, GIF_url: "")
+            var post3 = Post(albumArtImage: "IMG_4387" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "3 hours ago"  , numberoflikes: "10 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "312319419", helper_id: "spotify:track:2So1k5N6x7iomF1T44gGkb",helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Wonderwall", artistName: "", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/3c4581eabc924b41527625b849f40864f43a5c7d", original_track_length: 286493, GIF_url: "")
             
-            var post4 = Post(albumArtImage: "clapton", sourceAppImage:  "Youtube_cropped", typeImage: "video" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 0.0, startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "empty", helper_id: "default",videoid: "mQ055hHdxbE", starttime: 120, endtime: 180, flag: "video", lyrictext: "", songname: "John Mayer - New Light", sourceapp: "youtube", preview_url: "", albumArtUrl:  "https://i.ytimg.com/vi/mQ055hHdxbE/hqdefault.jpg", original_track_length: 229000, GIF_url: "")
+            var post4 = Post(albumArtImage: "clapton", sourceAppImage:  "Youtube_cropped", typeImage: "video" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 0.0, startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "empty", helper_id: "default", helper_preview_url: "", videoid: "mQ055hHdxbE", starttime: 120, endtime: 180, flag: "video", lyrictext: "", songname: "John Mayer - New Light", artistName: "", sourceapp: "youtube", preview_url: "", albumArtUrl:  "https://i.ytimg.com/vi/mQ055hHdxbE/hqdefault.jpg", original_track_length: 229000, GIF_url: "")
             
-            var post5 = Post(albumArtImage:  "inthearms" , sourceAppImage: "Spotify_cropped", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "spotify:track:48GBbQiTSlXX5i0cn3iIiJ", helper_id: "1204587476",videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "In the Arms of a Stranger", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/37c5af43b274e8c7e0c98c63b602ef2174ae880d", original_track_length: 212626, GIF_url: "")
+            var post5 = Post(albumArtImage:  "inthearms" , sourceAppImage: "Spotify_cropped", typeImage: "icons8-musical-notes-50" , profileImage: "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 60, paused: false, playing: false, trackid: "spotify:track:48GBbQiTSlXX5i0cn3iIiJ", helper_id: "1204587476", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "In the Arms of a Stranger", artistName: "",sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/37c5af43b274e8c7e0c98c63b602ef2174ae880d", original_track_length: 212626, GIF_url: "")
             
-            var post6 = Post(albumArtImage: "clapton" , sourceAppImage: "apple_logo", typeImage: "icons8-sheet-music-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "1 day ago"  , numberoflikes: "17 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "1224353521", helper_id: "spotify:track:0Zrug5Ry3x6x60lohpEU0C",videoid: "empty", starttime: 0 , endtime: 0, flag: "lyric", lyrictext:
+            var post6 = Post(albumArtImage: "clapton" , sourceAppImage: "apple_logo", typeImage: "icons8-sheet-music-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "1 day ago"  , numberoflikes: "17 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "1224353521", helper_id: "spotify:track:0Zrug5Ry3x6x60lohpEU0C", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "lyric", lyrictext:
                 """
             One last drink to wishful thinkin'\nAnd then another again\nThe bar is getting brighter\nAnd the walls are closin' in\n
 
@@ -340,30 +347,30 @@ struct Post {
             Roll it on home\nRoll it on home\nTomorrow's another chance you won't go it alone\n
             
             If you roll it on home
-            """, songname: "Roll it on home", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/dfa9264c5427a0dfcfdf99a6592d608b42420e84", original_track_length: 204160, GIF_url: "")
+            """, songname: "Roll it on home", artistName: "", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/dfa9264c5427a0dfcfdf99a6592d608b42420e84", original_track_length: 204160, GIF_url: "")
             
-            var post7 = Post(albumArtImage:  "queen2" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "12 hours ago"  , numberoflikes: "22 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "932648605", helper_id: "spotify:track:7hQJA50XrCWABAu5v6QZ4i", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Dont stop me now", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/2e82bac8c64908ef1504e8391362c030b0fdad2e", original_track_length: 209391, GIF_url: "")
+            var post7 = Post(albumArtImage:  "queen2" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "12 hours ago"  , numberoflikes: "22 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60, paused: false, playing: false, trackid: "932648605", helper_id: "spotify:track:7hQJA50XrCWABAu5v6QZ4i", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Dont stop me now", artistName: "", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/2e82bac8c64908ef1504e8391362c030b0fdad2e", original_track_length: 209391, GIF_url: "")
             
-            var post8 = Post(albumArtImage:  "misbehaving1" , sourceAppImage:  "Spotify_cropped", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "22 hours ago"  , numberoflikes: "15 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60,paused: false, playing: false, trackid: "spotify:track:04EDShdWyBr2aJPqjFjKAQ", helper_id: "1282343124",videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Misbehaving", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/191682b2b8e9bd9a140bdaa1db15e4126808cf72", original_track_length: 228855, GIF_url: "")
+            var post8 = Post(albumArtImage:  "misbehaving1" , sourceAppImage:  "Spotify_cropped", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "22 hours ago"  , numberoflikes: "15 likes" ,caption: "Caption...", offset: 10.0,startoffset: 0.0, audiolength: 60,paused: false, playing: false, trackid: "spotify:track:04EDShdWyBr2aJPqjFjKAQ", helper_id: "1282343124",helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Misbehaving",artistName: "", sourceapp: "spotify", preview_url: "", albumArtUrl: "https://i.scdn.co/image/191682b2b8e9bd9a140bdaa1db15e4126808cf72", original_track_length: 228855, GIF_url: "")
             
-            var post9 = Post(albumArtImage:  "clapton", sourceAppImage:  "Youtube_cropped", typeImage: "video" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 0.0, startoffset: 0.0, audiolength: 110, paused: false, playing: false, trackid: "empty", helper_id: "default", videoid: "o1VvgO7RNXg", starttime: 210 , endtime: 320, flag: "video", lyrictext: "", songname: "Bewajah - Coke Studio", sourceapp: "youtube", preview_url: "", albumArtUrl: "https://i.ytimg.com/vi/o1VvgO7RNXg/hqdefault.jpg", original_track_length: 362000, GIF_url: "")
+            var post9 = Post(albumArtImage:  "clapton", sourceAppImage:  "Youtube_cropped", typeImage: "video" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "6 hours ago"  , numberoflikes: "13 likes" ,caption: "Caption...", offset: 0.0, startoffset: 0.0, audiolength: 110, paused: false, playing: false, trackid: "empty", helper_id: "default", helper_preview_url: "", videoid: "o1VvgO7RNXg", starttime: 210 , endtime: 320, flag: "video", lyrictext: "", songname: "Bewajah - Coke Studio", artistName: "", sourceapp: "youtube", preview_url: "", albumArtUrl: "https://i.ytimg.com/vi/o1VvgO7RNXg/hqdefault.jpg", original_track_length: 362000, GIF_url: "")
             
-            var post10 = Post(albumArtImage:  "Screen Shot 2017-10-24 at 7.30.42 PM" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "1 day ago"  , numberoflikes: "17 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 40, paused: false, playing: false, trackid: "1224353520", helper_id: "spotify:track:5KsLlcmWDoHUoJFzRw14wD", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Rosie", sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/dfa9264c5427a0dfcfdf99a6592d608b42420e84", original_track_length: 242747, GIF_url: "")
+            var post10 = Post(albumArtImage:  "Screen Shot 2017-10-24 at 7.30.42 PM" , sourceAppImage:  "apple_logo", typeImage: "icons8-musical-notes-50" , profileImage:  "FullSizeRender 10-2" , username: "Viraj" ,timeAgo: "1 day ago"  , numberoflikes: "17 likes" ,caption: "Caption...", offset: 10.0, startoffset: 0.0,audiolength: 40, paused: false, playing: false, trackid: "1224353520", helper_id: "spotify:track:5KsLlcmWDoHUoJFzRw14wD", helper_preview_url: "", videoid: "empty", starttime: 0 , endtime: 0, flag: "audio", lyrictext: "", songname: "Rosie", artistName: "",sourceapp: "apple", preview_url: "", albumArtUrl: "https://i.scdn.co/image/dfa9264c5427a0dfcfdf99a6592d608b42420e84", original_track_length: 242747, GIF_url: "")
             
-//                    posts.append(post1)
-//                    posts.append(post2)
-//                    posts.append(post3)
-//                    posts.append(post4)
-//                    posts.append(post5)
-//                    posts.append(post6)
-//                    posts.append(post7)
-//                    posts.append(post8)
-//                    posts.append(post9)
-//                    posts.append(post10)
-//
-//                    print ("after appending")
-//                    //print (posts)
-//                    seal.fulfill(posts)
+                    posts.append(post1)
+                    posts.append(post2)
+                    posts.append(post3)
+                    posts.append(post4)
+                    posts.append(post5)
+                    posts.append(post6)
+                    posts.append(post7)
+                    posts.append(post8)
+                    posts.append(post9)
+                    posts.append(post10)
+
+                    print ("after appending")
+                    //print (posts)
+                    seal.fulfill(posts)
         }
         
         
@@ -389,6 +396,7 @@ struct Post {
                 post_dict.updateValue(post_list![i].flag, forKey: "flag")
                 post_dict.updateValue(post_list![i].trackid, forKey: "trackid")
                 post_dict.updateValue(post_list![i].helper_id, forKey: "helper_id")
+                post_dict.updateValue(post_list![i].helper_preview_url, forKey: "helper_preview_url")
                 post_dict.updateValue(post_list![i].lyrictext, forKey: "lyrictext")
                 post_dict.updateValue(post_list![i].numberoflikes, forKey: "numberoflikes")
                 post_dict.updateValue(post_list![i].offset, forKey: "offset")
@@ -397,6 +405,7 @@ struct Post {
                 post_dict.updateValue(post_list![i].preview_url, forKey: "preview_url")
                 post_dict.updateValue(post_list![i].profileImage, forKey: "profileImage")
                 post_dict.updateValue(post_list![i].songname, forKey: "songname")
+                post_dict.updateValue(post_list![i].artistName, forKey: "artistName")
                 post_dict.updateValue(post_list![i].sourceapp, forKey: "sourceapp")
                 post_dict.updateValue(post_list![i].sourceAppImage, forKey: "sourceAppImage")
                 post_dict.updateValue(post_list![i].startoffset, forKey: "startoffset")
@@ -440,6 +449,7 @@ struct Post {
         post_dict.updateValue(new_post.flag, forKey: "flag")
         post_dict.updateValue(new_post.trackid, forKey: "trackid")
         post_dict.updateValue(new_post.helper_id, forKey: "helper_id")
+        post_dict.updateValue(new_post.helper_preview_url, forKey: "helper_preview_url")
         post_dict.updateValue(new_post.lyrictext, forKey: "lyrictext")
         post_dict.updateValue(new_post.numberoflikes, forKey: "numberoflikes")
         post_dict.updateValue(new_post.offset, forKey: "offset")
@@ -448,6 +458,7 @@ struct Post {
         post_dict.updateValue(new_post.preview_url, forKey: "preview_url")
         post_dict.updateValue(new_post.profileImage, forKey: "profileImage")
         post_dict.updateValue(new_post.songname, forKey: "songname")
+        post_dict.updateValue(new_post.artistName, forKey: "artistName")
         post_dict.updateValue(new_post.sourceapp, forKey: "sourceapp")
         post_dict.updateValue(new_post.sourceAppImage, forKey: "sourceAppImage")
         post_dict.updateValue(new_post.startoffset, forKey: "startoffset")
