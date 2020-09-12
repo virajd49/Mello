@@ -129,7 +129,7 @@ Newsfeed that you can scroll through to browse and listen to song recommendation
 
 A player that you can expand or minimize to control and keep track of playback.
 
-<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_miniplayer.png" width="400" height="200">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_expand_player.PNG" width="170" height="300">
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_miniplayer.png" width="400" height="150">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_expand_player.PNG" width="170" height="300">
 
 Add songs that you like to your native streaming library directly from the app as you browse.
 
@@ -141,8 +141,28 @@ A lyric post:
 
 Uploading a post:
 
-On the upload landing page - the app presents your recently played tracks and currently playing track from your native streaming service.
+On the upload landing page - the app presents your recently played tracks and currently playing track from your native streaming service. You can select any one of your linked streaming services to search a song/video from.
 
 <img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_upload_home.png" width="180" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_upload_recently_played.png" width="180" height="300">
+
+You can select any one of your linked streaming services to search a song/video from.
+
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_upload_spotify.png" width="180" height="300">
+
+Once a song/video is selected the user can pick the 30 sec clip that should be uploaded as the post.
+
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_upload_ytube.png" width="180" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_upload_song_select.png" width="180" height="300">
+
+The user can then choose to have a text caption or add a GIF (currently using GIPHY APIs) to the post.
+
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_upload_express.png" width="180" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_search_gif.png" width="180" height="300">
+
+The new post can then be uploaded to your profile page or as shown here - to the recommendation feed.
+
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_upload_last.png" width="180" height="300">
+
+
+
+
 
 
