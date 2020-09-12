@@ -1,4 +1,7 @@
 # Mello #
+
+A music discovery and sharing app.
+
 Heard a new song that’s got you hooked ? Found a new cover version on Youtube that blew you mind ? Absolutely crushed it at the gym to your 
 favorite workout track ? Survived your commute to work thanks to the cool new podcast you’re listening to ? Freaking out cause your favorite 
 artist just dropped a hot new track ? Late for class cause your jam came on and you spent 10 extra minutes in the shower singing your lungs 
