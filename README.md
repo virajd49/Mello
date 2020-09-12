@@ -13,13 +13,13 @@ Play all the shared content as a playlist in non-browsing mode.
 
 Primary goals:
 
--Better song recommendations.
--Have a conversation about music.
--Follow your friends, see what they are listening to. 
--Discover new music and artists.
--Find an audience to what you have to share as a Curator of music content – playlists, news, insight into music.
--Connect with friends and other people you follow on the feelings that music brings out in you and day-to-day activities that would just not be the same without music.
--Have full access to your entire native streaming library and playlists.
+1.Better song recommendations.
+2.Have a conversation about music.
+3.Follow your friends, see what they are listening to. 
+4.Discover new music and artists.
+5.Find an audience to what you have to share as a Curator of music content – playlists, news, insight into music.
+6.Connect with friends and other people you follow on the feelings that music brings out in you and day-to-day activities that would just not be the same without music.
+7.Have full access to your entire native streaming library and playlists.
 
 Follow and unfollow people.
 Have one news feed where you see everything posted by your friends.
@@ -60,20 +60,20 @@ There will be a profile page where :
 
 There will be an explore section – where you can search for content by :
 
--	Genre
--	Live or cover 
--	Activity
--	Emotion  - maybe v2.
--	By Heroes - search for content shared as Hero content by users on their profile - maybe v2.
--	By Artists.
--	Top trending.
+1. Genre
+2. Live or cover 
+3. Activity
+4. Emotion  - maybe v2.
+5. By Heroes - search for content shared as Hero content by users on their profile - maybe v2.
+6. By Artists.
+7. Top trending.
 
 Become a Curator:
 For those users who actively search for new music, have a large knowledge base of artists, songs and performances and who like to recommend and share 
 music – we have the role of ‘Curators’.
 
--	They create profiles like any other user. In the profile description the classify themselves into genres and sub categories of music using hashtags.
--	Other users can follow them and consume the content they share – which can be playlists, individual songs, artist stories, etc.
+1.They create profiles like any other user. In the profile description the classify themselves into genres and sub categories of music using hashtags.
+2.Other users can follow them and consume the content they share – which can be playlists, individual songs, artist stories, etc.
 
 
 Other version 1 features :
