@@ -124,10 +124,25 @@ Prototype screenshots:
 
 Newsfeed that you can scroll through to browse and listen to song recommendations from people you follow.
 
-<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_1.png" width="150" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_2.png" width="150" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_3.png" width="150" height="300">
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_1.png" width="160" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_2.png" width="160" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_3.png" width="160" height="300">
 
 
 A player that you can expand or minimize to control and keep track of playback.
 
-<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_miniplayer.png" width="400" height="200">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_expand_player.PNG" width="160" height="300">
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_miniplayer.png" width="400" height="200">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_expand_player.PNG" width="170" height="300">
+
+Add songs that you like to your native streaming library directly from the app as you browse.
+
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_library_add.png" width="160" height="300">
+
+A lyric post:
+
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_lyric.png" width="160" height="300">
+
+Uploading a post:
+
+On the upload landing page - the app presents your recently played tracks and currently playing track from your native streaming service.
+
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_upload_home.png" width="180" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_upload_recently_played.png" width="180" height="300">
+
 
