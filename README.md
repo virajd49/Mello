@@ -122,4 +122,6 @@ lifestyle and emotions validated in a way.
 
 Prototype screenshots:
 
-<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_1.png" width="150" height="300">
+Newsfeed that you can scroll through to browse and listen to song recommendations from people you follow.
+
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_1.png" width="150" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_2.png" width="150" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_3.png" width="150" height="300">
