@@ -120,5 +120,8 @@ today. When users get likes for their posts, they not only have their music tast
 lifestyle and emotions validated in a way.
 
 
+Prototype screenshots:
 
+![Image of Yaktocat]
+(https://github.com/virajd49/Mello/mello_scroll_1.png)
 
