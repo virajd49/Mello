@@ -122,6 +122,4 @@ lifestyle and emotions validated in a way.
 
 Prototype screenshots:
 
-![Image of Yaktocat]
-(https://github.com/virajd49/Mello/mello_scroll_1.png)
-
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_1.png" width="150" height="300">
