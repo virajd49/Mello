@@ -131,5 +131,5 @@ A player that you can expand or minimize to control and keep track of playback.
 
 <img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_miniplayer.png" width="400" height="200">
 
-<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_1.png" width="150" height="300">
+<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_expand_player.PNG" width="160" height="300">
 
