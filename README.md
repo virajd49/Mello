@@ -120,9 +120,9 @@ today. When users get likes for their posts, they not only have their music tast
 lifestyle and emotions validated in a way.
 
 
-Prototype screenshots:
+Early prototype basic feature screenshots:
 
-Newsfeed that you can scroll through to browse and listen to song recommendations from people you follow.
+A Newsfeed that you can scroll through to browse and listen to song recommendations from people you follow.
 
 <img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_1.png" width="160" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_2.png" width="160" height="300">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/virajd49/Mello/blob/Branch_2/mello_scroll_3.png" width="160" height="300">
 
